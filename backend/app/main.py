@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app import auth, models  # noqa: F401  (models registra as tabelas)
 from app.config import settings
 from app.db import Base, engine
+from app.study import router as study_router
 
 
 @asynccontextmanager
@@ -23,6 +24,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     app.include_router(auth.router)
+    app.include_router(study_router.router)
 
     @app.get("/health")
     def health():
