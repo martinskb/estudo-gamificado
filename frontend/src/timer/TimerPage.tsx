@@ -1,5 +1,5 @@
 import { type FormEvent, useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { post } from '../api/client'
 import type { Conclusion } from '../api/types'
 import { Celebration } from './Celebration'
@@ -18,6 +18,7 @@ function clock(total: number): string {
 
 export function TimerPage() {
   const [params] = useSearchParams()
+  const navigate = useNavigate()
   const [timer, setTimerState] = useState<TimerState | null>(() => loadTimer())
   const [now, setNow] = useState(() => Date.now())
   const [topic, setTopic] = useState(params.get('topic') ?? '')
@@ -66,6 +67,8 @@ export function TimerPage() {
       else sessionStorage.removeItem('timer:back')
       setNow(Date.now())
       setTimer(t)
+      // Veio de uma trilha: volta para lá, onde está a aula. O cronômetro segue na faixa de baixo.
+      if (trailParam) navigate(`/trilha/${trailParam}`)
     }
     return (
       <main className="shell">

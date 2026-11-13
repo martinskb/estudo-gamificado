@@ -109,3 +109,19 @@ class Exercise(Base):
     options: Mapped[list] = mapped_column(JSON)
     correct_index: Mapped[int]
     explanation: Mapped[str] = mapped_column(String(1000), default="")
+
+
+class UserTrail(Base):
+    __tablename__ = "user_trails"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    trail_id: Mapped[int] = mapped_column(ForeignKey("trails.id"), primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(default=utcnow)
+
+
+class PartDone(Base):
+    __tablename__ = "parts_done"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    part_id: Mapped[int] = mapped_column(ForeignKey("parts.id"), primary_key=True)
+    done_at: Mapped[datetime] = mapped_column(default=utcnow)

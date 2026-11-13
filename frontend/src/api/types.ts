@@ -42,3 +42,24 @@ export type Progress = {
   minutes_by_topic: { topic: string; minutes: number }[]
   trails: TrailSummary[]
 }
+
+export type TrailVideo = { youtube_id: string; title: string; channel: string; duration_s: number }
+
+export type TrailPart = {
+  id: number
+  order: number
+  title: string
+  done: boolean
+  videos: TrailVideo[]
+}
+
+export type Trail = {
+  id: number
+  title: string
+  status: 'generating' | 'ready' | 'failed'
+  step: string
+  error: 'quota' | 'ai' | 'erro' | null
+  parts: TrailPart[]
+}
+
+export type CatalogItem = { trail_id: number; title: string }

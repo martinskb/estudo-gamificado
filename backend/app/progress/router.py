@@ -9,6 +9,7 @@ from app.db import get_db
 from app.models import StudySession, User
 from app.progress.streak import compute_streak, week_days_count, week_start
 from app.study.rules import today_belem
+from app.trails.router import user_trails
 
 router = APIRouter()
 
@@ -17,10 +18,6 @@ def studied_days(db: Session, user_id: int) -> set[date]:
     return set(
         db.scalars(select(StudySession.day).where(StudySession.user_id == user_id).distinct())
     )
-
-
-def user_trails(db: Session, user_id: int) -> list[dict]:
-    return []
 
 
 @router.get("/progress")
