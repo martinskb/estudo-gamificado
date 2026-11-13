@@ -6,6 +6,7 @@ import { ProgressPage } from './progress/ProgressPage'
 import { MiniTimer } from './timer/MiniTimer'
 import { TimerPage } from './timer/TimerPage'
 import { NewTrailPage } from './trails/NewTrailPage'
+import { QuizPage } from './trails/QuizPage'
 import { TrailPage } from './trails/TrailPage'
 
 function Private() {
@@ -23,15 +24,6 @@ function Private() {
   )
 }
 
-function Placeholder({ title }: { title: string }) {
-  return (
-    <main className="shell">
-      <h1>{title}</h1>
-      <p className="muted">Em construção.</p>
-    </main>
-  )
-}
-
 export default function App() {
   return (
     <Routes>
@@ -42,7 +34,7 @@ export default function App() {
         <Route path="/progresso" element={<ProgressPage />} />
         <Route path="/aprender" element={<NewTrailPage />} />
         <Route path="/trilha/:id" element={<TrailPage />} />
-        <Route path="/trilha/:id/parte/:partId/exercicios" element={<Placeholder title="Exercícios" />} />
+        <Route path="/trilha/:id/parte/:partId/exercicios" element={<QuizPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

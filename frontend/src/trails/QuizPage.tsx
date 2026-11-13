@@ -1,0 +1,129 @@
+import { useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
+import { post } from '../api/client'
+import type { AnswerResult, QuizQuestion } from '../api/types'
+import { useApi } from '../api/useApi'
+
+const LETTERS = ['A', 'B', 'C', 'D']
+
+export function QuizPage() {
+  const { id, partId } = useParams()
+  const { data: questions, error, reload } = useApi<QuizQuestion[]>(`/parts/${partId}/quiz`)
+  const [index, setIndex] = useState(0)
+  const [choice, setChoice] = useState<number | null>(null)
+  const [result, setResult] = useState<AnswerResult | null>(null)
+  const [hits, setHits] = useState(0)
+  const [busy, setBusy] = useState(false)
+  const [answerError, setAnswerError] = useState('')
+  const back = `/trilha/${id}`
+
+  const aiLabel = <p className="muted small">Gerado por IA — confira no seu material.</p>
+
+  if (error) {
+    return (
+      <main className="shell">
+        <h1>Exercícios</h1>
+        <div className="notice warn stack">
+          <p>{error}</p>
+          <button className="btn" onClick={reload}>Tentar de novo</button>
+        </div>
+        <Link className="btn ghost block" to={back}>Voltar à trilha</Link>
+      </main>
+    )
+  }
+  if (!questions) return <main className="shell"><h1>Exercícios</h1><p className="muted">Carregando…</p></main>
+
+  if (questions.length === 0) {
+    return (
+      <main className="shell">
+        <h1>Exercícios</h1>
+        <p className="muted">Ainda não há exercícios para esta parte.</p>
+        <Link className="btn block" to={back}>Voltar à trilha</Link>
+      </main>
+    )
+  }
+
+  if (index >= questions.length) {
+    return (
+      <main className="shell center" style={{ justifyContent: 'center' }}>
+        <div className="stack center pop">
+          <p className="muted">Fixação concluída</p>
+          <div className="big-number">{hits}<span className="muted"> / {questions.length}</span></div>
+          <p>{hits === questions.length ? 'Acertou tudo!' : 'Vale rever o que errou na aula.'}</p>
+          <p className="muted small">Exercícios não valem pontos: é só para fixar.</p>
+        </div>
+        <Link className="btn primary block" to={back}>Voltar à trilha</Link>
+      </main>
+    )
+  }
+
+  const q = questions[index]
+
+  async function answer(option: number) {
+    if (busy || result) return
+    setChoice(option)
+    setBusy(true)
+    setAnswerError('')
+    try {
+      const r = await post<AnswerResult>(`/exercises/${q.id}/answer`, { choice: option })
+      setResult(r)
+      if (r.correct) setHits((h) => h + 1)
+    } catch (err) {
+      setChoice(null)
+      setAnswerError(err instanceof Error ? err.message : 'Não deu para enviar a resposta.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  function next() {
+    setIndex((i) => i + 1)
+    setChoice(null)
+    setResult(null)
+  }
+
+  return (
+    <main className="shell">
+      <div className="row spread">
+        <h1>Exercícios</h1>
+        <span className="muted">{index + 1} de {questions.length}</span>
+      </div>
+      <div className="bar" aria-hidden><span style={{ width: `${(index / questions.length) * 100}%` }} /></div>
+
+      <section className="card stack">
+        <p style={{ fontWeight: 600 }}>{q.question}</p>
+        <div className="stack" role="group" aria-label="Alternativas">
+          {q.options.map((option, i) => {
+            const state = !result ? '' : i === result.correct_index ? 'right' : i === choice ? 'wrong' : ''
+            return (
+              <button
+                key={i}
+                className={`btn block option ${state}`}
+                disabled={busy || result !== null}
+                onClick={() => answer(i)}
+              >
+                <span className="option-letter">{LETTERS[i]}</span>
+                <span className="grow">{option}</span>
+              </button>
+            )
+          })}
+        </div>
+        {answerError && <p className="error" role="alert">{answerError}</p>}
+        {result && (
+          <div className={`notice ${result.correct ? '' : 'warn'} stack`} role="status">
+            <strong>{result.correct ? 'Certo!' : `Não foi dessa vez. A resposta é a ${LETTERS[result.correct_index]}.`}</strong>
+            {result.explanation && <span>{result.explanation}</span>}
+          </div>
+        )}
+        {aiLabel}
+      </section>
+
+      {result && (
+        <button className="btn primary block" onClick={next}>
+          {index + 1 === questions.length ? 'Ver resultado' : 'Próxima'}
+        </button>
+      )}
+      <Link className="btn ghost block" to={back}>Sair dos exercícios</Link>
+    </main>
+  )
+}

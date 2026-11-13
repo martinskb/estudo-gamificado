@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app import auth, models  # noqa: F401  (models registra as tabelas)
 from app.config import settings
 from app.db import Base, SessionLocal, engine
+from app.exercises import router as exercises_router
 from app.progress import router as progress_router
 from app.study import router as study_router
 from app.trails import router as trails_router
@@ -32,6 +33,7 @@ def create_app() -> FastAPI:
     app.include_router(study_router.router)
     app.include_router(progress_router.router)
     app.include_router(trails_router.router)
+    app.include_router(exercises_router.router)
 
     @app.get("/health")
     def health():

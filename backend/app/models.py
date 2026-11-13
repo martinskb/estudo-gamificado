@@ -125,3 +125,14 @@ class PartDone(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
     part_id: Mapped[int] = mapped_column(ForeignKey("parts.id"), primary_key=True)
     done_at: Mapped[datetime] = mapped_column(default=utcnow)
+
+
+class Attempt(Base):
+    __tablename__ = "attempts"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    exercise_id: Mapped[int] = mapped_column(ForeignKey("exercises.id"), index=True)
+    choice: Mapped[int]
+    correct: Mapped[bool]
+    created_at: Mapped[datetime] = mapped_column(default=utcnow)

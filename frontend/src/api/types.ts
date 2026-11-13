@@ -63,3 +63,6 @@ export type Trail = {
 }
 
 export type CatalogItem = { trail_id: number; title: string }
+
+export type QuizQuestion = { id: number; question: string; options: string[]; source: 'topic' | 'video' }
+export type AnswerResult = { correct: boolean; correct_index: number; explanation: string }

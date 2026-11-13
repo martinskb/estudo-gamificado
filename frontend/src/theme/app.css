@@ -170,3 +170,9 @@ a.card { color: inherit; text-decoration: none; display: block; }
   font-variant-numeric: tabular-nums;
 }
 .mini-timer .grow { max-width: 480px; }
+
+.option { justify-content: flex-start; text-align: left; height: auto; padding: var(--space-3) var(--space-4); font-weight: 500; }
+.option:disabled { opacity: 1; }
+.option-letter { font-weight: 800; color: var(--muted); width: 1.2em; flex: none; }
+.option.right { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 16%, var(--surface)); }
+.option.wrong { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 14%, var(--surface)); }
