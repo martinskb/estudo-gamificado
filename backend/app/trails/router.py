@@ -1,0 +1,124 @@
+from typing import Literal
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from pydantic import BaseModel, Field, field_validator
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session, sessionmaker
+
+from app.ai.client import AIClient
+from app.ai.deps import get_ai, get_videos
+from app.ai.youtube import VideoSearch
+from app.auth import current_user
+from app.db import get_db, get_session_factory, utcnow
+from app.models import Part, Trail, User, Video
+from app.trails.catalog import match, normalize
+from app.trails.generate import STALE_AFTER, analyze_videos, generate_trail
+
+router = APIRouter()
+
+
+class TrailIn(BaseModel):
+    topic: str = Field(max_length=120)
+    level: Literal["vestibular", "superior", "livre"] = "livre"
+
+    @field_validator("topic")
+    @classmethod
+    def clean_topic(cls, value: str) -> str:
+        value = " ".join(value.split())
+        if len(value) < 3:
+            raise ValueError("Escreva o tema com pelo menos 3 letras")
+        return value
+
+
+def run_generation(trail_id: int, ai: AIClient, yt: VideoSearch, factory: sessionmaker) -> None:
+    generate_trail(trail_id, ai, yt, factory)
+    with factory() as db:
+        ready = db.get(Trail, trail_id).status == "ready"
+    if ready:
+        analyze_videos(trail_id, ai, factory)
+
+
+@router.get("/catalog")
+def catalog(q: str = "", user: User = Depends(current_user), db: Session = Depends(get_db)):
+    ready = select(Trail.id, Trail.title).where(Trail.status == "ready")
+    if not q.strip():
+        rows = db.execute(ready.where(Trail.is_catalog).order_by(Trail.title).limit(20)).all()
+        return [{"trail_id": i, "title": t} for i, t in rows]
+    titles = dict(db.execute(ready).all())
+    return [{"trail_id": i, "title": titles[i]} for i in match(q, titles)]
+
+
+@router.post("/trails")
+def create_trail(
+    body: TrailIn,
+    background: BackgroundTasks,
+    user: User = Depends(current_user),
+    db: Session = Depends(get_db),
+    ai: AIClient = Depends(get_ai),
+    yt: VideoSearch = Depends(get_videos),
+    factory: sessionmaker = Depends(get_session_factory),
+):
+    norm = normalize(body.topic)
+    by_norm = select(Trail).where(Trail.topic_norm == norm)
+    trail = db.scalar(by_norm)
+    if trail is None:
+        trail = Trail(title=body.topic, topic_norm=norm, level=body.level)
+        db.add(trail)
+        try:
+            db.commit()
+        except IntegrityError:  # outra pessoa pediu o mesmo tema ao mesmo tempo
+            db.rollback()
+            trail = db.scalar(by_norm)
+            return {"trail_id": trail.id, "status": trail.status}
+    else:
+        stale = trail.status == "generating" and trail.started_at < utcnow() - STALE_AFTER
+        if trail.status != "failed" and not stale:
+            return {"trail_id": trail.id, "status": trail.status}
+        trail.status, trail.step, trail.error, trail.started_at = "generating", "", None, utcnow()
+        db.commit()
+
+    background.add_task(run_generation, trail.id, ai, yt, factory)
+    return {"trail_id": trail.id, "status": "generating"}
+
+
+def trail_detail(db: Session, trail: Trail) -> dict:
+    parts = db.scalars(select(Part).where(Part.trail_id == trail.id).order_by(Part.order)).all()
+    videos = db.scalars(
+        select(Video)
+        .where(Video.part_id.in_([p.id for p in parts]))
+        .order_by(Video.position, Video.id)
+    ).all()
+    return {
+        "id": trail.id,
+        "title": trail.title,
+        "status": trail.status,
+        "step": trail.step,
+        "error": trail.error,
+        "parts": [
+            {
+                "id": p.id,
+                "order": p.order,
+                "title": p.title,
+                "videos": [
+                    {
+                        "youtube_id": v.youtube_id,
+                        "title": v.title,
+                        "channel": v.channel,
+                        "duration_s": v.duration_s,
+                    }
+                    for v in videos
+                    if v.part_id == p.id
+                ],
+            }
+            for p in parts
+        ],
+    }
+
+
+@router.get("/trails/{trail_id}")
+def get_trail(trail_id: int, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    trail = db.get(Trail, trail_id)
+    if trail is None:
+        raise HTTPException(404, "Trilha não encontrada")
+    return trail_detail(db, trail)

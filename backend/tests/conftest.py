@@ -4,8 +4,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from app.ai.deps import get_ai, get_videos
 from app.db import Base, get_db, get_session_factory
 from app.main import create_app
+from tests.fakes import FakeAI, FakeVideos
 
 
 @pytest.fixture
@@ -18,8 +20,20 @@ def session_factory():
 
 
 @pytest.fixture
-def app(session_factory):
+def fake_ai():
+    return FakeAI()
+
+
+@pytest.fixture
+def fake_videos():
+    return FakeVideos()
+
+
+@pytest.fixture
+def app(session_factory, fake_ai, fake_videos):
     app = create_app()
+    app.dependency_overrides[get_ai] = lambda: fake_ai
+    app.dependency_overrides[get_videos] = lambda: fake_videos
 
     def _get_db():
         with session_factory() as db:

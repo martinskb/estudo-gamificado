@@ -5,14 +5,18 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app import auth, models  # noqa: F401  (models registra as tabelas)
 from app.config import settings
-from app.db import Base, engine
+from app.db import Base, SessionLocal, engine
 from app.progress import router as progress_router
 from app.study import router as study_router
+from app.trails import router as trails_router
+from app.trails.generate import fail_stale_generating
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(engine)
+    with SessionLocal() as db:
+        fail_stale_generating(db)
     yield
 
 
@@ -27,6 +31,7 @@ def create_app() -> FastAPI:
     app.include_router(auth.router)
     app.include_router(study_router.router)
     app.include_router(progress_router.router)
+    app.include_router(trails_router.router)
 
     @app.get("/health")
     def health():

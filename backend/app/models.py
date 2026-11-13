@@ -59,3 +59,53 @@ class StudySession(Base):
     day: Mapped[date] = mapped_column(index=True)
     streak_before: Mapped[int] = mapped_column(default=0)
     streak_after: Mapped[int] = mapped_column(default=0)
+
+
+class Trail(Base):
+    __tablename__ = "trails"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(120))
+    topic_norm: Mapped[str] = mapped_column(String(120), unique=True, index=True)
+    level: Mapped[str] = mapped_column(String(20), default="livre")
+    status: Mapped[str] = mapped_column(String(12), default="generating", index=True)
+    step: Mapped[str] = mapped_column(String(40), default="")
+    error: Mapped[str | None] = mapped_column(String(20), default=None)
+    is_catalog: Mapped[bool] = mapped_column(default=False)
+    started_at: Mapped[datetime] = mapped_column(default=utcnow)
+    created_at: Mapped[datetime] = mapped_column(default=utcnow)
+
+
+class Part(Base):
+    __tablename__ = "parts"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    trail_id: Mapped[int] = mapped_column(ForeignKey("trails.id"), index=True)
+    order: Mapped[int]
+    title: Mapped[str] = mapped_column(String(120))
+
+
+class Video(Base):
+    __tablename__ = "videos"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    part_id: Mapped[int] = mapped_column(ForeignKey("parts.id"), index=True)
+    position: Mapped[int] = mapped_column(default=0)
+    youtube_id: Mapped[str] = mapped_column(String(20))
+    title: Mapped[str] = mapped_column(String(200))
+    channel: Mapped[str] = mapped_column(String(120))
+    duration_s: Mapped[int] = mapped_column(default=0)
+    analysis: Mapped[str] = mapped_column(String(10), default="pending")
+
+
+class Exercise(Base):
+    __tablename__ = "exercises"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    part_id: Mapped[int] = mapped_column(ForeignKey("parts.id"), index=True)
+    video_id: Mapped[int | None] = mapped_column(ForeignKey("videos.id"), default=None)
+    source: Mapped[str] = mapped_column(String(10), default="topic")
+    question: Mapped[str] = mapped_column(String(1000))
+    options: Mapped[list] = mapped_column(JSON)
+    correct_index: Mapped[int]
+    explanation: Mapped[str] = mapped_column(String(1000), default="")
