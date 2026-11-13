@@ -1,0 +1,12 @@
+vestibular|Funções do 1º grau
+vestibular|Leis de Newton
+vestibular|Redação ENEM: estrutura dissertativa
+vestibular|Estequiometria
+vestibular|Brasil República
+superior|Limites e derivadas
+superior|Lógica de programação
+superior|Estruturas de dados: listas e pilhas
+superior|Banco de dados: SQL básico
+superior|Estatística descritiva
+livre|Inglês: present perfect
+livre|Excel básico
