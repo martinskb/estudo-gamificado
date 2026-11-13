@@ -1,6 +1,8 @@
 import { NavLink, Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { getToken } from './auth/auth'
 import { LoginPage } from './auth/LoginPage'
+import { HomePage } from './home/HomePage'
+import { ProgressPage } from './progress/ProgressPage'
 import { TimerPage } from './timer/TimerPage'
 
 function Private() {
@@ -31,9 +33,10 @@ export default function App() {
     <Routes>
       <Route path="/entrar" element={<LoginPage />} />
       <Route element={<Private />}>
-        <Route path="/" element={<Placeholder title="Início" />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/estudar" element={<TimerPage />} />
-        <Route path="/progresso" element={<Placeholder title="Progresso" />} />
+        <Route path="/progresso" element={<ProgressPage />} />
+        <Route path="/aprender" element={<Placeholder title="Quero aprender…" />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
