@@ -1,0 +1,44 @@
+/* Tema neutro provisório. A identidade (nome, cores, logo) entra aqui depois:
+   trocar estes valores muda o app inteiro. */
+:root {
+  --bg: #f6f6f4;
+  --surface: #ffffff;
+  --surface-2: #eeeeea;
+  --text: #1c1c1a;
+  --muted: #6b6b66;
+  --border: #dcdcd6;
+  --accent: #2f6f4f;
+  --accent-text: #ffffff;
+  --accent-soft: #dcebe2;
+  --ok: #2f7d46;
+  --warn: #c98a1b;
+  --danger: #b3392f;
+
+  --radius: 14px;
+  --radius-sm: 8px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141513;
+    --surface: #1e201d;
+    --surface-2: #282a26;
+    --text: #ecece6;
+    --muted: #a0a29a;
+    --border: #33362f;
+    --accent: #6fbf94;
+    --accent-text: #0f1a14;
+    --accent-soft: #24392d;
+    --ok: #6fbf94;
+    --warn: #e0ab4a;
+    --danger: #e27a70;
+  }
+}
