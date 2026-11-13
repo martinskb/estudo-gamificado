@@ -66,3 +66,8 @@ export type CatalogItem = { trail_id: number; title: string }
 
 export type QuizQuestion = { id: number; question: string; options: string[]; source: 'topic' | 'video' }
 export type AnswerResult = { correct: boolean; correct_index: number; explanation: string }
+
+export type Ranking = {
+  top: { nickname: string; week_points: number; streak: number }[]
+  me: { position: number; week_points: number } | null
+}

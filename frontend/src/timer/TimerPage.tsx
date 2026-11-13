@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { post } from '../api/client'
 import type { Conclusion } from '../api/types'
+import { AssistantPanel } from '../assistant/AssistantPanel'
 import { Celebration } from './Celebration'
 import {
   type TimerState, activeSeconds, loadTimer, pause, resume, saveTimer, startTimer,
@@ -207,6 +208,7 @@ export function TimerPage() {
           Descartar
         </button>
       </div>
+      <div style={{ width: '100%' }}><AssistantPanel topic={timer.topic} /></div>
       <Link className="muted small" to="/">Voltar ao início (o cronômetro continua)</Link>
     </main>
   )

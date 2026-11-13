@@ -176,3 +176,5 @@ a.card { color: inherit; text-decoration: none; display: block; }
 .option-letter { font-weight: 800; color: var(--muted); width: 1.2em; flex: none; }
 .option.right { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 16%, var(--surface)); }
 .option.wrong { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 14%, var(--surface)); }
+
+.card.list { padding: var(--space-4); }

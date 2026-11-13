@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ApiError, api, post } from '../api/client'
 import type { CatalogItem, Trail, TrailPart } from '../api/types'
+import { AssistantPanel } from '../assistant/AssistantPanel'
 import { loadTimer } from '../timer/timerState'
 
 const STEPS = ['dividindo o tema', 'buscando aulas', 'criando exercícios']
@@ -199,6 +200,7 @@ function Ready({ trail, onChange }: { trail: Trail; onChange: (t: Trail) => void
           }
         />
       ))}
+      <AssistantPanel topic={trail.title} />
     </main>
   )
 }

@@ -3,6 +3,7 @@ import { getToken } from './auth/auth'
 import { LoginPage } from './auth/LoginPage'
 import { HomePage } from './home/HomePage'
 import { ProgressPage } from './progress/ProgressPage'
+import { RankingPage } from './ranking/RankingPage'
 import { MiniTimer } from './timer/MiniTimer'
 import { TimerPage } from './timer/TimerPage'
 import { NewTrailPage } from './trails/NewTrailPage'
@@ -19,6 +20,7 @@ function Private() {
         <NavLink to="/" end>Início</NavLink>
         <NavLink to="/estudar">Estudar</NavLink>
         <NavLink to="/progresso">Progresso</NavLink>
+        <NavLink to="/ranking">Ranking</NavLink>
       </nav>
     </>
   )
@@ -32,6 +34,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/estudar" element={<TimerPage />} />
         <Route path="/progresso" element={<ProgressPage />} />
+        <Route path="/ranking" element={<RankingPage />} />
         <Route path="/aprender" element={<NewTrailPage />} />
         <Route path="/trilha/:id" element={<TrailPage />} />
         <Route path="/trilha/:id/parte/:partId/exercicios" element={<QuizPage />} />
