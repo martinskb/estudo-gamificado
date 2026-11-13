@@ -10,7 +10,8 @@ from app.auth import current_user
 from app.db import get_db, to_naive_utc, utcnow
 from app.events import log_event
 from app.models import StudySession, User
-from app.study.rules import goal_met, points_for_session, study_day
+from app.progress.streak import compute_streak
+from app.study.rules import goal_met, points_for_session, study_day, today_belem
 
 router = APIRouter()
 
@@ -79,6 +80,10 @@ def conclude_session(
             StudySession.points > 0,
         )
     )
+    today = today_belem()
+    days_before = set(
+        db.scalars(select(StudySession.day).where(StudySession.user_id == user.id).distinct())
+    )
     session = StudySession(
         client_id=body.client_id,
         user_id=user.id,
@@ -92,6 +97,8 @@ def conclude_session(
         points=points_for_session(body.active_seconds, scored_today),
         goal_met=goal_met(body.active_seconds, body.goal_minutes),
         day=day,
+        streak_before=compute_streak(days_before, today).streak,
+        streak_after=compute_streak(days_before | {day}, today).streak,
     )
     db.add(session)
     log_event(
