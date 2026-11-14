@@ -19,6 +19,14 @@ Contexto acadêmico: disciplina Tópicos Integradores (ADS/UNAMA). **Demonstraç
 - O app passa a servir para aprender **qualquer tema** (faculdade, ENEM, idiomas, atualidades, hobbies, cultura pop), com linguagem menos "vida de estudante". O problema e a medida continuam: **constância**. Níveis: Curiosidade, Escola/ENEM, Faculdade. Em Curiosidade a busca no YouTube pede "explicado" em vez de "aula".
 - Defesas contra prompt injection (texto de fora como dado cercado, filtro de tema, sem links/contatos no que outros veem).
 
+### Decisão 14/11 — contas e Google (implementar DEPOIS da demo de 16/11)
+- Conta básica: **usuário + senha de verdade** (≥ 8 caracteres, regras de força, limite de tentativas), sem e-mail — coleta mínima (LGPD). Contas de PIN existentes criam a senha na primeira entrada.
+- **"Conectar com Google" (OAuth: openid, email, profile) é opcional** e libera: backup/sincronização, **participar do ranking** (conta verificada) e **foto de perfil** (a do Google ou uma escolhida). Sem conectar: tudo do aprendizado funciona, mas sem ranking e sem foto.
+- Guardamos só o identificador Google e o e-mail, com consentimento na hora de conectar; justificar no artigo.
+- Google Cloud: tela de consentimento + credencial OAuth no mesmo projeto da chave do YouTube; modo teste aceita até 100 usuários (basta para o piloto).
+- Por que depois da demo: exigir Google no ranking antes de 16/11 tiraria a conta da demo e os usuários de exemplo do ranking.
+- Já feito antes da demo: tela **Perfil** (avatar com inicial na cor da paleta, trocar apelido, números gerais, sons de conquista liga/desliga, cartão "Conectar com Google — em breve"). No ranking, cada pessoa aparece com o avatar de inicial (sem foto, sem moderação).
+
 ## 2. Objetivos, não-objetivos, anti-objetivos
 
 **Objetivos**

@@ -5,6 +5,7 @@ import { useApi } from '../api/useApi'
 import { getNickname } from '../auth/auth'
 import { CardSkeleton } from '../ui/Skeleton'
 import { Tip } from '../ui/Tip'
+import { Avatar } from '../ui/Avatar'
 
 export function RankingPage() {
   const { data: me, setData: setMe } = useApi<Me>('/me')
@@ -57,6 +58,7 @@ export function RankingPage() {
           {ranking.top.map((row, i) => (
             <li key={row.nickname} className="row" style={{ fontWeight: row.nickname === mine ? 700 : 400 }}>
               <span className="muted" style={{ width: 28 }}>{i + 1}º</span>
+              <Avatar nickname={row.nickname} size={32} />
               <span className="grow truncate">{row.nickname}{row.nickname === mine ? ' (você)' : ''}</span>
               <span className="pill" title="Ofensiva">{row.streak} {row.streak === 1 ? 'dia' : 'dias'}</span>
               <strong style={{ minWidth: 64, textAlign: 'right' }}>{row.week_points} pts</strong>

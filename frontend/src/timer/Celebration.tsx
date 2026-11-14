@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { playSound } from '../ui/sound'
 import type { Conclusion } from '../api/types'
 
 type Props = { result: Conclusion; minutes: number; backTo: string; backLabel: string }
@@ -29,6 +30,10 @@ function useCountUp(from: number, to: number): number {
 export function Celebration({ result, minutes, backTo, backLabel }: Props) {
   const grew = result.streak_after > result.streak_before
   const shown = useCountUp(result.streak_before, result.streak_after)
+  useEffect(() => {
+    const id = setTimeout(() => playSound(grew ? 'streak' : 'complete'), 300)
+    return () => clearTimeout(id)
+  }, [grew])
   return (
     <main className="shell narrow center" style={{ justifyContent: 'center' }}>
       <div className="stack center pop">

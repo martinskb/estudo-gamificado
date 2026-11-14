@@ -5,6 +5,7 @@ import type { AnswerResult, QuizQuestion } from '../api/types'
 import { useApi } from '../api/useApi'
 import { AiText } from '../text/LazyRichText'
 import { PageSkeleton } from '../ui/Skeleton'
+import { playSound } from '../ui/sound'
 
 const LETTERS = ['A', 'B', 'C', 'D']
 
@@ -69,6 +70,7 @@ export function QuizPage() {
     try {
       const r = await post<AnswerResult>(`/exercises/${q.id}/answer`, { choice: option })
       setResult(r)
+      playSound(r.correct ? 'right' : 'wrong')
       if (r.correct) setHits((h) => h + 1)
     } catch (err) {
       setChoice(null)

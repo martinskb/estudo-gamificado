@@ -1,8 +1,10 @@
 import { NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
-import { getToken } from './auth/auth'
 import { LoginPage } from './auth/LoginPage'
 import { Logo } from './brand/Logo'
+import { getNickname, getToken } from './auth/auth'
 import { HomePage } from './home/HomePage'
+import { ProfilePage } from './profile/ProfilePage'
+import { Avatar } from './ui/Avatar'
 import { ProgressPage } from './progress/ProgressPage'
 import { RankingPage } from './ranking/RankingPage'
 import { MiniTimer } from './timer/MiniTimer'
@@ -49,6 +51,7 @@ function Private() {
           <NavLink to="/estudar"><Icon path={ICONS.timer} />Estudar</NavLink>
           <NavLink to="/progresso"><Icon path={ICONS.chart} />Progresso</NavLink>
           <NavLink to="/ranking"><Icon path={ICONS.trophy} />Ranking</NavLink>
+          <NavLink to="/perfil" className="nav-profile"><Avatar nickname={getNickname() ?? '?'} size={26} /><span>Perfil</span></NavLink>
         </div>
       </nav>
       <div className="app-main">
@@ -71,6 +74,7 @@ export default function App() {
         <Route path="/estudar" element={<TimerPage />} />
         <Route path="/progresso" element={<ProgressPage />} />
         <Route path="/ranking" element={<RankingPage />} />
+        <Route path="/perfil" element={<ProfilePage />} />
         <Route path="/tema/:id" element={<TopicPage />} />
         <Route path="/aprender" element={<NewTrailPage />} />
         <Route path="/trilha/:id" element={<TrailPage />} />

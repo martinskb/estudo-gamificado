@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { post } from '../api/client'
 import type { Progress, Topic } from '../api/types'
 import { useApi } from '../api/useApi'
-import { clearLogin, getNickname } from '../auth/auth'
+import { getNickname } from '../auth/auth'
 import { Logo } from '../brand/Logo'
 import { todayBelem } from '../progress/calendarGrid'
 import { Cover } from '../topics/Cover'
@@ -33,11 +33,6 @@ export function HomePage() {
   const [busy, setBusy] = useState(false)
   const [addError, setAddError] = useState('')
 
-  function leave() {
-    clearLogin()
-    navigate('/entrar', { replace: true })
-  }
-
   async function addTopic(e: FormEvent) {
     e.preventDefault()
     setBusy(true)
@@ -57,9 +52,7 @@ export function HomePage() {
     <main className="shell">
       <div className="home-head">
         <span className="home-logo"><Logo size={30} /></span>
-        <span className="row" style={{ gap: 'var(--space-1)' }}>
-          <button className="btn ghost small" onClick={leave}>Sair</button>
-        </span>
+
       </div>
 
       <div className="greeting">

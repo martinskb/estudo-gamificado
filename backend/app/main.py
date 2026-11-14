@@ -8,6 +8,7 @@ from app.config import settings
 from app.db import Base, SessionLocal, engine
 from app.assistant import router as assistant_router
 from app.exercises import router as exercises_router
+from app.profile import router as profile_router
 from app.progress import router as progress_router
 from app.ranking import router as ranking_router
 from app.study import router as study_router
@@ -45,6 +46,7 @@ def create_app() -> FastAPI:
     app.include_router(progress_router.router)
     app.include_router(trails_router.router)
     app.include_router(topics_router.router)
+    app.include_router(profile_router.router)
     app.include_router(exercises_router.router)
     app.include_router(assistant_router.router)
     app.include_router(ranking_router.router)
