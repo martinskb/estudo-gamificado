@@ -130,6 +130,7 @@ def parse_quiz(text: str) -> list[QuizItem]:
 
 
 LEVELS = {
+    "academico": "acadêmico: escola, vestibular (ENEM) ou faculdade",
     "vestibular": "escola / vestibular (ENEM)",
     "superior": "faculdade (graduação)",
     "livre": "curiosidade: aprender por interesse, sem pré-requisitos",

@@ -5,8 +5,7 @@ import type { CatalogItem } from '../api/types'
 
 const LEVELS = [
   { value: 'livre', label: 'Curiosidade', hint: 'cultura pop, atualidades, hobbies' },
-  { value: 'vestibular', label: 'Escola / ENEM', hint: 'conteúdo de prova' },
-  { value: 'superior', label: 'Faculdade', hint: 'matérias do curso' },
+  { value: 'academico', label: 'Acadêmico', hint: 'escola, ENEM e faculdade' },
 ]
 
 export function NewTrailPage() {
@@ -81,14 +80,13 @@ export function NewTrailPage() {
         </label>
         <fieldset>
           <legend>Para quê?</legend>
-          <div className="chips" role="radiogroup" aria-label="Para quê?">
+          <div className="segmented" role="radiogroup" aria-label="Para quê?">
             {LEVELS.map((l) => (
               <button
                 key={l.value}
                 type="button"
                 role="radio"
                 aria-checked={level === l.value}
-                className={`chip${level === l.value ? ' selected' : ''}`}
                 onClick={() => setLevel(l.value)}
               >
                 {l.label}

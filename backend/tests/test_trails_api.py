@@ -95,3 +95,11 @@ def test_catalog_search_hides_other_students_trails(client, auth_headers, sessio
     assert bia_sees == {"Cálculo curado"}
     # quem digitar exatamente o mesmo tema ainda reaproveita a trilha
     assert create(client, bia, "calculo i").json()["trail_id"] == mine
+
+
+def test_academic_level_is_accepted_and_searches_for_classes(client, auth_headers, fake_videos, fake_ai):
+    h = auth_headers()
+    r = create(client, h, "Estequiometria", level="academico")
+    assert r.status_code == 200
+    assert fake_videos.queries[0].endswith(" aula")
+    assert ("split_topic", "Estequiometria", "academico") in fake_ai.calls

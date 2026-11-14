@@ -111,14 +111,12 @@ export function HomePage() {
           )}
 
           {!empty && (
-            <div className="chips" role="tablist" aria-label="Ordenar">
+            <div className="segmented compact" role="tablist" aria-label="Ordenar">
               {SORTS.map((s) => (
                 <button
                   key={s.value}
                   role="tab"
                   aria-selected={sort === s.value}
-                  className={`chip${sort === s.value ? ' selected' : ''}`}
-                  style={{ minHeight: 38 }}
                   onClick={() => setSort(s.value)}
                 >
                   {s.label}

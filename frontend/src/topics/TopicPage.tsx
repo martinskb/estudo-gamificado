@@ -1,9 +1,10 @@
 import { type CSSProperties, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { api } from '../api/client'
+import { api, post } from '../api/client'
 import type { Topic, TopicDetail } from '../api/types'
 import { useApi } from '../api/useApi'
 import { loadTimer, saveTimer, startTimer } from '../timer/timerState'
+import { ConfirmButton } from '../ui/ConfirmButton'
 import { PageSkeleton } from '../ui/Skeleton'
 import { Cover } from './Cover'
 import { PALETTES, type PaletteName, formatHours, photoToCover } from './cover'
@@ -19,6 +20,7 @@ export function TopicPage() {
   const { data: topic, error, setData } = useApi<TopicDetail>(`/topics/${id}`)
   const [editing, setEditing] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [makingTrail, setMakingTrail] = useState(false)
   const [photoError, setPhotoError] = useState('')
   const photoRef = useRef<HTMLInputElement>(null)
 
@@ -109,7 +111,9 @@ export function TopicPage() {
                 {trail.next_part ? `Trilha com vídeos · continuar parte ${trail.next_part}` : 'Trilha com vídeos · concluída'}
               </Link>
             ) : (
-              <Link className="btn soft small" to={`/aprender?tema=${encodeURIComponent(topic.title)}`}>Montar trilha com vídeos</Link>
+              <button className="btn soft small" onClick={() => setMakingTrail((m) => !m)} aria-expanded={makingTrail}>
+                Montar trilha com vídeos
+              </button>
             )}
             <button className="btn ghost small" onClick={() => setEditing((e) => !e)} aria-expanded={editing}>
               Editar tema
@@ -119,6 +123,8 @@ export function TopicPage() {
       </section>
 
       {photoError && <p className="error" role="alert">{photoError}</p>}
+
+      {makingTrail && !trail && <TrailMaker title={topic.title} onCancel={() => setMakingTrail(false)} />}
 
       {editing && (
         <CoverEditor
@@ -198,7 +204,6 @@ function CoverEditor({ topic, onSaved, onDeleted, onClose }: EditorProps) {
   }
 
   async function remove() {
-    if (!window.confirm(`Tirar "${topic.title}" da galeria? Suas sessões e pontos continuam valendo.`)) return
     setBusy(true)
     try {
       await api(`/topics/${topic.id}`, { method: 'DELETE' })
@@ -268,11 +273,57 @@ function CoverEditor({ topic, onSaved, onDeleted, onClose }: EditorProps) {
         <button className="btn ghost small" disabled={busy} onClick={() => patch({ done: !topic.done })}>
           {topic.done ? 'Voltar a aprender' : 'Marcar como concluído'}
         </button>
-        <button className="btn ghost small" disabled={busy} onClick={remove} style={{ color: 'var(--danger)' }}>
-          Tirar da galeria
-        </button>
+        <ConfirmButton
+          className="btn ghost small"
+          label="Tirar da galeria"
+          confirmLabel="Tirar? Suas sessões continuam valendo"
+          disabled={busy}
+          onConfirm={remove}
+        />
       </div>
       {error && <p className="error" role="alert">{error}</p>}
+    </section>
+  )
+}
+
+const KINDS = [
+  { value: 'livre', label: 'Curiosidade' },
+  { value: 'academico', label: 'Acadêmico' },
+] as const
+
+/** Monta a trilha do próprio tema: só pergunta o tipo, o tema já se sabe. */
+function TrailMaker({ title, onCancel }: { title: string; onCancel: () => void }) {
+  const navigate = useNavigate()
+  const [kind, setKind] = useState<(typeof KINDS)[number]['value']>('livre')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  async function make() {
+    setBusy(true)
+    setError('')
+    try {
+      const r = await post<{ trail_id: number }>('/trails', { topic: title, level: kind })
+      navigate(`/trilha/${r.trail_id}`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não deu para montar a trilha agora.')
+      setBusy(false)
+    }
+  }
+
+  return (
+    <section className="card stack" style={{ gap: 'var(--space-4)' }} aria-label="Montar trilha com vídeos">
+      <div className="segmented" role="radiogroup" aria-label="Tipo de trilha">
+        {KINDS.map((k) => (
+          <button key={k.value} type="button" role="radio" aria-checked={kind === k.value} onClick={() => setKind(k.value)}>
+            {k.label}
+          </button>
+        ))}
+      </div>
+      {error && <p className="error" role="alert">{error}</p>}
+      <div className="row">
+        <button className="btn primary grow" onClick={make} disabled={busy}>{busy ? 'Montando…' : 'Montar trilha'}</button>
+        <button className="btn ghost" onClick={onCancel} disabled={busy}>Cancelar</button>
+      </div>
     </section>
   )
 }

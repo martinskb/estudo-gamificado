@@ -1,8 +1,9 @@
 import { type FormEvent, useEffect, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { post } from '../api/client'
 import type { Conclusion } from '../api/types'
 import { AssistantPanel } from '../assistant/AssistantPanel'
+import { ConfirmButton } from '../ui/ConfirmButton'
 import { Celebration } from './Celebration'
 import { GOAL_PRESETS, parseGoal } from './goal'
 import {
@@ -233,17 +234,14 @@ export function TimerPage() {
         >
           Concluir
         </button>
-        <button
-          className="btn ghost block"
-          onClick={() => {
-            if (seconds < 60 || window.confirm('Descartar esta sessão sem salvar?')) setTimer(null)
-          }}
-        >
-          Descartar
-        </button>
+        <ConfirmButton
+          label="Descartar"
+          confirmLabel={`Descartar ${Math.floor(seconds / 60)} min?`}
+          skipConfirm={seconds < 60}
+          onConfirm={() => setTimer(null)}
+        />
       </div>
       <div style={{ width: '100%' }}><AssistantPanel topic={timer.topic} /></div>
-      <Link className="muted small" to="/">Voltar ao início (o cronômetro continua)</Link>
     </main>
   )
 }

@@ -729,3 +729,17 @@ textarea { min-height: 96px; resize: vertical; }
   @keyframes rays { to { transform: rotate(360deg); } }
   @keyframes glow-pulse { 50% { box-shadow: 0 0 80px 30px rgba(255, 212, 59, 0.65), 0 0 180px 80px rgba(255, 212, 59, 0.25); } }
 }
+
+.btn.danger { background: color-mix(in srgb, var(--danger) 16%, var(--surface)); color: var(--danger); }
+.confirm-row { display: flex; gap: var(--space-2); width: 100%; animation: fade 0.2s var(--ease) both; }
+
+/* seletor segmentado (filtros da galeria, tipo de trilha) */
+.segmented { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; padding: 4px; border-radius: 999px; background: var(--surface-2); }
+.segmented button {
+  appearance: none; border: 0; cursor: pointer; min-height: 38px; padding: 0 var(--space-2); border-radius: 999px;
+  background: transparent; color: var(--muted); font: inherit; font-weight: 700; font-size: 0.85rem; white-space: nowrap;
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+.segmented button[aria-selected='true'], .segmented button[aria-checked='true'] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+.segmented button:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+@media (min-width: 960px) { .segmented.compact { max-width: 380px; } }

@@ -26,7 +26,7 @@ NEW_TRAILS_PER_DAY = 2
 
 class TrailIn(BaseModel):
     topic: str = Field(max_length=120)
-    level: Literal["vestibular", "superior", "livre"] = "livre"
+    level: Literal["academico", "vestibular", "superior", "livre"] = "livre"
 
     @field_validator("topic")
     @classmethod
