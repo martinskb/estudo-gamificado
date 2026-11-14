@@ -52,7 +52,7 @@ export function ProgressPage() {
       <Tip id="protecao">A cada 7 dias seguidos você ganha uma proteção: ela salva sua ofensiva se você falhar um dia.</Tip>
 
       <section className="stat-grid" aria-label="Resumo">
-        <div className="card"><div className="stat" style={{ color: 'var(--accent)' }}>{p.streak}</div><span className="muted small">dias de ofensiva</span></div>
+        <div className="card"><div className="stat" style={{ color: 'var(--accent-ink)' }}>{p.streak}</div><span className="muted small">dias de ofensiva</span></div>
         <div className="card"><div className="stat">{p.freezes}</div><span className="muted small">proteções guardadas</span></div>
         <div className="card"><div className="stat">{p.week_points}</div><span className="muted small">pontos na semana</span></div>
         <div className="card"><div className="stat">{p.total_points}</div><span className="muted small">pontos no total</span></div>

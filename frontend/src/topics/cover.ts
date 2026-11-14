@@ -1,13 +1,15 @@
 export type PaletteName = 'indigo' | 'noite' | 'lilas' | 'coral' | 'verde' | 'sol'
 
-/** Paletas do duotone: a foto vira duas cores da marca (escuro → dark, claro → light). */
+/** Paletas das capas (chaves salvas no banco; as cores são da identidade "vinil").
+ *  dark = fundo da capa e do rótulo do disco; light = formas da capa e anel do rótulo.
+ *  Com foto, o duotone pinta a foto nessas duas cores. */
 export const PALETTES: Record<PaletteName, { label: string; dark: string; light: string }> = {
-  indigo: { label: 'Índigo e amarelo', dark: '#2a2890', light: '#ffd43b' },
-  noite: { label: 'Noite e lilás', dark: '#1c1b33', light: '#a9a6ff' },
-  lilas: { label: 'Índigo e lilás', dark: '#3d3bb8', light: '#e8e7fb' },
-  coral: { label: 'Noite e coral', dark: '#1c1b33', light: '#ff9a6c' },
-  verde: { label: 'Mata e menta', dark: '#123f35', light: '#8ce99a' },
-  sol: { label: 'Índigo e sol', dark: '#3d3bb8', light: '#fff3bf' },
+  indigo: { label: 'Azul e mostarda', dark: '#2f5d8a', light: '#f1c75b' },
+  noite: { label: 'Noite e âmbar', dark: '#221b14', light: '#e9a73c' },
+  lilas: { label: 'Ameixa e coral', dark: '#5b3b6e', light: '#e86a5a' },
+  coral: { label: 'Tijolo e pêssego', dark: '#8a3b2f', light: '#f0a35e' },
+  verde: { label: 'Mata e palha', dark: '#3d6b4f', light: '#e8d9a8' },
+  sol: { label: 'Petróleo e menta', dark: '#1f4a45', light: '#9fd3b8' },
 }
 
 export function centerSquare(width: number, height: number) {

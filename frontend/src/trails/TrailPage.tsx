@@ -95,7 +95,7 @@ function Generating({ trail }: { trail: Trail }) {
       <ol className="card list" aria-live="polite">
         {STEP_LABEL.map((label, i) => (
           <li key={label} className="row">
-            <span aria-hidden style={{ width: 24, color: 'var(--accent)' }}>
+            <span aria-hidden style={{ width: 24, color: 'var(--accent-ink)' }}>
               {i < current ? '✓' : i === current ? '…' : ''}
             </span>
             <span className={i > current ? 'muted' : ''} style={{ fontWeight: i === current ? 700 : 400 }}>

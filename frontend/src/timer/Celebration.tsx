@@ -42,7 +42,7 @@ export function Celebration({ result, minutes, backTo, backLabel }: Props) {
         <div className="row" style={{ justifyContent: 'center' }}>
           {grew && <span className="big-number muted">{result.streak_before}</span>}
           {grew && <span className="big-number muted" aria-hidden>→</span>}
-          <span className="big-number" style={{ color: 'var(--accent)' }}>
+          <span className="big-number" style={{ color: 'var(--accent-ink)' }}>
             {shown}
           </span>
         </div>

@@ -1,27 +1,31 @@
-/* Identidade Lume (direção C · "Degraus de luz"): índigo + amarelo sobre lilás claro.
+/* Identidade Lume "Vinil": sala à meia-luz, disco girando. Creme / preto quente + âmbar.
+   --accent é o âmbar de preenchimento; --accent-ink é o âmbar para texto (contraste no claro).
    Trocar estes valores muda o app inteiro. */
 :root {
-  --bg: #f4f3fb;
-  --surface: #ffffff;
-  --surface-2: #efeef8;
-  --surface-3: #e4e2f3;
-  --text: #1c1b33;
-  --muted: #5d5b80;
-  --border: rgba(28, 27, 51, 0.08);
-  --accent: #3d3bb8;
-  --accent-hover: #34329f;
-  --accent-text: #ffffff;
-  --accent-soft: #e8e7fb;
-  --accent-soft-text: #2f2d96;
-  --highlight: #ffd43b;
-  --highlight-text: #1c1b33;
-  --ok: #2b8a3e;
-  --warn: #f2b705;
-  --warn-soft: #fff4cc;
-  --warn-text: #5c4500;
-  --danger: #c92a2a;
-  --shadow: 0 1px 2px rgba(28, 27, 51, 0.05), 0 8px 24px -8px rgba(28, 27, 51, 0.12);
-  --shadow-lift: 0 2px 4px rgba(28, 27, 51, 0.06), 0 16px 32px -12px rgba(28, 27, 51, 0.22);
+  --bg: #f3ece1;
+  --surface: #fbf7f0;
+  --surface-2: #ede4d6;
+  --surface-3: #e2d6c4;
+  --text: #1e1913;
+  --muted: #665c50;
+  --border: rgba(30, 25, 19, 0.1);
+  --accent: #d99a2b;
+  --accent-hover: #c98a1d;
+  --accent-text: #1e1408;
+  --accent-ink: #8a5208;
+  --accent-soft: #f1e2c4;
+  --accent-soft-text: #6e4207;
+  --highlight: #d99a2b;
+  --highlight-text: #1e1408;
+  --wood: #b89a76;
+  --ok: #3f7a3a;
+  --warn: #d99a2b;
+  --warn-soft: #f6e6c6;
+  --warn-text: #5c3d05;
+  --danger: #b23a2a;
+  --shadow: 0 1px 2px rgba(60, 40, 20, 0.06), 0 10px 24px -10px rgba(60, 40, 20, 0.22);
+  --shadow-lift: 0 2px 4px rgba(60, 40, 20, 0.08), 0 18px 34px -14px rgba(60, 40, 20, 0.32);
+  --sleeve-shadow: 0 12px 24px -6px rgba(60, 40, 20, 0.35);
 
   --radius: 20px;
   --radius-sm: 12px;
@@ -32,8 +36,8 @@
   --space-5: 24px;
   --space-6: 32px;
   --space-7: 48px;
-  --font: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Unbounded', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --sidebar: 248px;
   color-scheme: light dark;
@@ -43,28 +47,30 @@
    impede o Chrome de aplicar o escuro forçado dele por cima do nosso. */
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Escuro: camadas pela luminosidade (sem sombras), índigo dessaturado e amarelo menos gritante. */
-    --bg: #0e0d1c;
-    --surface: #17162b;
-    --surface-2: #201f38;
-    --surface-3: #2b2a48;
-    --text: #ecebfb;
-    --muted: #a19fc4;
-    --border: rgba(255, 255, 255, 0.07);
-    --accent: #908dff;
-    --accent-hover: #a5a3ff;
-    --accent-text: #0e0d1c;
-    --accent-soft: #24234a;
-    --accent-soft-text: #c8c6ff;
-    --highlight: #f5cd3c;
-    --highlight-text: #1c1b33;
-    --ok: #69db7c;
-    --warn: #f5cd3c;
-    --warn-soft: #2e2817;
-    --warn-text: #f5dd8a;
-    --danger: #ff8787;
+    --bg: #15120f;
+    --surface: #1f1b17;
+    --surface-2: #2a241e;
+    --surface-3: #352d25;
+    --text: #f4ede3;
+    --muted: #ab9f90;
+    --border: rgba(255, 240, 220, 0.08);
+    --accent: #e9a73c;
+    --accent-hover: #f2b552;
+    --accent-text: #1b1307;
+    --accent-ink: #e9a73c;
+    --accent-soft: #33281a;
+    --accent-soft-text: #f2cf8f;
+    --highlight: #e9a73c;
+    --highlight-text: #1b1307;
+    --wood: #5a4030;
+    --ok: #8cc084;
+    --warn: #e9a73c;
+    --warn-soft: #2e2416;
+    --warn-text: #f2cf8f;
+    --danger: #f08a78;
     --shadow: 0 0 0 1px var(--border);
-    --shadow-lift: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 16px 32px -16px rgba(0, 0, 0, 0.6);
+    --shadow-lift: 0 0 0 1px rgba(255, 240, 220, 0.12), 0 16px 32px -16px rgba(0, 0, 0, 0.7);
+    --sleeve-shadow: 0 14px 28px -8px rgba(0, 0, 0, 0.7);
     color-scheme: dark;
   }
 }

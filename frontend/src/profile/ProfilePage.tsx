@@ -70,7 +70,7 @@ export function ProfilePage() {
 
       {stats && (
         <section className="stat-grid" aria-label="Seus números">
-          <div className="card"><div className="stat" style={{ color: 'var(--accent)' }}>{formatHours(stats.total_seconds)}</div><span className="muted small">focadas no total</span></div>
+          <div className="card"><div className="stat" style={{ color: 'var(--accent-ink)' }}>{formatHours(stats.total_seconds)}</div><span className="muted small">focadas no total</span></div>
           <div className="card"><div className="stat">{stats.longest_streak}</div><span className="muted small">maior ofensiva (dias)</span></div>
           <div className="card"><div className="stat">{stats.topics}</div><span className="muted small">{stats.topics === 1 ? 'tema' : 'temas'}</span></div>
           <div className="card">

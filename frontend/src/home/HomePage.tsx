@@ -162,7 +162,7 @@ export function HomePage() {
             </section>
             <section className="card stack" style={{ gap: 'var(--space-4)' }} aria-label="Seus números">
               <div className="mini-stats">
-                <div><span className="stat" style={{ color: 'var(--accent)' }}>{p.streak}</span><span className="muted small">dias seguidos</span></div>
+                <div><span className="stat" style={{ color: 'var(--accent-ink)' }}>{p.streak}</span><span className="muted small">dias seguidos</span></div>
                 <div><span className="stat">{p.week_points}</span><span className="muted small">pontos na semana</span></div>
                 <div><span className="stat">{p.freezes}</span><span className="muted small">proteções</span></div>
               </div>
