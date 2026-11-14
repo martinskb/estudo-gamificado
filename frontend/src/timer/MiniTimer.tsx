@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { activeSeconds, loadTimer } from './timerState'
+import { activeSeconds, backOf, loadTimer } from './timerState'
 
-/** Faixa com o cronômetro em andamento, para acompanhar o tempo enquanto assiste à aula. */
+/** Faixa com o cronômetro em andamento fora da tela da sessão; leva de volta ao tema ou à trilha. */
 export function MiniTimer() {
   const { pathname } = useLocation()
   const [, tick] = useState(0)
@@ -13,13 +13,13 @@ export function MiniTimer() {
   }, [])
 
   const timer = loadTimer()
-  if (!timer || pathname === '/estudar') return null
+  if (!timer || pathname === '/concluir' || pathname === backOf(timer)) return null
 
   const seconds = activeSeconds(timer, Date.now())
   const mm = String(Math.floor(seconds / 60)).padStart(2, '0')
   const ss = String(seconds % 60).padStart(2, '0')
   return (
-    <Link className="mini-timer" to="/estudar">
+    <Link className="mini-timer" to={backOf(timer)}>
       <span className="truncate grow">{timer.pausedAt ? 'Pausado' : 'Estudando'}: {timer.topic}</span>
       <strong>{mm}:{ss}</strong>
     </Link>

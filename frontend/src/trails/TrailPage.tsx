@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ApiError, api, post } from '../api/client'
 import type { CatalogItem, Trail, TrailPart } from '../api/types'
 import { AssistantPanel } from '../assistant/AssistantPanel'
+import { GoalChips, OtherSession, RunningSession } from '../timer/Session'
+import { useSession } from '../timer/useSession'
 import { loadTimer } from '../timer/timerState'
 import { PageSkeleton } from '../ui/Skeleton'
 import { useWide } from '../ui/useWide'
@@ -176,7 +178,8 @@ function Failed({ trail, timedOut, onRetry }: { trail: Trail; timedOut: boolean;
 function Ready({ trail, onChange }: { trail: Trail; onChange: (t: Trail) => void }) {
   const wide = useWide()
   const done = trail.parts.filter((p) => p.done).length
-  const firstOpen = trail.parts.find((p) => !p.done)?.id ?? trail.parts[0]?.id
+  const studying = loadTimer()?.partId
+  const firstOpen = trail.parts.find((p) => p.id === studying)?.id ?? trail.parts.find((p) => !p.done)?.id ?? trail.parts[0]?.id
   const [open, setOpen] = useState<number | undefined>(firstOpen)
   const markDone = (id: number) =>
     onChange({ ...trail, parts: trail.parts.map((p) => (p.id === id ? { ...p, done: true } : p)) })
@@ -218,7 +221,7 @@ function Ready({ trail, onChange }: { trail: Trail; onChange: (t: Trail) => void
                     <span className="muted small">Parte {selected.order}</span>
                     <h2>{selected.title}</h2>
                   </div>
-                  <PartBody trail={trail} part={selected} onDone={() => markDone(selected.id)} />
+                  <PartBody trail={trail} part={selected} onDone={() => markDone(selected.id)} onOpenPart={setOpen} />
                 </div>
               </section>
             )}
@@ -238,7 +241,7 @@ function Ready({ trail, onChange }: { trail: Trail; onChange: (t: Trail) => void
             <PartHead part={part} open={open === part.id} onClick={() => setOpen(open === part.id ? undefined : part.id)} />
             {open === part.id && (
               <div className="part-body">
-                <PartBody trail={trail} part={part} onDone={() => markDone(part.id)} />
+                <PartBody trail={trail} part={part} onDone={() => markDone(part.id)} onOpenPart={setOpen} />
               </div>
             )}
           </section>
@@ -268,18 +271,16 @@ function PartHead({ part, open, onClick }: { part: TrailPart; open: boolean; onC
   )
 }
 
-type BodyProps = { trail: Trail; part: TrailPart; onDone: () => void }
+type BodyProps = { trail: Trail; part: TrailPart; onDone: () => void; onOpenPart: (id: number) => void }
 
-function PartBody({ trail, part, onDone }: BodyProps) {
+function PartBody({ trail, part, onDone, onOpenPart }: BodyProps) {
   const [playing, setPlaying] = useState<string | null>(null)
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
   const playerRef = useRef<HTMLDivElement>(null)
 
-  const timer = loadTimer()
-  const studyingThis = timer?.partId === part.id
-  const otherTimer = timer && !studyingThis
-  const studyUrl = `/estudar?topic=${encodeURIComponent(trail.title)}&part=${part.id}&trail=${trail.id}`
+  const [goal, setGoal] = useState(25)
+  const session = useSession({ topic: trail.title, back: `/trilha/${trail.id}`, partId: part.id })
 
   async function markDone() {
     setBusy(true)
@@ -335,14 +336,20 @@ function PartBody({ trail, part, onDone }: BodyProps) {
       )}
 
       <div className="action-list">
-        {studyingThis ? (
-          <Link className="btn primary block" to="/estudar">Ver cronômetro desta parte</Link>
-        ) : otherTimer ? (
-          <Link className="btn primary block" to="/estudar">Termine a sessão em andamento antes</Link>
+        {session.mine ? (
+          <RunningSession session={session} assistant={false} />
+        ) : session.other ? (
+          <OtherSession
+            timer={session.other}
+            onOpen={session.other.back === `/trilha/${trail.id}` && session.other.partId ? () => onOpenPart(session.other!.partId!) : undefined}
+          />
         ) : (
-          <Link className="btn primary block" to={studyUrl}>
-            {part.done ? 'Estudar de novo' : 'Estudar esta parte'}
-          </Link>
+          <>
+            <GoalChips value={goal} onChange={setGoal} />
+            <button className="btn primary block" onClick={() => session.start(goal)}>
+              {part.done ? 'Estudar de novo' : 'Estudar esta parte'}
+            </button>
+          </>
         )}
         {part.done ? (
           <Link className="btn soft block" to={`/trilha/${trail.id}/parte/${part.id}/exercicios`}>

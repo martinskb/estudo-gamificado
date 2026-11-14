@@ -3,7 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api, post } from '../api/client'
 import type { Topic, TopicDetail } from '../api/types'
 import { useApi } from '../api/useApi'
-import { loadTimer, saveTimer, startTimer } from '../timer/timerState'
+import { GoalChips, OtherSession, RunningSession } from '../timer/Session'
+import { useSession } from '../timer/useSession'
 import { ConfirmButton } from '../ui/ConfirmButton'
 import { PageSkeleton } from '../ui/Skeleton'
 import { Cover } from './Cover'
@@ -22,28 +23,21 @@ export function TopicPage() {
   const [uploading, setUploading] = useState(false)
   const [makingTrail, setMakingTrail] = useState(false)
   const [photoError, setPhotoError] = useState('')
+  const [goal, setGoal] = useState(25)
+  const [choosingGoal, setChoosingGoal] = useState(false)
+  const session = useSession({ topic: topic?.title ?? '', back: `/tema/${id}`, topicId: Number(id) })
   const photoRef = useRef<HTMLInputElement>(null)
 
   if (error) {
     return (
       <main className="shell narrow">
         <p className="error" role="alert">{error}</p>
+        {session.mine && <Link className="btn primary block" to="/concluir">Ver sessão em andamento</Link>}
         <Link className="btn block" to="/">Voltar ao início</Link>
       </main>
     )
   }
   if (!topic) return <PageSkeleton variant="topic" />
-
-  const running = loadTimer()
-
-  function play() {
-    if (!topic) return
-    if (!running) {
-      saveTimer(startTimer(topic.title, 25, null, Date.now(), topic.id))
-      sessionStorage.setItem('timer:back', `/tema/${topic.id}`)
-    }
-    navigate('/estudar')
-  }
 
   async function choosePhoto(file: File | undefined) {
     if (!file || !topic) return
@@ -92,19 +86,26 @@ export function TopicPage() {
               {topic.streak > 0 && ` · ${topic.streak} ${topic.streak === 1 ? 'dia seguido' : 'dias seguidos'} neste tema`}
             </p>
           </div>
-          <div className="play-row">
-            <button className="play" onClick={play} aria-label={running ? 'Ver cronômetro em andamento' : `Focar 25 minutos em ${topic.title}`}>
-              <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5 19.5 12 7 19.5Z" fill="currentColor" /></svg>
-            </button>
-            <div className="stack" style={{ gap: 2 }}>
-              <strong>{running ? 'Cronômetro em andamento' : 'Focar 25 min'}</strong>
-              {!running && (
-                <Link className="muted small" to={`/estudar?topic=${encodeURIComponent(topic.title)}&topic_id=${topic.id}`}>
-                  Escolher outra meta
-                </Link>
-              )}
+          {session.mine ? (
+            <RunningSession session={session} />
+          ) : session.other ? (
+            <OtherSession timer={session.other} />
+          ) : (
+            <div className="stack" style={{ gap: 'var(--space-3)' }}>
+              <div className="play-row">
+                <button className="play" onClick={() => session.start(goal)} aria-label={`Focar ${goal} minutos em ${topic.title}`}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5 19.5 12 7 19.5Z" fill="currentColor" /></svg>
+                </button>
+                <div className="stack" style={{ gap: 2 }}>
+                  <strong>Focar {goal} min</strong>
+                  <button className="link-btn muted small" onClick={() => setChoosingGoal((c) => !c)} aria-expanded={choosingGoal}>
+                    Escolher outra meta
+                  </button>
+                </div>
+              </div>
+              {choosingGoal && <GoalChips value={goal} onChange={(m) => { setGoal(m); setChoosingGoal(false) }} />}
             </div>
-          </div>
+          )}
           <div className="row wrap" style={{ gap: 'var(--space-2)' }}>
             {trail ? (
               <Link className="btn soft small" to={`/trilha/${trail.id}`}>

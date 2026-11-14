@@ -6,7 +6,7 @@ import { useApi } from '../api/useApi'
 import { clearLogin, saveLogin, getToken } from '../auth/auth'
 import { formatHours } from '../topics/cover'
 import { Avatar } from '../ui/Avatar'
-import { InstallInvite } from '../ui/InstallInvite'
+import { InstallRow } from '../ui/InstallInvite'
 import { PageSkeleton } from '../ui/Skeleton'
 import { playSound, soundSetting } from '../ui/sound'
 
@@ -107,9 +107,8 @@ export function ProfilePage() {
             }}
           />
         </label>
+        <InstallRow />
       </section>
-
-      <InstallInvite />
 
       <section className="card stack google-card" style={{ gap: 'var(--space-3)' }} aria-label="Conectar com Google">
         <div className="section-title">

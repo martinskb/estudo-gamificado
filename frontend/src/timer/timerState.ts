@@ -6,6 +6,8 @@ export type TimerState = {
   topic: string
   partId: number | null
   topicId?: number | null
+  /** Tela de onde a sessão começou (trilha ou tema): os controles ficam lá. */
+  back?: string
   goalMinutes: number
   startedAt: number
   pausedAt: number | null
@@ -20,12 +22,14 @@ export function startTimer(
   partId: number | null,
   now: number,
   topicId: number | null = null,
+  back = '/',
 ): TimerState {
   return {
     clientId: crypto.randomUUID(),
     topic,
     partId,
     topicId,
+    back,
     goalMinutes,
     startedAt: now,
     pausedAt: null,
@@ -65,4 +69,9 @@ export function loadTimer(storage: Storage = localStorage): TimerState | null {
   } catch {
     return null
   }
+}
+
+/** Onde ficam os controles: a tela que começou a sessão. Sessões antigas (sem `back`) vão direto ao resumo. */
+export function backOf(s: TimerState): string {
+  return s.back ?? '/concluir'
 }

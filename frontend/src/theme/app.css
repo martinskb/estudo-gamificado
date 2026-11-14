@@ -746,5 +746,9 @@ textarea { min-height: 96px; resize: vertical; }
 /* no computador a logo já está na barra do topo: a ofensiva fica sozinha à direita */
 @media (min-width: 960px) { .home-head { justify-content: flex-end; } .home-head .home-logo { display: none; } }
 
-.install-invite { flex-wrap: wrap; }
-.install-invite .btn.primary { color: var(--accent-text); }
+.install-row { display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: var(--space-4); }
+
+/* ---------- Sessão dentro do tema/trilha ---------- */
+.session { gap: var(--space-3); background: var(--surface-2); border-radius: var(--radius-sm); padding: var(--space-4); width: 100%; animation: fade 0.2s var(--ease) both; }
+.session-clock { font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+.link-btn { appearance: none; border: 0; background: none; padding: 0; font: inherit; text-align: left; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }

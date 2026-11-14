@@ -7,8 +7,8 @@ import { ProfilePage } from './profile/ProfilePage'
 import { Avatar } from './ui/Avatar'
 import { ProgressPage } from './progress/ProgressPage'
 import { RankingPage } from './ranking/RankingPage'
+import { FinishPage } from './timer/FinishPage'
 import { MiniTimer } from './timer/MiniTimer'
-import { TimerPage } from './timer/TimerPage'
 import { DuotoneFilters } from './topics/DuotoneFilters'
 import { TopicPage } from './topics/TopicPage'
 import { NewTrailPage } from './trails/NewTrailPage'
@@ -17,7 +17,6 @@ import { TrailPage } from './trails/TrailPage'
 
 const ICONS = {
   home: 'M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1z',
-  timer: 'M12 21a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm0-12v4l2.5 2.5M9.5 2.5h5',
   chart: 'M5 20V12M10 20V7M15 20v-5M20 20V4',
   trophy: 'M8 4h8v5a4 4 0 0 1-8 0zM8 6H5v1a3 3 0 0 0 3 3M16 6h3v1a3 3 0 0 1-3 3M12 13v4M9 20h6M10 17h4',
 }
@@ -48,7 +47,6 @@ function Private() {
         <div className="nav-brand"><Logo size={32} /></div>
         <div className="nav-links">
           <NavLink to="/" end><Icon path={ICONS.home} />Início</NavLink>
-          <NavLink to="/estudar"><Icon path={ICONS.timer} />Estudar</NavLink>
           <NavLink to="/progresso"><Icon path={ICONS.chart} />Progresso</NavLink>
           <NavLink to="/ranking"><Icon path={ICONS.trophy} />Ranking</NavLink>
           <NavLink to="/perfil" className="nav-profile"><Avatar nickname={getNickname() ?? '?'} size={26} /><span>Perfil</span></NavLink>
@@ -71,7 +69,7 @@ export default function App() {
       </Route>
       <Route element={<Private />}>
         <Route path="/" element={<HomePage />} />
-        <Route path="/estudar" element={<TimerPage />} />
+        <Route path="/concluir" element={<FinishPage />} />
         <Route path="/progresso" element={<ProgressPage />} />
         <Route path="/ranking" element={<RankingPage />} />
         <Route path="/perfil" element={<ProfilePage />} />

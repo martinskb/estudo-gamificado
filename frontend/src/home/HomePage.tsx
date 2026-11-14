@@ -7,7 +7,6 @@ import { Logo } from '../brand/Logo'
 import { todayBelem } from '../progress/calendarGrid'
 import { Cover } from '../topics/Cover'
 import { formatHours } from '../topics/cover'
-import { InstallInvite } from '../ui/InstallInvite'
 import { GallerySkeleton } from '../ui/Skeleton'
 import { weekStrip } from './homeModel'
 
@@ -68,8 +67,6 @@ export function HomePage() {
           <button className="btn small" onClick={reload}>Tentar de novo</button>
         </div>
       )}
-
-      <InstallInvite once />
 
       {p && !p.studied_today && p.streak > 0 && (
         <p className="notice warn" role="status">
@@ -171,7 +168,6 @@ export function HomePage() {
               </div>
               <Link className="btn ghost small" style={{ alignSelf: 'flex-start', paddingLeft: 0 }} to="/progresso">Ver progresso completo →</Link>
             </section>
-            <Link className="btn ghost block" to="/estudar">Cronômetro livre</Link>
           </div>
         )}
       </div>

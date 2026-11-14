@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { activeSeconds, loadTimer, pause, resume, saveTimer, startTimer } from './timerState'
+import { activeSeconds, backOf, loadTimer, pause, resume, saveTimer, startTimer } from './timerState'
 
 const T0 = 1_800_000_000_000
 const at = (seconds: number) => T0 + seconds * 1000
@@ -68,5 +68,15 @@ describe('timer linked to a topic', () => {
     const s = startTimer('Inglês', 25, null, T0, 7)
     expect(s.topicId).toBe(7)
     expect(startTimer('Livre', 25, null, T0).topicId).toBeNull()
+  })
+})
+
+describe('where the session lives', () => {
+  it('remembers the screen that started it', () => {
+    expect(backOf(startTimer('Inglês', 25, null, T0, 7, '/tema/7'))).toBe('/tema/7')
+  })
+  it('sends old sessions without a screen to the summary', () => {
+    const { back: _, ...old } = startTimer('Inglês', 25, null, T0, 7)
+    expect(backOf(old)).toBe('/concluir')
   })
 })
