@@ -56,7 +56,7 @@ export function GoalChips({ value, onChange }: { value: number; onChange: (m: nu
           type="button"
           role="radio"
           aria-checked={custom}
-          aria-label={custom ? `Meta de ${value} minutos; trocar` : 'Escolher outra meta'}
+          aria-label={custom ? `Meta de ${value} ${value === 1 ? "minuto" : "minutos"}; trocar` : 'Escolher outra meta'}
           className={`chip chip-edit${custom ? ' selected' : ''}`}
           onClick={() => {
             setText(custom ? String(value) : '')
@@ -92,10 +92,13 @@ export function RunningSession({ session, caption, compact = false }: RunningPro
   const paused = timer.pausedAt !== null
   const left = Math.max(0, Math.ceil((goalSeconds - seconds) / 60))
   const deck = { palette: timer.palette ?? 'noite', level: timer.level, playing: !paused, progress: seconds / goalSeconds }
+  const past = seconds - goalSeconds
+  // Meta cumprida: o relógio fica âmbar e, nos primeiros segundos, o toca-discos brilha (o som vem do GoalSignal).
+  const goalClass = past >= 0 ? (past < 6 && !paused ? ' met burst' : ' met') : ''
   const status = paused ? 'Pausado' : seconds >= goalSeconds ? 'Meta cumprida!' : `Meta ${timer.goalMinutes} min · faltam ${left} min`
 
   return (
-    <div className={`session${compact ? ' compact' : ''}`}>
+    <div className={`session${compact ? ' compact' : ''}${goalClass}`}>
       {compact ? (
         <Turntable key={timer.clientId} {...deck} className="session-deck" />
       ) : (

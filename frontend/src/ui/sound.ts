@@ -1,7 +1,7 @@
 // Sons curtos, gerados pelo navegador (nenhum arquivo para baixar), só nos momentos de vitória.
 
 type Store = Pick<Storage, 'getItem' | 'setItem'>
-export type SoundKind = 'complete' | 'streak' | 'right' | 'wrong' | 'levelup' | 'max'
+export type SoundKind = 'complete' | 'streak' | 'right' | 'wrong' | 'levelup' | 'max' | 'goal'
 
 export function createSoundSetting(store: Store | null) {
   let on = true
@@ -52,6 +52,8 @@ const MELODIES: Record<SoundKind, [number, number, number][]> = {
   streak: [[523.3, 0, 0.16], [659.3, 0.09, 0.16], [784, 0.18, 0.16], [1046.5, 0.27, 0.45]],
   right: [[880, 0, 0.12], [1318.5, 0.07, 0.22]],
   wrong: [[311.1, 0, 0.18], [233.1, 0.12, 0.26]],
+  // meta cumprida: carrilhão suave de três notas, que fica soando (não assusta no meio do estudo)
+  goal: [[784, 0, 0.5], [987.8, 0.16, 0.6], [1318.5, 0.32, 1.1]],
   // subir de nível: arpejo subindo + um brilho agudo no fim
   levelup: [[523.3, 0, 0.2], [659.3, 0.08, 0.2], [784, 0.16, 0.2], [1046.5, 0.24, 0.3], [1318.5, 0.34, 0.5], [2093, 0.46, 0.6]],
   // Diamante: fanfarra curta, um acorde que abre e fica soando

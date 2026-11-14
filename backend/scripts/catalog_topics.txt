@@ -13,3 +13,19 @@ livre|Excel básico
 livre|Cronologia do Universo Marvel (MCU)
 livre|Como funciona a inflação
 livre|História dos videogames
+# --- curso de ADS ---
+superior|Python básico
+superior|Git e GitHub
+superior|Programação orientada a objetos
+superior|Redes de computadores: modelo OSI e TCP/IP
+superior|Metodologias ágeis: Scrum e Kanban
+superior|HTML e CSS do zero
+# --- cultura pop, esporte e hobbies ---
+livre|Pokémon competitivo: times e estratégias (VGC)
+livre|Flamengo 2019: a história da temporada
+livre|One Piece: resumo das sagas
+livre|História da Copa do Mundo
+livre|Xadrez para iniciantes: aberturas e táticas
+livre|História do rock
+livre|Astronomia: o sistema solar
+livre|Finanças pessoais: como montar um orçamento

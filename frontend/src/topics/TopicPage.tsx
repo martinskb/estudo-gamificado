@@ -129,7 +129,7 @@ export function TopicPage() {
             <OtherSession timer={session.other} />
           ) : (
             <div className="play-row">
-              <button className="play" onClick={() => session.start(goal)} aria-label={`Tocar ${goal} minutos de ${topic.title}`}>
+              <button className="play" onClick={() => session.start(goal)} aria-label={`Tocar ${goal} ${goal === 1 ? "minuto" : "minutos"} de ${topic.title}`}>
                 <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5 19.5 12 7 19.5Z" fill="currentColor" /></svg>
               </button>
               <div className="stack" style={{ gap: 'var(--space-2)', minWidth: 0 }}>

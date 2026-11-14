@@ -18,15 +18,17 @@ export function MiniTimer() {
   if (!timer || pathname === '/concluir' || pathname === backOf(timer)) return null
 
   const paused = timer.pausedAt !== null
+  const seconds = activeSeconds(timer, now)
+  const met = seconds >= timer.goalMinutes * 60
   return (
     // Na Estante do computador o toca-discos já mostra a sessão: a faixa some lá (on-shelf).
     <Link className={`mini-timer${pathname === '/' ? ' on-shelf' : ''}`} to={backOf(timer)}>
       <Vinyl palette={timer.palette ?? 'noite'} level={timer.level} spinning={!paused} className="mini-disc" />
       <span className="stack grow" style={{ gap: 0, minWidth: 0 }}>
-        <span className="mini-label">{paused ? 'Pausado' : 'Tocando agora'}</span>
+        <span className={`mini-label${met ? ' lit' : ''}`}>{paused ? 'Pausado' : met ? 'Meta cumprida!' : 'Tocando agora'}</span>
         <strong className="truncate">{timer.topic}</strong>
       </span>
-      <strong className="mini-clock">{clock(activeSeconds(timer, now))}</strong>
+      <strong className="mini-clock">{clock(seconds)}</strong>
     </Link>
   )
 }
