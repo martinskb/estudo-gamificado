@@ -586,3 +586,15 @@ textarea { min-height: 96px; resize: vertical; }
 @media (min-width: 1400px) {
   .shell { max-width: 1240px; }
 }
+
+/* ---------- Skeleton (no lugar de "Carregando…") ---------- */
+.skeleton {
+  display: block;
+  background: linear-gradient(90deg, var(--surface-2) 0%, var(--surface-3) 40%, var(--surface-2) 80%);
+  background-size: 300% 100%;
+}
+.skeleton-group { display: contents; }
+@media (prefers-reduced-motion: no-preference) {
+  .skeleton { animation: shimmer 1.4s ease-in-out infinite; }
+  @keyframes shimmer { from { background-position: 100% 0; } to { background-position: -50% 0; } }
+}

@@ -3,6 +3,7 @@ import { put } from '../api/client'
 import type { Me, Ranking } from '../api/types'
 import { useApi } from '../api/useApi'
 import { getNickname } from '../auth/auth'
+import { CardSkeleton } from '../ui/Skeleton'
 
 export function RankingPage() {
   const { data: me, setData: setMe } = useApi<Me>('/me')
@@ -58,7 +59,7 @@ export function RankingPage() {
           <button className="btn" onClick={reload}>Tentar de novo</button>
         </div>
       )}
-      {!ranking && !error && <p className="muted">Carregando…</p>}
+      {!ranking && !error && <CardSkeleton lines={6} title={false} />}
       {ranking && ranking.top.length === 0 && (
         <p className="muted">Ninguém no ranking ainda. Seja a primeira pessoa.</p>
       )}

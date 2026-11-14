@@ -9,6 +9,7 @@ import { todayBelem } from '../progress/calendarGrid'
 import { ThemeToggle } from '../theme/ThemeToggle'
 import { Cover } from '../topics/Cover'
 import { formatHours } from '../topics/cover'
+import { GallerySkeleton } from '../ui/Skeleton'
 import { weekStrip } from './homeModel'
 
 const SORTS = [
@@ -135,7 +136,7 @@ export function HomePage() {
             </div>
           )}
 
-          {topics === null && <p className="muted">Carregando…</p>}
+          {topics === null && <GallerySkeleton />}
           {topics && topics.length === 0 && sort === 'done' && (
             <p className="muted">Quando você marcar um tema como concluído, ele aparece aqui.</p>
           )}

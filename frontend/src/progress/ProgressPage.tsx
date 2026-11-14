@@ -3,6 +3,7 @@ import { put } from '../api/client'
 import type { Progress, SessionRow } from '../api/types'
 import { useApi } from '../api/useApi'
 import { TrailList } from '../trails/TrailList'
+import { PageSkeleton } from '../ui/Skeleton'
 import { Calendar } from './Calendar'
 
 const dayLabel = (iso: string) => iso.split('-').reverse().slice(0, 2).join('/')
@@ -38,7 +39,7 @@ export function ProgressPage() {
       </main>
     )
   }
-  if (!p) return <main className="shell"><h1>Progresso</h1><p className="muted">Carregando…</p></main>
+  if (!p) return <PageSkeleton variant="progress" />
 
   const maxMinutes = Math.max(1, ...p.minutes_by_topic.map((t) => t.minutes))
   const topics = p.minutes_by_topic.map((t) => t.topic)

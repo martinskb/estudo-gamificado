@@ -19,3 +19,12 @@ describe('auth storage', () => {
     expect(localStorage.getItem('timer:v1')).toBeNull()
   })
 })
+
+describe('logout clears cached screens', () => {
+  it('removes the saved API data', async () => {
+    const { apiCache } = await import('../api/cache')
+    apiCache.set('/topics', [1])
+    clearLogin()
+    expect(apiCache.get('/topics')).toBeNull()
+  })
+})

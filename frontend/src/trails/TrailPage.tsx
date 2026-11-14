@@ -4,6 +4,7 @@ import { ApiError, api, post } from '../api/client'
 import type { CatalogItem, Trail, TrailPart } from '../api/types'
 import { AssistantPanel } from '../assistant/AssistantPanel'
 import { loadTimer } from '../timer/timerState'
+import { PageSkeleton } from '../ui/Skeleton'
 import { useWide } from '../ui/useWide'
 
 const STEPS = ['dividindo o tema', 'buscando aulas', 'criando exercícios']
@@ -63,7 +64,7 @@ export function TrailPage() {
       </main>
     )
   }
-  if (!trail) return <main className="shell"><p className="muted">Carregando…</p></main>
+  if (!trail) return <PageSkeleton variant="trail" />
 
   if (trail.status === 'failed' || timedOut) {
     return (

@@ -4,6 +4,7 @@ import { api } from '../api/client'
 import type { Topic, TopicDetail } from '../api/types'
 import { useApi } from '../api/useApi'
 import { loadTimer, saveTimer, startTimer } from '../timer/timerState'
+import { PageSkeleton } from '../ui/Skeleton'
 import { Cover } from './Cover'
 import { PALETTES, type PaletteName, formatHours, photoToCover } from './cover'
 
@@ -26,7 +27,7 @@ export function TopicPage() {
       </main>
     )
   }
-  if (!topic) return <main className="shell narrow"><p className="muted">Carregando…</p></main>
+  if (!topic) return <PageSkeleton variant="topic" />
 
   const running = loadTimer()
 

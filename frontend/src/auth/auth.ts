@@ -1,3 +1,5 @@
+import { apiCache } from '../api/cache'
+
 const TOKEN = 'auth:token'
 const NICK = 'auth:nickname'
 
@@ -27,6 +29,8 @@ export function clearLogin(): void {
     localStorage.removeItem(NICK)
     // O cronômetro em andamento é de quem estava logado: não pode passar para a próxima pessoa.
     localStorage.removeItem('timer:v1')
+    // num PC compartilhado, a próxima pessoa não pode ver a galeria de quem saiu
+    apiCache.clear()
   } catch {
     // nada a limpar
   }

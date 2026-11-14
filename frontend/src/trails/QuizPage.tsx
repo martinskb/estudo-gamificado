@@ -4,6 +4,7 @@ import { post } from '../api/client'
 import type { AnswerResult, QuizQuestion } from '../api/types'
 import { useApi } from '../api/useApi'
 import { AiText } from '../text/LazyRichText'
+import { PageSkeleton } from '../ui/Skeleton'
 
 const LETTERS = ['A', 'B', 'C', 'D']
 
@@ -32,7 +33,7 @@ export function QuizPage() {
       </main>
     )
   }
-  if (!questions) return <main className="shell narrow"><h1>Exercícios</h1><p className="muted">Carregando…</p></main>
+  if (!questions) return <PageSkeleton variant="quiz" />
 
   if (questions.length === 0) {
     return (

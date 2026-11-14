@@ -1,4 +1,5 @@
 import { clearLogin, getToken } from '../auth/auth'
+import { apiCache } from './cache'
 
 const BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000').replace(/\/$/, '')
 
@@ -39,6 +40,8 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
     }
     throw new ApiError(res.status, detail)
   }
+  // qualquer mudança (sessão, tema, capa…) faz as telas buscarem a versão nova na próxima vez
+  if ((init.method ?? 'GET') !== 'GET') apiCache.markAllStale()
   if (res.status === 204) return undefined as T
   return res.json() as Promise<T>
 }
