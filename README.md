@@ -20,7 +20,7 @@ Projeto da disciplina Tópicos Integradores — Análise e Desenvolvimento de Si
 | **Constância** | Ofensiva de dias seguidos com proteção (+1 a cada 7 dias, até 2), pontos (10 por sessão de 20 min+, até 3 por dia), meta de dias por semana. |
 | **Níveis do disco** | Por tema: Vinil → Prata (1 h) → Ouro (5 h) → Platina (15 h) → Diamante (40 h); o acabamento do disco mostra o nível, com animação e som ao subir. |
 | **Trilha com vídeos** (opcional) | A IA divide o tema em partes; cada parte recebe vídeos reais do YouTube e exercícios gerados a partir do conteúdo do vídeo. |
-| **Assistente** | Ícone discreto no canto do foco e da trilha; abre um campo simples ("Qual a sua dúvida?") por cima da tela, com fórmulas desenhadas (KaTeX). |
+| **Assistente** | Ícone discreto no canto do foco e da trilha; abre um campo simples ("Qual a sua dúvida?") por cima da tela. A resposta aparece enquanto a IA escreve (~1 s até o primeiro trecho), com fórmulas desenhadas (KaTeX). Usa os modelos Gemini "lite" com raciocínio baixo: 10/10 num teste de contas e conceitos, contra 30–60 s de espera do modelo maior no plano grátis. |
 | **Progresso e ranking** | Calendário de dias estudados, minutos por tema, histórico; ranking semanal opcional por apelido. |
 | **Perfil** | Avatar com inicial, trocar apelido, números gerais, sons liga/desliga, músicas para estudar e "Instalar o app" (abre em tela cheia). |
 

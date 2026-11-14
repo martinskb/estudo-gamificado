@@ -48,6 +48,13 @@ class FakeAI:
             raise AIError("fora do ar")
         return f"Resposta para: {question}"
 
+    def answer_stream(self, question: str, topic: str | None):
+        self.calls.append(("answer_stream", question, topic))
+        if self.answer_fails:
+            raise AIError("fora do ar")
+        yield "Resposta "
+        yield f"para: {question}"
+
 
 class FakeVideos:
     def __init__(self):

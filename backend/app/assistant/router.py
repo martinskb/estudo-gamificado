@@ -3,6 +3,7 @@ import time
 from datetime import UTC, datetime, time as clock
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -72,6 +73,45 @@ def ask(
     log_event(db, "assistant", user_id=user_id, ok=True, latency_ms=_ms(start))
     db.commit()
     return {"answer": answer, "remaining": DAILY_LIMIT - used - 1}
+
+
+@router.post("/assistant/stream")
+def ask_stream(
+    body: QuestionIn,
+    user: User = Depends(current_user),
+    db: Session = Depends(get_db),
+    ai: AIClient = Depends(get_ai),
+):
+    """Mesma dúvida, mas a resposta vai chegando enquanto a IA escreve (texto puro, em partes)."""
+    used = asked_today(db, user.id)
+    if used >= DAILY_LIMIT:
+        raise HTTPException(429, f"Você já fez {DAILY_LIMIT} perguntas hoje. Amanhã tem mais.")
+
+    user_id = user.id
+    db.commit()
+    start = time.monotonic()
+    pieces = ai.answer_stream(body.question, body.topic)
+    try:
+        first = next(pieces)  # a espera de verdade é até o primeiro trecho; erro aqui ainda vira 503
+    except Exception:
+        log_event(db, "assistant", user_id=user_id, ok=False, latency_ms=_ms(start))
+        db.commit()
+        raise HTTPException(503, "Assistente indisponível, tente de novo") from None
+    log_event(db, "assistant", user_id=user_id, ok=True, latency_ms=_ms(start))
+    db.commit()
+
+    def body_text():
+        yield first
+        try:
+            yield from pieces
+        except Exception:
+            yield "\n\n(A resposta foi interrompida. Tente de novo.)"
+
+    return StreamingResponse(
+        body_text(),
+        media_type="text/plain; charset=utf-8",
+        headers={"X-Remaining": str(DAILY_LIMIT - used - 1), "Cache-Control": "no-store"},
+    )
 
 
 def _ms(start: float) -> int:

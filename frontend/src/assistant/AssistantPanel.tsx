@@ -1,6 +1,6 @@
 import { type FormEvent, type KeyboardEvent, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { post } from '../api/client'
+import { postStream } from '../api/client'
 import { AiText } from '../text/LazyRichText'
 
 type Exchange = { question: string; answer?: string; error?: string }
@@ -30,8 +30,11 @@ export function AssistantPanel({ topic }: { topic?: string }) {
     const finish = (patch: Partial<Exchange>) =>
       setLog((l) => [...l.slice(0, -1), { question: text, ...patch }])
     try {
-      const r = await post<{ answer: string }>('/assistant', { question: text, topic: topic || null })
-      finish({ answer: r.answer })
+      // A resposta aparece enquanto a IA escreve.
+      const answer = await postStream('/assistant/stream', { question: text, topic: topic || null }, (soFar) =>
+        finish({ answer: soFar }),
+      )
+      finish({ answer: answer.trim() })
     } catch (err) {
       finish({ error: err instanceof Error ? err.message : 'Assistente indisponível.' })
     } finally {
