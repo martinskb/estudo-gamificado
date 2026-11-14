@@ -23,11 +23,16 @@ async def lifespan(app: FastAPI):
     yield
 
 
+def parse_origins(raw: str) -> list[str]:
+    """O navegador manda a origem sem barra no fim; uma barra a mais quebraria o CORS."""
+    return [o.strip().rstrip("/") for o in raw.split(",") if o.strip()]
+
+
 def create_app() -> FastAPI:
     app = FastAPI(title="Estudo Gamificado", lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[o.strip() for o in settings.cors_origins.split(",") if o.strip()],
+        allow_origins=parse_origins(settings.cors_origins),
         allow_methods=["*"],
         allow_headers=["*"],
     )

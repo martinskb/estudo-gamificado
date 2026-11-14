@@ -96,3 +96,12 @@ def test_assistant_releases_db_transaction_during_ai_call(app, client, auth_head
     r = client.post("/assistant", json={"question": "O que é limite?"}, headers=h)
     assert r.status_code == 200
     assert states == [False]
+
+
+def test_cors_origins_tolerate_spaces_and_trailing_slash():
+    from app.main import parse_origins
+
+    assert parse_origins(" https://meu-app.vercel.app/ , http://localhost:5173,") == [
+        "https://meu-app.vercel.app",
+        "http://localhost:5173",
+    ]
