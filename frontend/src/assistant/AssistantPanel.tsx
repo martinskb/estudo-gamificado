@@ -1,15 +1,28 @@
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, type KeyboardEvent, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { post } from '../api/client'
 import { AiText } from '../text/LazyRichText'
 
 type Exchange = { question: string; answer?: string; error?: string }
 
-/** Botão + painel do assistente de dúvidas. Não mexe no cronômetro. */
+/** Ícone discreto de dúvida; abre um painel por cima da tela (não empurra nada, não mexe no cronômetro). */
 export function AssistantPanel({ topic }: { topic?: string }) {
   const [open, setOpen] = useState(false)
   const [question, setQuestion] = useState('')
   const [log, setLog] = useState<Exchange[]>([])
   const [busy, setBusy] = useState(false)
+  const endRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ block: 'end', behavior: 'smooth' })
+  }, [log])
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: globalThis.KeyboardEvent) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open])
 
   async function send(text: string, replaceLast = false) {
     setBusy(true)
@@ -26,71 +39,83 @@ export function AssistantPanel({ topic }: { topic?: string }) {
     }
   }
 
-  function submit(e: FormEvent) {
-    e.preventDefault()
+  function submit(e?: FormEvent) {
+    e?.preventDefault()
     const text = question.trim()
     if (!text || busy) return
     setQuestion('')
     void send(text)
   }
 
-  if (!open) {
-    return (
-      <button className="btn block" onClick={() => setOpen(true)}>
-        Tirar uma dúvida com a IA
-      </button>
-    )
+  // No computador, Enter envia e Shift+Enter quebra a linha.
+  function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === 'Enter' && !e.shiftKey && window.matchMedia('(pointer: fine)').matches) {
+      e.preventDefault()
+      submit()
+    }
   }
 
   return (
-    <section className="card stack" aria-label="Assistente de dúvidas">
-      <div className="row spread">
-        <h2>Tirar dúvida</h2>
-        <button className="btn ghost" style={{ minHeight: 40 }} onClick={() => setOpen(false)}>Fechar</button>
-      </div>
-      {log.length === 0 && (
-        <p className="muted small">
-          Pergunte o que quiser sobre {topic ? `“${topic}”` : 'o que está aprendendo'}.
-        </p>
+    <>
+      <button className="ask-icon" onClick={() => setOpen(true)} aria-label="Tirar uma dúvida com a IA" aria-expanded={open}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M4 5h16v11H9l-5 4z" />
+          <path d="M10 9.5a2 2 0 1 1 2.5 2c-.5.2-.5.6-.5 1" />
+        </svg>
+      </button>
+
+      {open && createPortal(
+        <div className="ask-layer" onClick={() => setOpen(false)}>
+          <section className="ask-sheet" role="dialog" aria-label="Tirar uma dúvida" onClick={(e) => e.stopPropagation()}>
+            <button className="ask-close" onClick={() => setOpen(false)} aria-label="Fechar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+            </button>
+
+            {log.length > 0 && (
+              <div className="ask-log" aria-live="polite">
+                {log.map((x, i) => (
+                  <div key={i} className="ask-turn">
+                    <p className="ask-q">{x.question}</p>
+                    {!x.answer && !x.error && <p className="muted small">Pensando…</p>}
+                    {x.answer && (
+                      <div className="ask-a">
+                        <AiText text={x.answer} />
+                        <span className="muted small">Gerado por IA. Confira no seu material.</span>
+                      </div>
+                    )}
+                    {x.error && (
+                      <p className="ask-a error">
+                        {x.error}{' '}
+                        {i === log.length - 1 && (
+                          <button className="link-btn" disabled={busy} onClick={() => send(x.question, true)}>Tentar de novo</button>
+                        )}
+                      </p>
+                    )}
+                  </div>
+                ))}
+                <div ref={endRef} />
+              </div>
+            )}
+
+            <form className="ask-form" onSubmit={submit}>
+              <textarea
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                onKeyDown={onKeyDown}
+                maxLength={1000}
+                rows={1}
+                placeholder="Qual a sua dúvida?"
+                aria-label={topic ? `Sua dúvida sobre ${topic}` : 'Sua dúvida'}
+                autoFocus
+              />
+              <button className="ask-send" disabled={busy || !question.trim()} aria-label="Enviar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
+              </button>
+            </form>
+          </section>
+        </div>,
+        document.body,
       )}
-      <div className="stack" aria-live="polite">
-        {log.map((x, i) => (
-          <div key={i} className="stack" style={{ gap: 'var(--space-2)' }}>
-            <p style={{ fontWeight: 600 }}>{x.question}</p>
-            {!x.answer && !x.error && <p className="muted">Pensando…</p>}
-            {x.answer && (
-              <div className="notice stack">
-                <AiText text={x.answer} />
-                <span className="muted small">Gerado por IA — confira no seu material.</span>
-              </div>
-            )}
-            {x.error && (
-              <div className="notice warn stack">
-                <span>{x.error}</span>
-                {i === log.length - 1 && (
-                  <button className="btn" disabled={busy} onClick={() => send(x.question, true)}>
-                    Tentar de novo
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-      <form className="stack" onSubmit={submit}>
-        <label>
-          Sua dúvida
-          <textarea
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            maxLength={1000}
-            placeholder="ex.: Qual a diferença entre função afim e linear?"
-          />
-        </label>
-        <button className="btn primary block" disabled={busy || !question.trim()}>
-          {busy ? 'Enviando…' : 'Perguntar'}
-        </button>
-      </form>
-    </section>
+    </>
   )
 }

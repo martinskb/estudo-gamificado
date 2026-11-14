@@ -6,6 +6,7 @@ import { useApi } from '../api/useApi'
 import { GoalChips, OtherSession, RunningSession } from '../timer/Session'
 import { Vinyl } from '../vinyl/Vinyl'
 import { useSession } from '../timer/useSession'
+import { AssistantPanel } from '../assistant/AssistantPanel'
 import { ConfirmButton } from '../ui/ConfirmButton'
 import { PageSkeleton } from '../ui/Skeleton'
 import { Sleeve } from './Cover'
@@ -67,8 +68,12 @@ export function TopicPage() {
   // Tocando: a página do tema vira o modo foco (toca-discos, relógio e controles).
   if (session.mine) {
     return (
-      <main className="shell narrow focus-page">
-        <Link className="muted small back-link" to="/">‹ Estante</Link>
+      <main className="shell narrow focus-page scene">
+        <div className="scene-bg" aria-hidden="true" />
+        <div className="focus-top">
+          <Link className="muted small back-link" to="/">‹ Estante</Link>
+          <AssistantPanel topic={topic.title} />
+        </div>
         <RunningSession session={session} caption={topic.title} />
       </main>
     )

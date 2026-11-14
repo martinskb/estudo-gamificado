@@ -1,5 +1,4 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { AssistantPanel } from '../assistant/AssistantPanel'
 import { ConfirmButton } from '../ui/ConfirmButton'
 import { Turntable } from '../vinyl/Vinyl'
 import { GOAL_PRESETS } from './goal'
@@ -29,12 +28,12 @@ type RunningProps = {
   session: ReturnType<typeof useSession>
   /** Linha acima do relógio (ex.: "Faixa 02 · Verbo to be"). */
   caption?: string
-  assistant?: boolean
+  /** Na trilha (ao lado das aulas): toca-discos reto, sem o cenário. */
   compact?: boolean
 }
 
 /** Sessão tocando: toca-discos, relógio e controles, dentro da própria tela. Concluir leva ao resumo. */
-export function RunningSession({ session, caption, assistant = true, compact = false }: RunningProps) {
+export function RunningSession({ session, caption, compact = false }: RunningProps) {
   const navigate = useNavigate()
   const { timer, now, set } = session
   if (!timer) return null
@@ -42,18 +41,22 @@ export function RunningSession({ session, caption, assistant = true, compact = f
   const goalSeconds = timer.goalMinutes * 60
   const paused = timer.pausedAt !== null
   const left = Math.max(0, Math.ceil((goalSeconds - seconds) / 60))
+  const deck = { palette: timer.palette ?? 'noite', level: timer.level, playing: !paused, progress: seconds / goalSeconds }
   const status = paused ? 'Pausado' : seconds >= goalSeconds ? 'Meta cumprida!' : `Meta ${timer.goalMinutes} min · faltam ${left} min`
 
   return (
     <div className={`session${compact ? ' compact' : ''}`}>
-      <Turntable
-        key={timer.clientId}
-        palette={timer.palette ?? 'noite'}
-        level={timer.level}
-        playing={!paused}
-        progress={seconds / goalSeconds}
-        className="session-deck"
-      />
+      {compact ? (
+        <Turntable key={timer.clientId} {...deck} className="session-deck" />
+      ) : (
+        // A sala: o toca-discos em cima da mesa, visto de cima em ângulo.
+        <div className="stage" aria-hidden="true">
+          <div className="stage-table" />
+          <div className="stage-deck">
+            <Turntable key={timer.clientId} {...deck} />
+          </div>
+        </div>
+      )}
       <div className="session-readout">
         {caption && <span className="muted small">{caption}</span>}
         <strong className="session-clock" role="timer" aria-live="off">{clock(seconds)}</strong>
@@ -80,7 +83,6 @@ export function RunningSession({ session, caption, assistant = true, compact = f
         skipConfirm={seconds < 60}
         onConfirm={() => set(null)}
       />
-      {assistant && <AssistantPanel topic={timer.topic} />}
     </div>
   )
 }

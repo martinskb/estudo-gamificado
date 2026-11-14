@@ -193,7 +193,10 @@ function Ready({ trail, onChange }: { trail: Trail; onChange: (t: Trail) => void
   const header = (
     <div className="page-head">
       <span className="muted small" style={{ fontWeight: 700, letterSpacing: '0.06em' }}>LADO A · TRILHA</span>
-      <h1>{trail.title}</h1>
+      <div className="row spread" style={{ alignItems: 'center' }}>
+        <h1>{trail.title}</h1>
+        <AssistantPanel topic={trail.title} />
+      </div>
       <div className="row" style={{ marginTop: 'var(--space-2)' }}>
         <div className="bar grow" aria-hidden>
           <span style={{ width: `${trail.parts.length ? (done / trail.parts.length) * 100 : 0}%` }} />
@@ -231,7 +234,6 @@ function Ready({ trail, onChange }: { trail: Trail; onChange: (t: Trail) => void
                 </div>
               </section>
             )}
-            <AssistantPanel topic={trail.title} />
           </div>
         </div>
       </main>
@@ -253,7 +255,6 @@ function Ready({ trail, onChange }: { trail: Trail; onChange: (t: Trail) => void
           </section>
         ))}
       </div>
-      <AssistantPanel topic={trail.title} />
     </main>
   )
 }
@@ -350,7 +351,7 @@ function PartBody({ trail, part, disc, onDone, onOpenPart }: BodyProps) {
 
       <div className="action-list">
         {session.mine ? (
-          <RunningSession session={session} assistant={false} compact caption={`Faixa ${String(part.order).padStart(2, '0')} · ${part.title}`} />
+          <RunningSession session={session} compact caption={`Faixa ${String(part.order).padStart(2, '0')} · ${part.title}`} />
         ) : session.other ? (
           <OtherSession
             timer={session.other}
