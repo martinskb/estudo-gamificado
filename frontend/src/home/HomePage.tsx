@@ -69,8 +69,8 @@ export function HomePage() {
                 <section className="continue-card" aria-label="Comece uma trilha">
                   <span className="eyebrow">COMECE POR AQUI</span>
                   <h2>O que você quer aprender?</h2>
-                  <p>O Lume divide o tema em degraus, busca aulas gratuitas e prepara exercícios.</p>
-                  <Link className="btn highlight block" to="/aprender">Montar minha primeira trilha</Link>
+                  <p>Qualquer tema: matéria da faculdade, um idioma, política, a história de uma série. O Lume divide em degraus e acha os melhores vídeos gratuitos.</p>
+                  <Link className="btn highlight block" to="/aprender">Começar minha primeira trilha</Link>
                 </section>
               )
             )}
@@ -104,7 +104,7 @@ export function HomePage() {
 
             <div className="action-list">
               {current && <Link className="btn soft block" to="/aprender">Quero aprender algo novo</Link>}
-              <Link className="btn ghost block" to="/estudar">Sessão livre, sem trilha</Link>
+              <Link className="btn ghost block" to="/estudar">Cronômetro livre, sem trilha</Link>
             </div>
 
             {p.trails.length > 1 && (

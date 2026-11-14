@@ -10,9 +10,10 @@
 - [ ] Wi-Fi/4G do celular funcionando.
 
 ## Roteiro sugerido (sem slides)
-1. **Problema:** manter a rotina de estudo sem dinheiro para cursinho; o conteúdo bom já existe de graça.
+1. **Problema:** manter constância para aprender, sem dinheiro para cursinho; o conteúdo bom já existe de graça no YouTube, falta organização e motivação.
+   - **Evolução desde o pré-projeto:** o Lume serve para aprender *qualquer* tema (faculdade, ENEM, idiomas, atualidades, cultura pop). O problema e a medida continuam os mesmos: constância.
 2. **Entrar** com apelido + PIN (sem e-mail, sem dados pessoais — LGPD).
-3. **Quero aprender…** → digitar um tema novo ao vivo → mostrar as etapas (dividindo o tema, buscando aulas, criando exercícios).
+3. **O que você quer aprender?** → digitar um tema novo ao vivo (bom exemplo de curiosidade: algo de cultura pop) → mostrar as etapas (dividindo o tema, buscando aulas, criando exercícios).
    - Plano B: se falhar ou demorar, abrir um tema do catálogo (abre na hora).
 4. **Estudar uma parte:** abrir uma aula, iniciar o cronômetro (faixa verde embaixo acompanha o tempo enquanto assiste).
 5. **Concluir** → comemoração com a ofensiva e os pontos.

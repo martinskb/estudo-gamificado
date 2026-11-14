@@ -119,7 +119,7 @@ function Failed({ trail, timedOut, onRetry }: { trail: Trail; timedOut: boolean;
     : trail.error === 'quota'
       ? 'O limite diário de buscas no YouTube acabou. Amanhã volta ao normal.'
       : trail.error === 'tema'
-        ? 'Isso não parece um assunto de estudo. Tente escrever o que você quer aprender, por exemplo "Funções do 1º grau" ou "Inglês básico".'
+        ? 'Isso não parece algo para aprender. Escreva um tema, por exemplo "Fotossíntese", "Inglês básico" ou "Cronologia da Marvel".'
         : 'A IA não conseguiu montar essa trilha agora.'
 
   return (

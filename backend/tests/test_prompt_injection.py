@@ -135,7 +135,7 @@ def test_assistant_question_is_fenced_scoped_and_capped():
     ai, fake = client_replying("Uma resposta.")
     ai.answer(ATTACK, "Cálculo")
     system = str(fake.config.system_instruction)
-    assert "estudo" in system and "nunca instruções" in system
+    assert "aprendendo" in system and "nunca instruções" in system  # escopo: o que a pessoa aprende
     text = prompt_text(fake.contents)
     assert text.count("<dados_") == 2  # pergunta e tema, cada um na sua cerca
     assert fake.config.max_output_tokens and fake.config.max_output_tokens <= 1200
@@ -150,3 +150,16 @@ def test_assistant_answer_has_links_removed():
 
 def test_strip_links_keeps_math_and_decimals():
     assert strip_links("f(x) = 2.5x + 3.14 e a.b") == "f(x) = 2.5x + 3.14 e a.b"
+
+
+def test_topic_gate_welcomes_curiosity_and_pop_culture():
+    ai, fake = client_replying(PARTS_OK)
+    ai.split_topic("O que aconteceu no time skip de 2 anos de SAO", "livre")
+    text = prompt_text(fake.contents).lower()
+    assert "cultura pop" in text and "curiosidade" in text
+
+
+def test_assistant_scope_is_any_topic_being_learned():
+    ai, fake = client_replying("ok")
+    ai.answer("Quem é o Thanos?", "Cronologia da Marvel")
+    assert "qualquer tema" in str(fake.config.system_instruction)

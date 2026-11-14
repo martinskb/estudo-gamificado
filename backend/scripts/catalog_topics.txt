@@ -10,3 +10,6 @@ superior|Banco de dados: SQL básico
 superior|Estatística descritiva
 livre|Inglês: present perfect
 livre|Excel básico
+livre|Cronologia do Universo Marvel (MCU)
+livre|Como funciona a inflação
+livre|História dos videogames

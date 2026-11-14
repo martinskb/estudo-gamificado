@@ -80,12 +80,12 @@ export function TimerPage() {
         <h1>Estudar</h1>
         <form className="card stack" onSubmit={start}>
           <label>
-            O que você vai estudar?
+            No que você vai focar agora?
             <input
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               maxLength={120}
-              placeholder="ex.: Cálculo, Redação, SQL"
+              placeholder="ex.: Cálculo, inglês, leitura"
             />
           </label>
           <fieldset className="goal-picker">

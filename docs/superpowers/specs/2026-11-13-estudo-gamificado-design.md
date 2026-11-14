@@ -14,6 +14,11 @@ O núcleo, inspirado no Ziggur, é **cronômetro + estatísticas / progresso vis
 
 Contexto acadêmico: disciplina Tópicos Integradores (ADS/UNAMA). **Demonstração ao vivo na segunda 16/11/2026 às 8h** (sem slides; mostrar o sistema funcionando, funcionalidades e problema). Artigo final/banner e piloto com voluntários até **30/11/2026**.
 
+### Atualização 14/11 — escopo ampliado e identidade
+- Nome **Lume**, identidade "Degraus de luz" (índigo + amarelo, Unbounded + Plus Jakarta Sans), tema claro padrão.
+- O app passa a servir para aprender **qualquer tema** (faculdade, ENEM, idiomas, atualidades, hobbies, cultura pop), com linguagem menos "vida de estudante". O problema e a medida continuam: **constância**. Níveis: Curiosidade, Escola/ENEM, Faculdade. Em Curiosidade a busca no YouTube pede "explicado" em vez de "aula".
+- Defesas contra prompt injection (texto de fora como dado cercado, filtro de tema, sem links/contatos no que outros veem).
+
 ## 2. Objetivos, não-objetivos, anti-objetivos
 
 **Objetivos**

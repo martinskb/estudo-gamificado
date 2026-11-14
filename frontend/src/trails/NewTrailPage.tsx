@@ -4,9 +4,9 @@ import { api, post } from '../api/client'
 import type { CatalogItem } from '../api/types'
 
 const LEVELS = [
-  { value: 'livre', label: 'Só quero aprender' },
-  { value: 'vestibular', label: 'Vestibular / ENEM' },
-  { value: 'superior', label: 'Faculdade' },
+  { value: 'livre', label: 'Curiosidade', hint: 'cultura pop, atualidades, hobbies' },
+  { value: 'vestibular', label: 'Escola / ENEM', hint: 'conteúdo de prova' },
+  { value: 'superior', label: 'Faculdade', hint: 'matérias do curso' },
 ]
 
 export function NewTrailPage() {
@@ -61,10 +61,10 @@ export function NewTrailPage() {
   return (
     <main className="shell narrow">
       <div className="stack">
-        <h1>Quero aprender…</h1>
+        <h1>O que você quer aprender?</h1>
         <p className="muted">
-          Diga o tema. O app divide em partes, busca aulas gratuitas no YouTube e prepara
-          exercícios de fixação.
+          Qualquer tema. O Lume divide em degraus, encontra os melhores vídeos gratuitos e
+          prepara exercícios rápidos para fixar.
         </p>
       </div>
 
@@ -75,19 +75,33 @@ export function NewTrailPage() {
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             maxLength={120}
-            placeholder="ex.: Funções do 1º grau, SQL básico"
+            placeholder="ex.: Fotossíntese, SQL básico, Cronologia da Marvel"
             autoFocus
           />
         </label>
-        <label>
-          Para quê?
-          <select value={level} onChange={(e) => setLevel(e.target.value)}>
-            {LEVELS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
-          </select>
-        </label>
+        <fieldset>
+          <legend>Para quê?</legend>
+          <div className="chips" role="radiogroup" aria-label="Para quê?">
+            {LEVELS.map((l) => (
+              <button
+                key={l.value}
+                type="button"
+                role="radio"
+                aria-checked={level === l.value}
+                className={`chip${level === l.value ? ' selected' : ''}`}
+                onClick={() => setLevel(l.value)}
+              >
+                {l.label}
+              </button>
+            ))}
+          </div>
+          <span className="muted small" style={{ display: 'block', marginTop: 'var(--space-2)' }}>
+            {LEVELS.find((l) => l.value === level)?.hint}
+          </span>
+        </fieldset>
         {error && <p className="error" role="alert">{error}</p>}
         <button className="btn primary block" disabled={query.length < 3 || busy}>
-          {busy ? 'Abrindo…' : 'Montar minha trilha'}
+          {busy ? 'Abrindo…' : 'Montar trilha'}
         </button>
       </form>
 

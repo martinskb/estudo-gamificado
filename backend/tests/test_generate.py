@@ -49,6 +49,18 @@ def test_happy_path_ready(session_factory, trail_id, ai, yt):
 def test_search_query_includes_topic_and_part(session_factory, trail_id, ai, yt):
     generate_trail(trail_id, ai, yt, session_factory)
     assert "Funções do 1º grau" in yt.queries[0] and "Parte A" in yt.queries[0]
+    assert yt.queries[0].endswith(" aula")  # escola/faculdade: procura aula
+
+
+def test_curiosity_search_asks_for_explanations_not_classes(session_factory, ai, yt):
+    with session_factory() as db:
+        trail = Trail(title="Cronologia da Marvel", topic_norm="cronologia da marvel", level="livre")
+        db.add(trail)
+        db.commit()
+        trail_id = trail.id
+    generate_trail(trail_id, ai, yt, session_factory)
+    assert yt.queries[0].startswith("Cronologia da Marvel Parte A")
+    assert yt.queries[0].endswith(" explicado")
 
 
 def test_malformed_ai_json_retries_once(session_factory, trail_id, ai, yt):

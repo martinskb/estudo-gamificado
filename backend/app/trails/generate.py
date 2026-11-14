@@ -96,7 +96,10 @@ def generate_trail(
 
             def search_all() -> None:
                 for part in parts:
-                    hits = yt.search(f"{trail.title} {part.title} aula", VIDEOS_PER_PART)
+                    # Curiosidade (cultura pop, atualidades) acha mais vídeos de reação com "aula":
+                    # pedir "explicado" traz resumos e explicações.
+                    suffix = "explicado" if trail.level == "livre" else "aula"
+                    hits = yt.search(f"{trail.title} {part.title} {suffix}", VIDEOS_PER_PART)
                     for position, hit in enumerate(hits):
                         db.add(
                             Video(
