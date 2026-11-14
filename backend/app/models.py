@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import JSON, ForeignKey, String, UniqueConstraint
+from sqlalchemy import JSON, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base, utcnow
@@ -57,6 +57,7 @@ class StudySession(Base):
     points: Mapped[int] = mapped_column(default=0)
     goal_met: Mapped[bool] = mapped_column(default=False)
     day: Mapped[date] = mapped_column(index=True)
+    topic_id: Mapped[int | None] = mapped_column(default=None, index=True)
     streak_before: Mapped[int] = mapped_column(default=0)
     streak_after: Mapped[int] = mapped_column(default=0)
 
@@ -136,4 +137,24 @@ class Attempt(Base):
     exercise_id: Mapped[int] = mapped_column(ForeignKey("exercises.id"), index=True)
     choice: Mapped[int]
     correct: Mapped[bool]
+    created_at: Mapped[datetime] = mapped_column(default=utcnow)
+
+
+PALETTES = ("indigo", "noite", "lilas", "coral", "verde", "sol")
+
+
+class Topic(Base):
+    """Um tema que a pessoa está aprendendo: uma "playlist" na galeria."""
+
+    __tablename__ = "topics"
+    __table_args__ = (UniqueConstraint("user_id", "title_norm"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    title: Mapped[str] = mapped_column(String(80))
+    title_norm: Mapped[str] = mapped_column(String(80))
+    palette: Mapped[str] = mapped_column(String(12), default="indigo")
+    cover: Mapped[str | None] = mapped_column(Text, default=None)  # data URL pequena (≤ 100 KB)
+    done: Mapped[bool] = mapped_column(default=False)
+    trail_id: Mapped[int | None] = mapped_column(ForeignKey("trails.id"), default=None)
     created_at: Mapped[datetime] = mapped_column(default=utcnow)

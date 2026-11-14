@@ -11,6 +11,8 @@ from app.exercises import router as exercises_router
 from app.progress import router as progress_router
 from app.ranking import router as ranking_router
 from app.study import router as study_router
+from app.topics import router as topics_router
+from app.topics.service import backfill_topics, ensure_schema
 from app.trails import router as trails_router
 from app.trails.generate import fail_orphaned_generating
 
@@ -18,6 +20,8 @@ from app.trails.generate import fail_orphaned_generating
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(engine)
+    ensure_schema(engine)
+    backfill_topics(SessionLocal)
     with SessionLocal() as db:
         fail_orphaned_generating(db)
     yield
@@ -40,6 +44,7 @@ def create_app() -> FastAPI:
     app.include_router(study_router.router)
     app.include_router(progress_router.router)
     app.include_router(trails_router.router)
+    app.include_router(topics_router.router)
     app.include_router(exercises_router.router)
     app.include_router(assistant_router.router)
     app.include_router(ranking_router.router)

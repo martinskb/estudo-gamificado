@@ -14,6 +14,7 @@ from app.auth import current_user
 from app.db import get_db, get_session_factory, utcnow
 from app.models import Part, PartDone, StudySession, Trail, User, UserTrail, Video
 from app.study.rules import BELEM, today_belem
+from app.topics.service import get_or_create_topic
 from app.trails.catalog import match, normalize
 from app.trails.generate import STALE_AFTER, analyze_videos, generate_trail
 
@@ -39,7 +40,10 @@ class TrailIn(BaseModel):
 def enroll(db: Session, user_id: int, trail_id: int) -> None:
     if db.get(UserTrail, (user_id, trail_id)) is None:
         db.add(UserTrail(user_id=user_id, trail_id=trail_id))
-        db.commit()
+    trail = db.get(Trail, trail_id)
+    if trail is not None:
+        get_or_create_topic(db, user_id, trail.title, trail_id)  # a trilha aparece na galeria
+    db.commit()
 
 
 def user_trails(db: Session, user_id: int) -> list[dict]:

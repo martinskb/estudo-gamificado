@@ -9,7 +9,8 @@ from sqlalchemy.orm import Session
 from app.auth import current_user
 from app.db import get_db, to_naive_utc, utcnow
 from app.events import log_event
-from app.models import StudySession, User
+from app.models import StudySession, Topic, User
+from app.topics.service import get_or_create_topic
 from app.progress.streak import compute_streak
 from app.study.rules import goal_met, points_for_session, study_day, today_belem
 
@@ -22,6 +23,7 @@ class SessionIn(BaseModel):
     client_id: str = Field(min_length=1, max_length=64)
     topic: str = Field(min_length=1, max_length=120)
     part_id: int | None = None
+    topic_id: int | None = None
     goal_minutes: int = Field(ge=1, le=600)
     started_at: datetime
     ended_at: datetime
@@ -72,6 +74,13 @@ def conclude_session(
     if ahead > timedelta(minutes=5):
         started, ended = started - ahead, ended - ahead
 
+    if body.topic_id is not None:
+        topic = db.get(Topic, body.topic_id)
+        if topic is None or topic.user_id != user.id:
+            raise HTTPException(404, "Tema não encontrado")
+    else:
+        topic = get_or_create_topic(db, user.id, body.topic)
+
     day = study_day(ended)
     scored_today = db.scalar(
         select(func.count())
@@ -89,7 +98,8 @@ def conclude_session(
     session = StudySession(
         client_id=body.client_id,
         user_id=user.id,
-        topic=body.topic.strip(),
+        topic=topic.title,
+        topic_id=topic.id,
         part_id=body.part_id,
         goal_minutes=body.goal_minutes,
         started_at=started,
