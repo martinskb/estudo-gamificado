@@ -3,7 +3,7 @@ from datetime import date, timedelta
 import pytest
 from sqlalchemy import select
 
-from app.models import PartDone, StudySession, User, UserTrail
+from app.models import PartDone, StudySession, Trail, User, UserTrail
 from app.progress.streak import compute_streak
 from scripts.seed_demo_account import seed_demo_account
 from tests.test_parts_api import make_trail
@@ -56,7 +56,14 @@ def test_main_trail_is_the_one_the_home_continues(client, auth_headers, session_
     h = auth_headers("Beater", "2022")
     newton = make_trail(client, h, "Leis de Newton")["id"]
     other = make_trail(client, h, "Funções do 1º grau")["id"]
-    mine = make_trail(client, h, "Tema próprio da conta")["id"]  # criado antes, pela própria pessoa
+    with session_factory() as db:  # trilha que a própria pessoa abriu depois (limite: 2 novas por dia)
+        user = db.scalar(select(User).where(User.nickname_lower == "beater"))
+        own = Trail(title="Tema próprio da conta", topic_norm="tema proprio da conta", status="ready")
+        db.add(own)
+        db.flush()
+        db.add(UserTrail(user_id=user.id, trail_id=own.id))
+        db.commit()
+        mine = own.id
     seed_demo_account("beater", DEMO, [newton, other], session_factory)
     with session_factory() as db:
         user = db.scalar(select(User).where(User.nickname_lower == "beater"))
