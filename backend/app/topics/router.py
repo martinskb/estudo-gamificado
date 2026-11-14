@@ -1,7 +1,4 @@
 """Galeria de temas ("playlists"): criar na hora, sem IA; capas; níveis do disco."""
-import base64
-import binascii
-import re
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -20,8 +17,6 @@ from app.trails.catalog import normalize
 
 router = APIRouter()
 
-MAX_COVER_CHARS = 100_000
-_COVER = re.compile(r"^data:image/(jpeg|png|webp);base64,([A-Za-z0-9+/]+={0,2})$")
 
 
 def _clean_title(value: str) -> str:
@@ -31,17 +26,12 @@ def _clean_title(value: str) -> str:
     return value
 
 
-def _check_cover(value: str | None) -> str | None:
-    if value is None:
-        return None
-    match = _COVER.match(value)
-    if not match or len(value) > MAX_COVER_CHARS:
-        raise ValueError("A capa precisa ser uma imagem pequena (JPEG, PNG ou WebP)")
-    try:
-        base64.b64decode(match.group(2), validate=True)
-    except (binascii.Error, ValueError) as exc:
-        raise ValueError("Imagem inválida") from exc
-    return value
+def _check_cover(value: str | None) -> None:
+    # Fotos de capa ficam só no aparelho de cada pessoa: o servidor não hospeda imagens.
+    # A capa só pode ser apagada (null), para trazer as fotos antigas para o aparelho.
+    if value is not None:
+        raise ValueError("A foto da capa fica só no seu aparelho")
+    return None
 
 
 class TopicIn(BaseModel):

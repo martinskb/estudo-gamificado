@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { post } from '../api/client'
 import type { Progress, Topic } from '../api/types'
 import { useApi } from '../api/useApi'
+import { useAdoptServerCovers } from '../local/covers'
 import { Logo } from '../brand/Logo'
 import { todayBelem } from '../progress/calendarGrid'
 import { activeSeconds, backOf, loadTimer } from '../timer/timerState'
@@ -24,6 +25,7 @@ export function HomePage() {
   const [params, setParams] = useSearchParams()
   const { data: p, error, reload } = useApi<Progress>('/progress')
   const { data: topics } = useApi<Topic[]>('/topics?sort=recent')
+  useAdoptServerCovers(topics)
   const learning = topics && topics.filter((t) => !t.done)
   const done = topics && topics.filter((t) => t.done)
   const [adding, setAdding] = useState(false)

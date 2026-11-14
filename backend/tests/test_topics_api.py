@@ -66,23 +66,32 @@ def test_cannot_use_someone_elses_topic(client, auth_headers):
     assert client.get("/topics", headers=bia).json() == []
 
 
-def test_update_cover_palette_title_and_done(client, auth_headers):
+def test_update_palette_title_and_done(client, auth_headers):
     h = auth_headers()
     topic = new_topic(client, h).json()
-    r = client.patch(f"/topics/{topic['id']}", json={"cover": PIXEL, "palette": "coral", "title": "Inglês B1", "done": True}, headers=h)
+    r = client.patch(f"/topics/{topic['id']}", json={"palette": "coral", "title": "Inglês B1", "done": True}, headers=h)
     assert r.status_code == 200
     t = r.json()
-    assert (t["cover"], t["palette"], t["title"], t["done"]) == (PIXEL, "coral", "Inglês B1", True)
-    t = client.patch(f"/topics/{topic['id']}", json={"cover": None}, headers=h).json()
-    assert t["cover"] is None and t["palette"] == "coral"
+    assert (t["cover"], t["palette"], t["title"], t["done"]) == (None, "coral", "Inglês B1", True)
 
 
-def test_cover_must_be_a_small_image_data_url(client, auth_headers):
+def test_server_refuses_cover_photos(client, auth_headers):
+    """A foto da capa fica só no aparelho: o servidor não aceita nenhuma imagem."""
     h = auth_headers()
     topic = new_topic(client, h).json()
-    big = "data:image/jpeg;base64," + base64.b64encode(b"x" * 200_000).decode()
-    for bad in ["https://exemplo.com/foto.jpg", "data:text/html;base64,PGgxPg==", big, "data:image/jpeg;base64,@@@"]:
-        assert client.patch(f"/topics/{topic['id']}", json={"cover": bad}, headers=h).status_code == 422
+    for photo in [PIXEL, "https://exemplo.com/foto.jpg", "data:text/html;base64,PGgxPg=="]:
+        assert client.patch(f"/topics/{topic['id']}", json={"cover": photo}, headers=h).status_code == 422
+
+
+def test_old_server_photo_can_be_cleared_after_moving_to_device(client, auth_headers, session_factory):
+    h = auth_headers()
+    topic = new_topic(client, h).json()
+    with session_factory() as db:
+        db.get(Topic, topic["id"]).cover = PIXEL
+        db.commit()
+    assert client.get(f"/topics/{topic['id']}", headers=h).json()["cover"] == PIXEL
+    t = client.patch(f"/topics/{topic['id']}", json={"cover": None}, headers=h).json()
+    assert t["cover"] is None
 
 
 def test_list_sorting(client, auth_headers):

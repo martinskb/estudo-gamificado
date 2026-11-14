@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { player } from '../local/studyMusic'
 import type { PaletteName } from '../topics/cover'
 import { type TimerState, loadTimer, saveTimer, startTimer } from './timerState'
 
@@ -38,6 +39,8 @@ export function useSession({ topic, back, partId = null, topicId = null, palette
   }, [mine])
 
   function set(next: TimerState | null) {
+    // Dentro do toque da pessoa: é o que deixa o navegador começar a música.
+    player.sync(next !== null && next.pausedAt === null)
     saveTimer(next)
     setTimerState(next)
     setNow(Date.now())

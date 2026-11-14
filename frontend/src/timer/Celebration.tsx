@@ -47,6 +47,7 @@ export function Celebration({ result, minutes, backTo, backLabel, disc }: Props)
   }, [grew])
   const level = result.topic?.after.level ?? disc.level
   const coverTopic = {
+    id: result.topic?.id ?? -1,
     title: disc.title,
     palette: disc.palette,
     cover: null,

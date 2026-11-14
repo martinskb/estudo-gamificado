@@ -1,19 +1,21 @@
 import type { CSSProperties } from 'react'
 import type { Topic } from '../api/types'
+import { useDeviceCover } from '../local/covers'
 import { Vinyl } from '../vinyl/Vinyl'
 import { PALETTES } from './cover'
 
-type CoverTopic = Pick<Topic, 'title' | 'palette' | 'cover' | 'level'>
+type CoverTopic = Pick<Topic, 'id' | 'title' | 'palette' | 'cover' | 'level'>
 type Props = { topic: CoverTopic; size?: 'grid' | 'hero'; showTitle?: boolean }
 
-/** Capa do álbum (tema). Com foto: duotone nas cores da paleta. Sem foto: cor + formas. */
+/** Capa do álbum (tema). Com foto (guardada no aparelho): duotone nas cores da paleta. Sem foto: cor + formas. */
 export function Cover({ topic, size = 'grid', showTitle = true }: Props) {
+  const photo = useDeviceCover(topic.id) ?? topic.cover
   const palette = PALETTES[topic.palette] ?? PALETTES.indigo
   const style = { '--cover-dark': palette.dark, '--cover-light': palette.light } as CSSProperties
   return (
-    <div className={`cover cover-${size}${topic.cover ? ' has-photo' : ''}`} style={style}>
-      {topic.cover && <img src={topic.cover} alt="" draggable={false} style={{ filter: `url(#duo-${topic.palette}) contrast(1.08)` }} />}
-      {!topic.cover && (
+    <div className={`cover cover-${size}${photo ? ' has-photo' : ''}`} style={style}>
+      {photo && <img src={photo} alt="" draggable={false} style={{ filter: `url(#duo-${topic.palette}) contrast(1.08)` }} />}
+      {!photo && (
         <span className="cover-art" aria-hidden="true">
           <i className="cover-sun" />
           <i className="cover-bar" />

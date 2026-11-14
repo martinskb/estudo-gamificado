@@ -13,7 +13,8 @@ Projeto da disciplina Tópicos Integradores — Análise e Desenvolvimento de Si
 
 | | |
 |---|---|
-| **Estante** | Cada tema é um álbum (foto do aparelho em duotone nas cores da capa, ou capa automática) com o disco aparecendo. Criar tema é instantâneo, sem IA. |
+| **Estante** | Cada tema é um álbum (foto em duotone nas cores da capa, ou capa automática) com o disco aparecendo. A foto fica só no aparelho. Criar tema é instantâneo, sem IA. |
+| **Músicas para estudar** | No Perfil, a pessoa adiciona os próprios arquivos de música; ficam só no aparelho e tocam baixinho enquanto o disco gira. |
 | **Foco** | O disco vai para o toca-discos e gira enquanto o cronômetro roda; o braço avança pelos sulcos até a meta (15/25/45/60 min). Sobrevive a recarregar a página ou bloquear o celular. |
 | **Constância** | Ofensiva de dias seguidos com proteção (+1 a cada 7 dias, até 2), pontos (10 por sessão de 20 min+, até 3 por dia), meta de dias por semana. |
 | **Níveis do disco** | Por tema: Vinil → Prata (1 h) → Ouro (5 h) → Platina (15 h) → Diamante (40 h); o acabamento do disco mostra o nível, com animação e som ao subir. |
@@ -52,6 +53,7 @@ frontend/src/
   home/  topics/  timer/  trails/  progress/  ranking/  profile/  auth/
   api/               cliente HTTP + cache stale-while-revalidate
   ui/                skeleton, dicas que aparecem uma vez, sons, confirmação em dois toques
+  local/             fotos das capas e músicas guardadas só no aparelho (IndexedDB)
   vinyl/             disco (acabamento pelo nível), capa com disco e toca-discos
   theme/             tokens de cor (claro/escuro) e estilos
 ```
@@ -101,7 +103,7 @@ cd frontend && npx vitest run       # ~45 testes
 
 ## Privacidade e segurança
 
-- Dados mínimos (LGPD): apelido e PIN, sem nome, e-mail ou matrícula. Capas e estante só a própria pessoa vê.
+- Dados mínimos (LGPD): apelido e PIN, sem nome, e-mail ou matrícula. Fotos das capas e músicas ficam só no aparelho da pessoa (o servidor não guarda imagens nem áudio).
 - Nada pessoal vai para a IA: só o texto do tema, da pergunta e a URL do vídeo.
 - Prompt injection: texto de fora entra como dado cercado por marcadores aleatórios; tema que não é para aprender é recusado; partes, exercícios e respostas não podem ter links ou contatos; HTML vindo da IA nunca é executado.
 - Chaves só no servidor; o cache do app é apagado ao sair da conta.

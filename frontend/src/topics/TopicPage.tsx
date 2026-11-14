@@ -1,4 +1,4 @@
-import { type CSSProperties, useRef, useState } from 'react'
+import { type CSSProperties, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api, post } from '../api/client'
 import type { Topic, TopicDetail } from '../api/types'
@@ -9,6 +9,7 @@ import { useSession } from '../timer/useSession'
 import { AssistantPanel } from '../assistant/AssistantPanel'
 import { ConfirmButton } from '../ui/ConfirmButton'
 import { PageSkeleton } from '../ui/Skeleton'
+import { removeCover, saveCover, useAdoptServerCovers, useDeviceCover } from '../local/covers'
 import { Sleeve } from './Cover'
 import { PALETTES, type PaletteName, formatHours, photoToCover } from './cover'
 
@@ -34,6 +35,8 @@ export function TopicPage() {
     level: topic?.level.name,
   })
   const photoRef = useRef<HTMLInputElement>(null)
+  const devicePhoto = useDeviceCover(Number(id))
+  useAdoptServerCovers(useMemo(() => (topic ? [topic] : null), [topic]))
 
   if (error) {
     return (
@@ -51,9 +54,7 @@ export function TopicPage() {
     setUploading(true)
     setPhotoError('')
     try {
-      const cover = await photoToCover(file)
-      const saved = await api<Topic>(`/topics/${topic.id}`, { method: 'PATCH', body: JSON.stringify({ cover }) })
-      setData({ ...topic, ...saved })
+      await saveCover(topic.id, await photoToCover(file))
     } catch (err) {
       setPhotoError(err instanceof Error ? err.message : 'Não deu para usar essa foto.')
     } finally {
@@ -64,6 +65,7 @@ export function TopicPage() {
 
   const lv = topic.level
   const trail = topic.trail
+  const hasPhoto = Boolean(devicePhoto || topic.cover)
 
   // Tocando: a página do tema vira o modo foco (toca-discos, relógio e controles).
   if (session.mine) {
@@ -87,10 +89,10 @@ export function TopicPage() {
         <div className="cover-wrap">
           <Sleeve topic={topic} size="hero" showTitle={false} />
           <button
-            className={`cover-photo-btn${topic.cover ? '' : ' empty'}`}
+            className={`cover-photo-btn${hasPhoto ? '' : ' empty'}`}
             onClick={() => photoRef.current?.click()}
             disabled={uploading}
-            aria-label={topic.cover ? 'Trocar foto da capa' : 'Adicionar foto à capa'}
+            aria-label={hasPhoto ? 'Trocar foto da capa' : 'Adicionar foto à capa'}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
@@ -201,12 +203,18 @@ function CoverEditor({ topic, onSaved, onDeleted, onClose }: EditorProps) {
     }
   }
 
+  const photo = useDeviceCover(topic.id) ?? topic.cover
+
   async function pickPhoto(file: File | undefined) {
     if (!file) return
+    setBusy(true)
+    setError('')
     try {
-      await patch({ cover: await photoToCover(file) })
+      await saveCover(topic.id, await photoToCover(file))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não deu para usar essa foto.')
+    } finally {
+      setBusy(false)
     }
   }
 
@@ -232,14 +240,14 @@ function CoverEditor({ topic, onSaved, onDeleted, onClose }: EditorProps) {
         <span className="small" style={{ fontWeight: 600 }}>Foto</span>
         <div className="row wrap" style={{ gap: 'var(--space-2)' }}>
           <button className="btn soft small" disabled={busy} onClick={() => fileRef.current?.click()}>
-            {topic.cover ? 'Trocar foto' : 'Escolher foto'}
+            {photo ? 'Trocar foto' : 'Escolher foto'}
           </button>
-          {topic.cover && (
-            <button className="btn ghost small" disabled={busy} onClick={() => patch({ cover: null })}>Tirar foto</button>
+          {photo && (
+            <button className="btn ghost small" disabled={busy} onClick={() => void removeCover(topic.id)}>Tirar foto</button>
           )}
           <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => pickPhoto(e.target.files?.[0])} />
         </div>
-        <span className="muted small">Só você vê sua galeria.</span>
+        <span className="muted small">A foto fica só neste aparelho.</span>
       </div>
 
       <div className="stack" style={{ gap: 'var(--space-3)' }}>

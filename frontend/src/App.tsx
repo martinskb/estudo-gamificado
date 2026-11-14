@@ -9,6 +9,7 @@ import { ProgressPage } from './progress/ProgressPage'
 import { RankingPage } from './ranking/RankingPage'
 import { FinishPage } from './timer/FinishPage'
 import { MiniTimer } from './timer/MiniTimer'
+import { StudyMusicSync } from './timer/StudyMusicSync'
 import { DuotoneFilters } from './topics/DuotoneFilters'
 import { TopicPage } from './topics/TopicPage'
 import { NewTrailPage } from './trails/NewTrailPage'
@@ -59,6 +60,7 @@ function Private() {
         <Page />
       </div>
       <MiniTimer />
+      <StudyMusicSync />
       <DuotoneFilters />
     </>
   )

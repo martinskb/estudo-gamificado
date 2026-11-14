@@ -928,3 +928,15 @@ textarea { min-height: 96px; resize: vertical; }
   .stage { height: 400px; margin: 0; }
   .stage-deck { width: 420px; }
 }
+
+/* ---------- Músicas para estudar (Perfil) ---------- */
+.volume-row { display: flex; flex-direction: row; align-items: center; gap: var(--space-3); }
+.volume-row input[type='range'] { flex: 1; accent-color: var(--accent); min-height: 0; padding: 0; background: transparent; border: 0; }
+.track-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.track-list li { display: flex; align-items: center; gap: var(--space-3); padding: 8px 0; border-top: 1px solid var(--border); min-width: 0; }
+.track-list li svg { color: var(--muted); flex: none; }
+.icon-btn {
+  appearance: none; border: 0; background: transparent; color: var(--muted); cursor: pointer; flex: none;
+  width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+}
+.icon-btn:hover { background: var(--surface-2); color: var(--text); }
