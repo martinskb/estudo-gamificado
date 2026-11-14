@@ -1,5 +1,6 @@
 """Cliente de IA. Só recebe texto de tema/parte/pergunta e URL de vídeo — nunca dados pessoais."""
 import json
+import time
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -108,13 +109,25 @@ QUIZ_RULES = (
 )
 
 
+# Erros em que vale tentar o próximo modelo: cota esgotada, sobrecarga, modelo inexistente.
+_TRY_NEXT = ("429", "RESOURCE_EXHAUSTED", "503", "UNAVAILABLE", "404", "NOT_FOUND")
+_SKIP_SECONDS = 15 * 60
+
+
 class GeminiClient:
-    def __init__(self, api_key: str, model: str):
-        from google import genai  # import tardio: os testes não precisam do SDK
+    """`model` aceita uma lista separada por vírgula, em ordem de preferência.
+
+    O plano grátis dá poucas requisições por dia POR MODELO. Quando um esgota, o cliente
+    usa o próximo e deixa o esgotado de lado por alguns minutos.
+    """
+
+    def __init__(self, api_key: str, model: str, client=None):
+        from google import genai  # import tardio: os testes não precisam de rede
 
         self._genai = genai
-        self._client = genai.Client(api_key=api_key)
-        self._model = model
+        self._client = client or genai.Client(api_key=api_key)
+        self._models = [m.strip() for m in model.split(",") if m.strip()]
+        self._skip_until: dict[str, float] = {}
 
     def _generate(self, contents, *, schema: dict | None, timeout_s: int, low_res: bool = False) -> str:
         types = self._genai.types
@@ -124,16 +137,25 @@ class GeminiClient:
             response_json_schema=schema,
             media_resolution="MEDIA_RESOLUTION_LOW" if low_res else None,
         )
-        try:
-            response = self._client.models.generate_content(
-                model=self._model, contents=contents, config=config
-            )
-            text = response.text
-        except Exception as exc:  # rede, cota, bloqueio: tudo vira AIError para quem chama
-            raise AIError(str(exc)[:300]) from exc
-        if not text:
-            raise AIError("resposta vazia")
-        return text
+        now = time.monotonic()
+        available = [m for m in self._models if self._skip_until.get(m, 0) <= now] or self._models
+        last_error = "nenhum modelo configurado"
+        for model in available:
+            try:
+                response = self._client.models.generate_content(
+                    model=model, contents=contents, config=config
+                )
+                text = response.text
+            except Exception as exc:  # rede, cota, bloqueio: tudo vira AIError para quem chama
+                last_error = str(exc)[:300]
+                if any(marker in last_error for marker in _TRY_NEXT):
+                    self._skip_until[model] = time.monotonic() + _SKIP_SECONDS
+                    continue
+                raise AIError(last_error) from exc
+            if not text:
+                raise AIError("resposta vazia")
+            return text
+        raise AIError(last_error)
 
     def split_topic(self, topic: str, level: str) -> list[str]:
         prompt = (
