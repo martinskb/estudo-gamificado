@@ -4,6 +4,7 @@ import type { Me, Ranking } from '../api/types'
 import { useApi } from '../api/useApi'
 import { getNickname } from '../auth/auth'
 import { CardSkeleton } from '../ui/Skeleton'
+import { Tip } from '../ui/Tip'
 
 export function RankingPage() {
   const { data: me, setData: setMe } = useApi<Me>('/me')
@@ -29,29 +30,17 @@ export function RankingPage() {
 
   return (
     <main className="shell narrow">
-      <div className="stack">
+      <div className="section-title">
         <h1>Ranking da semana</h1>
-        <p className="muted">
-          Pontos de segunda a domingo. Participar é opcional e só mostra seu apelido.
-        </p>
+        {ranking?.me && <span className="pill highlight">{ranking.me.position}º lugar</span>}
       </div>
 
-      {me && (
-        <section className="card stack" style={{ gap: 'var(--space-3)' }}>
-          <div className="row spread">
-            <span>{me.in_ranking ? 'Você está no ranking.' : 'Você não está no ranking.'}</span>
-            <button className={`btn ${me.in_ranking ? '' : 'primary'}`} onClick={toggle} disabled={busy}>
-              {me.in_ranking ? 'Sair do ranking' : 'Participar'}
-            </button>
-          </div>
-          {toggleError && <p className="error" role="alert">{toggleError}</p>}
-          {ranking?.me && (
-            <p className="muted small">
-              Sua posição: {ranking.me.position}º, com {ranking.me.week_points} pontos.
-            </p>
-          )}
-        </section>
+      <Tip id="ranking">Pontos de segunda a domingo. Só seu apelido aparece, e participar é opcional.</Tip>
+
+      {me && !me.in_ranking && (
+        <button className="btn primary block" onClick={toggle} disabled={busy}>Participar do ranking</button>
       )}
+      {toggleError && <p className="error" role="alert">{toggleError}</p>}
 
       {error && (
         <div className="notice warn stack">
@@ -74,6 +63,11 @@ export function RankingPage() {
             </li>
           ))}
         </ol>
+      )}
+      {me?.in_ranking && (
+        <button className="btn ghost small" style={{ alignSelf: 'center' }} onClick={toggle} disabled={busy}>
+          Sair do ranking
+        </button>
       )}
     </main>
   )

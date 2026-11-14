@@ -18,6 +18,9 @@ export function TopicPage() {
   const navigate = useNavigate()
   const { data: topic, error, setData } = useApi<TopicDetail>(`/topics/${id}`)
   const [editing, setEditing] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [photoError, setPhotoError] = useState('')
+  const photoRef = useRef<HTMLInputElement>(null)
 
   if (error) {
     return (
@@ -40,6 +43,22 @@ export function TopicPage() {
     navigate('/estudar')
   }
 
+  async function choosePhoto(file: File | undefined) {
+    if (!file || !topic) return
+    setUploading(true)
+    setPhotoError('')
+    try {
+      const cover = await photoToCover(file)
+      const saved = await api<Topic>(`/topics/${topic.id}`, { method: 'PATCH', body: JSON.stringify({ cover }) })
+      setData({ ...topic, ...saved })
+    } catch (err) {
+      setPhotoError(err instanceof Error ? err.message : 'Não deu para usar essa foto.')
+    } finally {
+      setUploading(false)
+      if (photoRef.current) photoRef.current.value = ''
+    }
+  }
+
   const lv = topic.level
   const trail = topic.trail
 
@@ -48,7 +67,21 @@ export function TopicPage() {
       <Link className="muted small" to="/" style={{ textDecoration: 'none', fontWeight: 600 }}>‹ Aprendendo</Link>
 
       <section className="topic-hero">
-        <Cover topic={topic} size="hero" showTitle={false} />
+        <div className="cover-wrap">
+          <Cover topic={topic} size="hero" showTitle={false} />
+          <button
+            className={`cover-photo-btn${topic.cover ? '' : ' empty'}`}
+            onClick={() => photoRef.current?.click()}
+            disabled={uploading}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
+              <circle cx="12" cy="13" r="3.5" />
+            </svg>
+            {uploading ? 'Enviando…' : topic.cover ? 'Trocar foto' : 'Adicionar foto'}
+          </button>
+          <input ref={photoRef} type="file" accept="image/*" hidden onChange={(e) => choosePhoto(e.target.files?.[0])} />
+        </div>
         <div className="stack" style={{ gap: 'var(--space-4)' }}>
           <div className="stack" style={{ gap: 'var(--space-2)' }}>
             <h1>{topic.title}</h1>
@@ -79,11 +112,13 @@ export function TopicPage() {
               <Link className="btn soft small" to={`/aprender?tema=${encodeURIComponent(topic.title)}`}>Montar trilha com vídeos</Link>
             )}
             <button className="btn ghost small" onClick={() => setEditing((e) => !e)} aria-expanded={editing}>
-              Editar capa
+              Editar tema
             </button>
           </div>
         </div>
       </section>
+
+      {photoError && <p className="error" role="alert">{photoError}</p>}
 
       {editing && (
         <CoverEditor
@@ -126,7 +161,6 @@ export function TopicPage() {
             <span className="muted small">
               {lv.next_name ? `${lv.next_name} em ${formatHours(lv.seconds_to_next)}` : 'Nível máximo. Você é um farol nesse tema!'}
             </span>
-            <span className="muted small">Faísca 1 h · Chama 5 h · Lanterna 15 h · Farol 40 h</span>
           </section>
         </div>
       </div>
@@ -176,9 +210,9 @@ function CoverEditor({ topic, onSaved, onDeleted, onClose }: EditorProps) {
   }
 
   return (
-    <section className="card stack" style={{ gap: 'var(--space-5)' }} aria-label="Editar capa">
+    <section className="card stack" style={{ gap: 'var(--space-5)' }} aria-label="Editar tema">
       <div className="section-title">
-        <h2>Capa e tema</h2>
+        <h2>Editar tema</h2>
         <button className="btn ghost small" onClick={onClose}>Fechar</button>
       </div>
 
@@ -193,7 +227,7 @@ function CoverEditor({ topic, onSaved, onDeleted, onClose }: EditorProps) {
           )}
           <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => pickPhoto(e.target.files?.[0])} />
         </div>
-        <span className="muted small">A foto vira duas cores da paleta escolhida. Só você vê sua galeria.</span>
+        <span className="muted small">Só você vê sua galeria.</span>
       </div>
 
       <div className="stack" style={{ gap: 'var(--space-3)' }}>

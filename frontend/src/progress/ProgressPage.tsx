@@ -4,6 +4,7 @@ import type { Progress, SessionRow } from '../api/types'
 import { useApi } from '../api/useApi'
 import { TrailList } from '../trails/TrailList'
 import { PageSkeleton } from '../ui/Skeleton'
+import { Tip } from '../ui/Tip'
 import { Calendar } from './Calendar'
 
 const dayLabel = (iso: string) => iso.split('-').reverse().slice(0, 2).join('/')
@@ -47,10 +48,8 @@ export function ProgressPage() {
 
   return (
     <main className="shell">
-      <div className="page-head">
-        <h1>Progresso</h1>
-        <p>Cada sessão concluída acende um dia. Proteções salvam a ofensiva quando você falha um dia.</p>
-      </div>
+      <h1>Progresso</h1>
+      <Tip id="protecao">A cada 7 dias seguidos você ganha uma proteção: ela salva sua ofensiva se você falhar um dia.</Tip>
 
       <section className="stat-grid" aria-label="Resumo">
         <div className="card"><div className="stat" style={{ color: 'var(--accent)' }}>{p.streak}</div><span className="muted small">dias de ofensiva</span></div>
@@ -75,7 +74,7 @@ export function ProgressPage() {
               <span style={{ width: `${Math.min(100, (p.week_days / p.week_goal_days) * 100)}%` }} />
             </div>
             <div className="stack" style={{ gap: 'var(--space-2)' }}>
-              <span className="small muted" id="goal-label">Quantos dias por semana você quer estudar?</span>
+              <span className="small muted" id="goal-label">Dias por semana</span>
               <div className="chips" role="radiogroup" aria-labelledby="goal-label">
                 {[1, 2, 3, 4, 5, 6, 7].map((n) => (
                   <button

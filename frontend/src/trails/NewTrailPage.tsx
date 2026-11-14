@@ -64,8 +64,7 @@ export function NewTrailPage() {
       <div className="stack">
         <h1>O que você quer aprender?</h1>
         <p className="muted">
-          Qualquer tema. O Lume divide em degraus, encontra os melhores vídeos gratuitos e
-          prepara exercícios rápidos para fixar.
+          O Lume divide em degraus e acha os melhores vídeos gratuitos.
         </p>
       </div>
 
@@ -109,7 +108,6 @@ export function NewTrailPage() {
       {suggestions.length > 0 && (
         <section className="stack" aria-label="Trilhas prontas">
           <h2>{query ? 'Já existe trilha pronta' : 'Temas populares'}</h2>
-          <p className="muted small">Trilhas prontas abrem na hora.</p>
           {suggestions.map((s) => (
             <button
               key={s.trail_id}

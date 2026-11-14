@@ -126,7 +126,7 @@ export function TimerPage() {
               </label>
             </div>
             <span className="muted small">
-              {goal === null ? 'Escolha de 1 a 600 minutos.' : 'Sessões de 20 min ou mais valem 10 pontos.'}
+              {goal === null ? 'De 1 a 600 minutos.' : goal >= 20 ? 'Vale 10 pontos.' : 'Abaixo de 20 min não pontua.'}
             </span>
           </fieldset>
           <button className="btn primary block" disabled={topic.trim().length === 0 || goal === null}>

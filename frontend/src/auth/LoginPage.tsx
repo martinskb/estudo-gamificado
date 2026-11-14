@@ -50,10 +50,7 @@ export function LoginPage() {
         <div className="stack" style={{ gap: 'var(--space-4)' }}>
           <span className="login-mobile-logo"><Logo size={40} /></span>
           <h1>Entrar</h1>
-          <p className="muted">
-            Escolha um apelido e um PIN de 4 dígitos. Se o apelido for novo, a conta é criada na
-            hora. Use os mesmos no celular e no computador.
-          </p>
+          <p className="muted">Apelido novo cria a conta na hora.</p>
         </div>
         <form className="stack" style={{ gap: 'var(--space-4)' }} onSubmit={submit}>
           <label>
@@ -89,9 +86,7 @@ export function LoginPage() {
             </p>
           )}
         </form>
-        <p className="muted small">
-          Não pedimos nome, e-mail nem matrícula. Sem o PIN não há como recuperar a conta.
-        </p>
+
       </div>
     </main>
   )

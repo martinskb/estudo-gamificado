@@ -5,7 +5,6 @@ import { Logo } from './brand/Logo'
 import { HomePage } from './home/HomePage'
 import { ProgressPage } from './progress/ProgressPage'
 import { RankingPage } from './ranking/RankingPage'
-import { ThemeToggle } from './theme/ThemeToggle'
 import { MiniTimer } from './timer/MiniTimer'
 import { TimerPage } from './timer/TimerPage'
 import { DuotoneFilters } from './topics/DuotoneFilters'
@@ -51,7 +50,6 @@ function Private() {
           <NavLink to="/progresso"><Icon path={ICONS.chart} />Progresso</NavLink>
           <NavLink to="/ranking"><Icon path={ICONS.trophy} />Ranking</NavLink>
         </div>
-        <div className="nav-foot"><ThemeToggle className="btn ghost small" /></div>
       </nav>
       <div className="app-main">
         <Page />

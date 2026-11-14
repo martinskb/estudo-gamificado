@@ -36,11 +36,13 @@
   --font-display: 'Unbounded', 'Plus Jakarta Sans', system-ui, sans-serif;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --sidebar: 248px;
-  color-scheme: light;
+  color-scheme: light dark;
 }
 
-/* Escuro só quando a pessoa escolhe no botão de sol/lua (o claro é o padrão). */
-:root[data-theme='dark'] {
+/* Escuro automático, pelo tema do dispositivo. Declarar 'color-scheme: light dark' também
+   impede o Chrome de aplicar o escuro forçado dele por cima do nosso. */
+@media (prefers-color-scheme: dark) {
+  :root {
     /* Escuro: camadas pela luminosidade (sem sombras), índigo dessaturado e amarelo menos gritante. */
     --bg: #0e0d1c;
     --surface: #17162b;
@@ -65,3 +67,4 @@
     --shadow-lift: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 16px 32px -16px rgba(0, 0, 0, 0.6);
     color-scheme: dark;
   }
+}

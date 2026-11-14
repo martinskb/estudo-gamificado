@@ -50,7 +50,7 @@ export function Celebration({ result, minutes, backTo, backLabel }: Props) {
         </div>
         {result.points === 0 && (
           <p className="muted small">
-            Pontuam sessões de 20 min ou mais, até 3 por dia. A sessão ficou registrada do mesmo
+            Sessões de 20 min ou mais valem pontos. Esta ficou registrada do mesmo
             jeito.
           </p>
         )}

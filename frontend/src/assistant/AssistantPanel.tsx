@@ -50,7 +50,7 @@ export function AssistantPanel({ topic }: { topic?: string }) {
       </div>
       {log.length === 0 && (
         <p className="muted small">
-          Pergunte o que quiser sobre {topic ? `“${topic}”` : 'o que está aprendendo'}. O cronômetro continua rodando.
+          Pergunte o que quiser sobre {topic ? `“${topic}”` : 'o que está aprendendo'}.
         </p>
       )}
       <div className="stack" aria-live="polite">

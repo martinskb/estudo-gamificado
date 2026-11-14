@@ -6,7 +6,6 @@ import { useApi } from '../api/useApi'
 import { clearLogin, getNickname } from '../auth/auth'
 import { Logo } from '../brand/Logo'
 import { todayBelem } from '../progress/calendarGrid'
-import { ThemeToggle } from '../theme/ThemeToggle'
 import { Cover } from '../topics/Cover'
 import { formatHours } from '../topics/cover'
 import { GallerySkeleton } from '../ui/Skeleton'
@@ -59,7 +58,6 @@ export function HomePage() {
       <div className="home-head">
         <span className="home-logo"><Logo size={30} /></span>
         <span className="row" style={{ gap: 'var(--space-1)' }}>
-          <ThemeToggle className="btn ghost small theme-mobile" />
           <button className="btn ghost small" onClick={leave}>Sair</button>
         </span>
       </div>
