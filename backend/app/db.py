@@ -1,13 +1,21 @@
+import re
 from collections.abc import Iterator
 from datetime import UTC, datetime
 
-from sqlalchemy import create_engine
+from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.config import settings
 
 
-def _normalize_url(url: str) -> str:
+def clean_database_url(raw: str) -> str:
+    """Aceita a URL do jeito que costuma ser colada no painel da hospedagem."""
+    url = raw.strip()
+    if url.startswith("DATABASE_URL="):
+        url = url[len("DATABASE_URL="):].strip()
+    if url.startswith("psql "):
+        url = url[len("psql "):].strip()
+    url = url.strip("'\"")
     # Neon/Supabase/Render entregam "postgres://" ou "postgresql://"; usamos psycopg 3.
     for prefix in ("postgres://", "postgresql://"):
         if url.startswith(prefix):
@@ -22,8 +30,23 @@ def engine_options(url: str) -> dict:
     return {"connect_args": {"prepare_threshold": None}, "pool_pre_ping": True}
 
 
-_url = _normalize_url(settings.database_url)
-engine = create_engine(_url, **engine_options(_url))
+def engine_for(raw: str) -> Engine:
+    url = clean_database_url(raw)
+    try:
+        return create_engine(url, **engine_options(url))
+    except Exception as exc:
+        # Mostra só o formato (letras e números viram o tamanho), nunca usuário ou senha.
+        scheme, sep, rest = url.partition("://")
+        if not sep or not re.fullmatch(r"[a-z+]+", scheme):
+            scheme, sep, rest = "", "", url
+        shape = scheme + sep + re.sub(r"[A-Za-z0-9_-]+", lambda m: f"<{len(m.group())}>", rest)
+        raise RuntimeError(
+            "DATABASE_URL inválida. Formato recebido: "
+            f"{shape[:200]} — esperado: postgresql://USUARIO:SENHA@HOST/BANCO?sslmode=require"
+        ) from exc
+
+
+engine = engine_for(settings.database_url)
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
 
