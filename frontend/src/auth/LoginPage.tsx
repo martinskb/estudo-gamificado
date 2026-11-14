@@ -2,6 +2,7 @@ import { type FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ApiError, post } from '../api/client'
 import type { EnterResponse } from '../api/types'
+import { Logo } from '../brand/Logo'
 import { saveLogin } from './auth'
 
 export function LoginPage() {
@@ -35,7 +36,9 @@ export function LoginPage() {
   return (
     <main className="shell" style={{ justifyContent: 'center' }}>
       <div className="stack">
-        <h1>Entrar</h1>
+        <Logo size={44} />
+        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>Estude no seu ritmo, um degrau por dia.</p>
+        <h1 style={{ marginTop: 'var(--space-4)' }}>Entrar</h1>
         <p className="muted">
           Escolha um apelido e um PIN de 4 dígitos. Se o apelido for novo, a conta é criada na
           hora. Use os mesmos no celular e no computador.
@@ -69,6 +72,11 @@ export function LoginPage() {
         <button className="btn primary block" disabled={!nicknameOk || !pinOk || busy}>
           {busy ? 'Entrando…' : 'Entrar'}
         </button>
+        {busy && (
+          <p className="muted small" role="status">
+            Se o servidor estava parado, o primeiro acesso pode levar até 1 minuto.
+          </p>
+        )}
       </form>
       <p className="muted small">
         Não pedimos nome, e-mail nem matrícula. Sem o PIN não há como recuperar a conta.

@@ -6,3 +6,4 @@ dist/
 *.db
 .superpowers/
 .pytest_cache/
+dev_fake.db

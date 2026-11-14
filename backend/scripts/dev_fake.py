@@ -3,13 +3,18 @@
 Só para testar as telas localmente:  uv run python -m scripts.dev_fake
 Nunca usar em produção — os links de vídeo aqui não existem.
 """
+import os
 import time
 
-import uvicorn
+# Sempre num banco local: este servidor tem IA e YouTube de mentira e nunca pode
+# escrever no banco de produção que estiver no .env.
+os.environ["DATABASE_URL"] = "sqlite:///./dev_fake.db"
 
-from app.ai.deps import get_ai, get_videos
-from app.main import create_app
-from tests.fakes import FakeAI, FakeVideos
+import uvicorn  # noqa: E402
+
+from app.ai.deps import get_ai, get_videos  # noqa: E402
+from app.main import create_app  # noqa: E402
+from tests.fakes import FakeAI, FakeVideos  # noqa: E402
 
 
 class SlowFakeAI(FakeAI):
