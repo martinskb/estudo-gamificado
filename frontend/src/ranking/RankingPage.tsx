@@ -36,7 +36,7 @@ export function RankingPage() {
       </div>
 
       {me && (
-        <section className="card stack">
+        <section className="card stack" style={{ gap: 'var(--space-3)' }}>
           <div className="row spread">
             <span>{me.in_ranking ? 'Você está no ranking.' : 'Você não está no ranking.'}</span>
             <button className={`btn ${me.in_ranking ? '' : 'primary'}`} onClick={toggle} disabled={busy}>

@@ -3,6 +3,7 @@ import type { Progress, Trail } from '../api/types'
 import { useApi } from '../api/useApi'
 import { clearLogin, getNickname } from '../auth/auth'
 import { Logo } from '../brand/Logo'
+import { ThemeToggle } from '../theme/ThemeToggle'
 import { todayBelem } from '../progress/calendarGrid'
 import { TrailList } from '../trails/TrailList'
 import { stepsAround, weekStrip } from './homeModel'
@@ -22,7 +23,10 @@ export function HomePage() {
     <main className="shell">
       <div className="home-head">
         <span className="home-logo"><Logo size={30} /></span>
-        <button className="btn ghost small" onClick={leave}>Sair</button>
+        <span className="row" style={{ gap: 'var(--space-1)' }}>
+          <ThemeToggle className="btn ghost small theme-mobile" />
+          <button className="btn ghost small" onClick={leave}>Sair</button>
+        </span>
       </div>
 
       <div className="greeting">
