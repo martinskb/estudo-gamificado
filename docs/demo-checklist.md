@@ -10,17 +10,17 @@
 - [ ] Wi-Fi/4G do celular funcionando.
 
 ## Roteiro sugerido (sem slides)
-1. **Problema:** manter constância para aprender, sem dinheiro para cursinho; o conteúdo bom já existe de graça no YouTube, falta organização e motivação.
+1. **Problema:** manter constância para aprender, sem dinheiro para cursinho; o conteúdo bom já existe de graça, falta organização e motivação.
    - **Evolução desde o pré-projeto:** o Lume serve para aprender *qualquer* tema (faculdade, ENEM, idiomas, atualidades, cultura pop). O problema e a medida continuam os mesmos: constância.
-2. **Entrar** com apelido + PIN (sem e-mail, sem dados pessoais — LGPD).
-3. **O que você quer aprender?** → digitar um tema novo ao vivo (bom exemplo de curiosidade: algo de cultura pop) → mostrar as etapas (dividindo o tema, buscando aulas, criando exercícios).
-   - Plano B: se falhar ou demorar, abrir um tema do catálogo (abre na hora).
-4. **Estudar uma parte:** abrir uma aula, iniciar o cronômetro (faixa verde embaixo acompanha o tempo enquanto assiste).
-5. **Concluir** → comemoração com a ofensiva e os pontos.
-6. **Concluí esta parte → Fazer exercícios** (gerados a partir do conteúdo do vídeo, sem nota).
-7. **Tirar dúvida com a IA** (rótulo "Gerado por IA — confira no seu material").
-8. **Progresso:** calendário de dias, minutos por tema, meta da semana, histórico.
-9. **Ranking** semanal opcional (usuários de exemplo já populam).
+2. **Entrar** com a conta da demo (apelido + PIN, sem e-mail nem dados pessoais — LGPD). Mostrar o aviso "sua ofensiva de 13 dias está em risco".
+3. **Galeria "Aprendendo":** cada tema é uma playlist com capa, nível de luz (Faísca → Farol) e tempo focado. Mostrar os filtros (Recentes, Mais tempo).
+4. **Abrir "Leis de Newton":** capa grande, sessões como faixas, nível Chama e a barra até Lanterna.
+5. **Play "Focar 25 min"** → cronômetro (faixa embaixo acompanha o tempo) → **Concluir** → comemoração **13 → 14** → "Voltar ao tema": a sessão nova aparece na lista.
+6. **Editar capa:** escolher uma foto do celular e mostrar que ela vira as cores da marca (duotone); trocar a paleta.
+7. **"Trilha com vídeos · continuar parte 3":** partes com vídeos reais do YouTube, exercícios gerados a partir do vídeo, "Tirar dúvida com a IA" (rótulo "Gerado por IA").
+8. **Ao vivo:** "+ Novo tema" (instantâneo, sem IA) → "Montar trilha com vídeos" com um tema de cultura pop. Plano B: abrir um tema do catálogo (abre na hora).
+9. **Progresso** (calendário com o dia salvo pela proteção) e **Ranking** semanal opcional.
+10. **Segurança:** contar das defesas contra prompt injection (tema que não é para aprender é recusado; IA nunca mostra links).
 
 ## Limites para saber de cabeça
 - Gemini grátis: poucas requisições por dia por modelo; o app alterna entre 5 modelos.
