@@ -1,3 +1,5 @@
+import type { PaletteName } from '../topics/cover'
+
 // O cronômetro guarda horários, não uma contagem: o navegador do celular congela a
 // aba quando a tela apaga, então o tempo é sempre recalculado a partir do início.
 
@@ -8,6 +10,9 @@ export type TimerState = {
   topicId?: number | null
   /** Tela de onde a sessão começou (trilha ou tema): os controles ficam lá. */
   back?: string
+  /** Cores e nível do disco do tema, para desenhar o disco fora da tela do tema. */
+  palette?: PaletteName
+  level?: string
   goalMinutes: number
   startedAt: number
   pausedAt: number | null

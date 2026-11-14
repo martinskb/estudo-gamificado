@@ -1,27 +1,32 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { Vinyl } from '../vinyl/Vinyl'
 import { activeSeconds, backOf, loadTimer } from './timerState'
+import { clock } from './useSession'
 
-/** Faixa com o cronômetro em andamento fora da tela da sessão; leva de volta ao tema ou à trilha. */
+/** "Tocando agora": o disco da sessão em andamento fora da tela dela; leva de volta ao tema ou à trilha. */
 export function MiniTimer() {
   const { pathname } = useLocation()
-  const [, tick] = useState(0)
+  const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
-    const id = setInterval(() => tick((n) => n + 1), 1000)
+    const id = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(id)
   }, [])
 
   const timer = loadTimer()
   if (!timer || pathname === '/concluir' || pathname === backOf(timer)) return null
 
-  const seconds = activeSeconds(timer, Date.now())
-  const mm = String(Math.floor(seconds / 60)).padStart(2, '0')
-  const ss = String(seconds % 60).padStart(2, '0')
+  const paused = timer.pausedAt !== null
   return (
-    <Link className="mini-timer" to={backOf(timer)}>
-      <span className="truncate grow">{timer.pausedAt ? 'Pausado' : 'Estudando'}: {timer.topic}</span>
-      <strong>{mm}:{ss}</strong>
+    // Na Estante do computador o toca-discos já mostra a sessão: a faixa some lá (on-shelf).
+    <Link className={`mini-timer${pathname === '/' ? ' on-shelf' : ''}`} to={backOf(timer)}>
+      <Vinyl palette={timer.palette ?? 'noite'} level={timer.level} spinning={!paused} className="mini-disc" />
+      <span className="stack grow" style={{ gap: 0, minWidth: 0 }}>
+        <span className="mini-label">{paused ? 'Pausado' : 'Tocando agora'}</span>
+        <strong className="truncate">{timer.topic}</strong>
+      </span>
+      <strong className="mini-clock">{clock(activeSeconds(timer, now))}</strong>
     </Link>
   )
 }

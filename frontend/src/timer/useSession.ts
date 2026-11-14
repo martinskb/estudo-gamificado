@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import type { PaletteName } from '../topics/cover'
 import { type TimerState, loadTimer, saveTimer, startTimer } from './timerState'
 
 export function clock(total: number): string {
@@ -10,10 +11,17 @@ export function clock(total: number): string {
   return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`
 }
 
-type Origin = { topic: string; back: string; partId?: number | null; topicId?: number | null }
+type Origin = {
+  topic: string
+  back: string
+  partId?: number | null
+  topicId?: number | null
+  palette?: PaletteName
+  level?: string
+}
 
 /** Sessão de estudo ligada a uma tela (tema ou parte da trilha): começa, pausa e descarta ali mesmo. */
-export function useSession({ topic, back, partId = null, topicId = null }: Origin) {
+export function useSession({ topic, back, partId = null, topicId = null, palette, level }: Origin) {
   const [timer, setTimerState] = useState<TimerState | null>(() => loadTimer())
   const [now, setNow] = useState(() => Date.now())
   const mine = timer !== null && (partId !== null ? timer.partId === partId : timer.topicId === topicId && !timer.partId)
@@ -40,7 +48,7 @@ export function useSession({ topic, back, partId = null, topicId = null }: Origi
     now,
     mine,
     other: timer !== null && !mine ? timer : null,
-    start: (goal: number) => set(startTimer(topic, goal, partId, Date.now(), topicId, back)),
+    start: (goal: number) => set({ ...startTimer(topic, goal, partId, Date.now(), topicId, back), palette, level }),
     set,
   }
 }

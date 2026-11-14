@@ -16,17 +16,18 @@ function Loading({ children, label }: { children: React.ReactNode; label: string
   )
 }
 
-export function GallerySkeleton({ count = 5 }: { count?: number }) {
+export function ShelfSkeleton({ count = 3 }: { count?: number }) {
   return (
-    <Loading label="Carregando seus temas">
-      <div className="gallery">
-        {Array.from({ length: count }, (_, i) => (
-          <div key={i} className="stack" style={{ gap: 'var(--space-2)' }}>
-            <Bone h="auto" r={18} style={{ aspectRatio: '1' }} />
-            <Bone w="70%" h={14} />
-            <Bone w="45%" h={12} />
-          </div>
-        ))}
+    <Loading label="Carregando sua estante">
+      <div className="shelf-row">
+        <div className="shelf-items">
+          {Array.from({ length: count }, (_, i) => (
+            <div key={i} className="shelf-item">
+              <Bone h="auto" r={4} style={{ aspectRatio: '1', width: '94%' }} />
+            </div>
+          ))}
+        </div>
+        <i className="shelf-plank" aria-hidden="true" />
       </div>
     </Loading>
   )

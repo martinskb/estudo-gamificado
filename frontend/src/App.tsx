@@ -1,4 +1,4 @@
-import { NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
+import { Link, NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
 import { LoginPage } from './auth/LoginPage'
 import { Logo } from './brand/Logo'
 import { getNickname, getToken } from './auth/auth'
@@ -16,7 +16,7 @@ import { QuizPage } from './trails/QuizPage'
 import { TrailPage } from './trails/TrailPage'
 
 const ICONS = {
-  home: 'M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1z',
+  shelf: 'M4 20V9M9 20V5M14 20V9M19 20V12M2 20h20',
   chart: 'M5 20V12M10 20V7M15 20v-5M20 20V4',
   trophy: 'M8 4h8v5a4 4 0 0 1-8 0zM8 6H5v1a3 3 0 0 0 3 3M16 6h3v1a3 3 0 0 1-3 3M12 13v4M9 20h6M10 17h4',
 }
@@ -46,8 +46,11 @@ function Private() {
       <nav className="nav" aria-label="Principal">
         <div className="nav-brand"><Logo size={32} /></div>
         <div className="nav-links">
-          <NavLink to="/" end><Icon path={ICONS.home} />Início</NavLink>
+          <NavLink to="/" end><Icon path={ICONS.shelf} />Estante</NavLink>
           <NavLink to="/progresso"><Icon path={ICONS.chart} />Progresso</NavLink>
+          <Link className="nav-add" to="/?novo=1" aria-label="Novo tema">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+          </Link>
           <NavLink to="/ranking"><Icon path={ICONS.trophy} />Ranking</NavLink>
           <NavLink to="/perfil" className="nav-profile"><Avatar nickname={getNickname() ?? '?'} size={26} /><span>Perfil</span></NavLink>
         </div>
