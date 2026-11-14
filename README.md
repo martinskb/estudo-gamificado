@@ -6,24 +6,25 @@ O Lume é um app web (PWA) que ajuda a criar **constância** para aprender: da m
 
 Projeto da disciplina Tópicos Integradores — Análise e Desenvolvimento de Sistemas, UNAMA (Belém, PA). O pré-projeto original está em [`ideia/`](ideia/).
 
-- **App:** https://lume-app.vercel.app
+- **App:** https://lume-foco.vercel.app
+- **Código:** https://github.com/martinskb/lume
 - **API:** https://estudo-api-1k65.onrender.com (plano grátis: dorme após 15 min sem uso e leva ~1 min para acordar)
 
 ## O que ele faz
 
 | | |
 |---|---|
-| **Estante** | Cada tema é um álbum (foto em duotone nas cores da capa, ou capa automática) com o disco aparecendo. A foto fica só no aparelho. Criar tema é instantâneo, sem IA. |
+| **Estante** | Cada tema é um álbum (foto em duotone nas cores da capa, ou capa automática) com o disco aparecendo, em prateleiras Aprendendo e Concluídos. Segurar o álbum (ou botão direito) abre o menu do app: tocar, trocar/tirar foto, concluir, apagar. Criar tema é instantâneo, sem IA, pelo botão + do meio da barra. |
 | **Músicas para estudar** | No Perfil, a pessoa adiciona os próprios arquivos de música; ficam só no aparelho e tocam baixinho enquanto o disco gira. |
-| **Foco** | O disco vai para o toca-discos e gira enquanto o cronômetro roda; o braço avança pelos sulcos até a meta (15/25/45/60 min). Sobrevive a recarregar a página ou bloquear o celular. |
+| **Foco** | O play do tema transforma a tela numa sala à meia-luz: o toca-discos em ângulo sobre a mesa, o disco girando enquanto o cronômetro roda e o braço avançando pelos sulcos até a meta (15/25/45/60 min ou outro valor pelo lápis). Pausar, concluir e descartar ficam ali mesmo; na trilha, o toca-discos fica junto das aulas. Sobrevive a recarregar a página ou bloquear o celular. |
 | **Constância** | Ofensiva de dias seguidos com proteção (+1 a cada 7 dias, até 2), pontos (10 por sessão de 20 min+, até 3 por dia), meta de dias por semana. |
 | **Níveis do disco** | Por tema: Vinil → Prata (1 h) → Ouro (5 h) → Platina (15 h) → Diamante (40 h); o acabamento do disco mostra o nível, com animação e som ao subir. |
 | **Trilha com vídeos** (opcional) | A IA divide o tema em partes; cada parte recebe vídeos reais do YouTube e exercícios gerados a partir do conteúdo do vídeo. |
-| **Assistente** | Tira dúvidas sobre o que a pessoa está aprendendo, com fórmulas desenhadas (KaTeX). |
+| **Assistente** | Ícone discreto no canto do foco e da trilha; abre um campo simples ("Qual a sua dúvida?") por cima da tela, com fórmulas desenhadas (KaTeX). |
 | **Progresso e ranking** | Calendário de dias estudados, minutos por tema, histórico; ranking semanal opcional por apelido. |
-| **Perfil** | Avatar com inicial, trocar apelido, números gerais, sons liga/desliga. |
+| **Perfil** | Avatar com inicial, trocar apelido, números gerais, sons liga/desliga, músicas para estudar e "Instalar o app" (abre em tela cheia). |
 
-Tema claro/escuro segue o dispositivo. Funciona no celular e no computador (barra no topo, telas em colunas).
+Visual "vinil": creme ou preto quente com âmbar, títulos em Fraunces. Tema claro/escuro segue o dispositivo (o foco é sempre a sala escura). Funciona no celular (barra embaixo com o + no meio) e no computador (barra discreta no topo, toca-discos ao lado da estante).
 
 ## Como é feito
 
@@ -84,7 +85,7 @@ cd frontend && npm install && npm run dev                    # app em :5173
 
 ```bash
 cd backend && uv run pytest -q      # ~180 testes
-cd frontend && npx vitest run       # ~45 testes
+cd frontend && npx vitest run       # ~60 testes
 ```
 
 ## Scripts úteis (`backend/`)
@@ -98,7 +99,9 @@ cd frontend && npx vitest run       # ~45 testes
 ## Publicação
 
 - **Render:** Blueprint a partir de `render.yaml` (pasta `backend`); variáveis acima no painel.
-- **Vercel:** projeto com raiz `frontend`, preset Vite, `VITE_API_URL` apontando para a API.
+- **Vercel:** projeto com raiz `frontend`, preset Vite, `VITE_API_URL` apontando para a API. Domínio: `lume-foco.vercel.app` (o antigo `estudo-gamificado-two.vercel.app` continua respondendo).
+- **CORS:** `CORS_ORIGINS` no Render precisa listar cada domínio do site, sem barra no fim.
+- **Trocar de domínio apaga, para quem usa, o login, as fotos das capas e as músicas** (o navegador guarda isso por domínio). Evitar depois que o piloto começar.
 - Cada `git push` na `main` publica os dois.
 
 ## Privacidade e segurança
