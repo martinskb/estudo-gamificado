@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from 'react'
 import { post } from '../api/client'
+import { AiText } from '../text/LazyRichText'
 
 type Exchange = { question: string; answer?: string; error?: string }
 
@@ -59,7 +60,7 @@ export function AssistantPanel({ topic }: { topic?: string }) {
             {!x.answer && !x.error && <p className="muted">Pensando…</p>}
             {x.answer && (
               <div className="notice stack">
-                <span style={{ whiteSpace: 'pre-wrap' }}>{x.answer}</span>
+                <AiText text={x.answer} />
                 <span className="muted small">Gerado por IA — confira no seu material.</span>
               </div>
             )}

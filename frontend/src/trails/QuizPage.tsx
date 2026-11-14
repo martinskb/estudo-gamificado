@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { post } from '../api/client'
 import type { AnswerResult, QuizQuestion } from '../api/types'
 import { useApi } from '../api/useApi'
+import { AiText } from '../text/LazyRichText'
 
 const LETTERS = ['A', 'B', 'C', 'D']
 
@@ -91,7 +92,7 @@ export function QuizPage() {
       <div className="bar" aria-hidden><span style={{ width: `${(index / questions.length) * 100}%` }} /></div>
 
       <section className="card stack">
-        <p style={{ fontWeight: 600 }}>{q.question}</p>
+        <p style={{ fontWeight: 600 }}><AiText text={q.question} inline /></p>
         <div className="stack" role="group" aria-label="Alternativas">
           {q.options.map((option, i) => {
             const state = !result ? '' : i === result.correct_index ? 'right' : i === choice ? 'wrong' : ''
@@ -103,7 +104,7 @@ export function QuizPage() {
                 onClick={() => answer(i)}
               >
                 <span className="option-letter">{LETTERS[i]}</span>
-                <span className="grow">{option}</span>
+                <span className="grow"><AiText text={option} inline /></span>
               </button>
             )
           })}
@@ -112,7 +113,7 @@ export function QuizPage() {
         {result && (
           <div className={`notice ${result.correct ? '' : 'warn'} stack`} role="status">
             <strong>{result.correct ? 'Certo!' : `Não foi dessa vez. A resposta é a ${LETTERS[result.correct_index]}.`}</strong>
-            {result.explanation && <span>{result.explanation}</span>}
+            {result.explanation && <AiText text={result.explanation} inline />}
           </div>
         )}
         {aiLabel}
