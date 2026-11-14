@@ -59,7 +59,7 @@ export function NewTrailPage() {
     })
 
   return (
-    <main className="shell">
+    <main className="shell narrow">
       <div className="stack">
         <h1>Quero aprender…</h1>
         <p className="muted">

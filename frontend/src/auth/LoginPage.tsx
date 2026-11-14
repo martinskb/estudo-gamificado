@@ -34,53 +34,65 @@ export function LoginPage() {
   }
 
   return (
-    <main className="shell" style={{ justifyContent: 'center' }}>
-      <div className="stack">
-        <Logo size={44} />
-        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>Estude no seu ritmo, um degrau por dia.</p>
-        <h1 style={{ marginTop: 'var(--space-4)' }}>Entrar</h1>
-        <p className="muted">
-          Escolha um apelido e um PIN de 4 dígitos. Se o apelido for novo, a conta é criada na
-          hora. Use os mesmos no celular e no computador.
+    <main className="login">
+      <section className="login-hero" aria-hidden="true">
+        <Logo size={40} />
+        <div className="stack" style={{ gap: 'var(--space-4)' }}>
+          <h2>Um degrau por dia.</h2>
+          <p>Diga o que quer aprender. O Lume monta a trilha com aulas gratuitas, cronometra seu estudo e mostra seu progresso.</p>
+        </div>
+        <svg className="hero-steps" viewBox="0 0 64 64">
+          <path d="M13 48 H25 M23 38 H37 M33 28 H47" stroke="currentColor" strokeWidth="5" strokeLinecap="round" fill="none" />
+          <circle cx="49" cy="16" r="5.5" fill="currentColor" />
+        </svg>
+      </section>
+      <div className="login-form">
+        <div className="stack" style={{ gap: 'var(--space-4)' }}>
+          <span className="login-mobile-logo"><Logo size={40} /></span>
+          <h1>Entrar</h1>
+          <p className="muted">
+            Escolha um apelido e um PIN de 4 dígitos. Se o apelido for novo, a conta é criada na
+            hora. Use os mesmos no celular e no computador.
+          </p>
+        </div>
+        <form className="stack" style={{ gap: 'var(--space-4)' }} onSubmit={submit}>
+          <label>
+            Apelido
+            <input
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value.trim())}
+              autoCapitalize="none"
+              autoComplete="username"
+              maxLength={20}
+              placeholder="ex.: ana_ads"
+            />
+            <span className="muted small" style={{ fontWeight: 500 }}>3 a 20 letras, números ou _</span>
+          </label>
+          <label>
+            PIN
+            <input
+              value={pin}
+              onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              inputMode="numeric"
+              type="password"
+              autoComplete="current-password"
+              placeholder="4 dígitos"
+            />
+          </label>
+          {error && <p className="error" role="alert">{error}</p>}
+          <button className="btn primary block" disabled={!nicknameOk || !pinOk || busy}>
+            {busy ? 'Entrando…' : 'Entrar'}
+          </button>
+          {busy && (
+            <p className="muted small" role="status">
+              Se o servidor estava parado, o primeiro acesso pode levar até 1 minuto.
+            </p>
+          )}
+        </form>
+        <p className="muted small">
+          Não pedimos nome, e-mail nem matrícula. Sem o PIN não há como recuperar a conta.
         </p>
       </div>
-      <form className="card stack" onSubmit={submit}>
-        <label>
-          Apelido
-          <input
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value.trim())}
-            autoCapitalize="none"
-            autoComplete="username"
-            maxLength={20}
-            placeholder="ex.: ana_ads"
-          />
-          <span className="muted small">3 a 20 letras, números ou _</span>
-        </label>
-        <label>
-          PIN
-          <input
-            value={pin}
-            onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-            inputMode="numeric"
-            type="password"
-            autoComplete="current-password"
-            placeholder="4 dígitos"
-          />
-        </label>
-        {error && <p className="error" role="alert">{error}</p>}
-        <button className="btn primary block" disabled={!nicknameOk || !pinOk || busy}>
-          {busy ? 'Entrando…' : 'Entrar'}
-        </button>
-        {busy && (
-          <p className="muted small" role="status">
-            Se o servidor estava parado, o primeiro acesso pode levar até 1 minuto.
-          </p>
-        )}
-      </form>
-      <p className="muted small">
-        Não pedimos nome, e-mail nem matrícula. Sem o PIN não há como recuperar a conta.
-      </p>
     </main>
   )
 }

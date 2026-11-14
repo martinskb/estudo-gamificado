@@ -3,47 +3,65 @@
 :root {
   --bg: #f4f3fb;
   --surface: #ffffff;
-  --surface-2: #ebeaf6;
+  --surface-2: #efeef8;
+  --surface-3: #e4e2f3;
   --text: #1c1b33;
-  --muted: #55537a;
-  --border: #e1dff1;
+  --muted: #5d5b80;
+  --border: rgba(28, 27, 51, 0.08);
   --accent: #3d3bb8;
+  --accent-hover: #34329f;
   --accent-text: #ffffff;
-  --accent-soft: #e6e5fa;
+  --accent-soft: #e8e7fb;
+  --accent-soft-text: #2f2d96;
   --highlight: #ffd43b;
   --highlight-text: #1c1b33;
   --ok: #2b8a3e;
   --warn: #f2b705;
+  --warn-soft: #fff4cc;
+  --warn-text: #5c4500;
   --danger: #c92a2a;
+  --shadow: 0 1px 2px rgba(28, 27, 51, 0.05), 0 8px 24px -8px rgba(28, 27, 51, 0.12);
+  --shadow-lift: 0 2px 4px rgba(28, 27, 51, 0.06), 0 16px 32px -12px rgba(28, 27, 51, 0.22);
 
-  --radius: 16px;
-  --radius-sm: 10px;
+  --radius: 20px;
+  --radius-sm: 12px;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
   --space-5: 24px;
   --space-6: 32px;
+  --space-7: 48px;
   --font: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-display: 'Unbounded', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --sidebar: 248px;
   color-scheme: light dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #13122a;
-    --surface: #1c1b36;
-    --surface-2: #2a2948;
-    --text: #ecebfa;
-    --muted: #a9a7cc;
-    --border: #33325a;
-    --accent: #8f8cff;
-    --accent-text: #13122a;
-    --accent-soft: #2a2950;
-    --highlight: #ffd43b;
+    /* Escuro: camadas pela luminosidade (sem sombras), índigo dessaturado e amarelo menos gritante. */
+    --bg: #0e0d1c;
+    --surface: #17162b;
+    --surface-2: #201f38;
+    --surface-3: #2b2a48;
+    --text: #ecebfb;
+    --muted: #a19fc4;
+    --border: rgba(255, 255, 255, 0.07);
+    --accent: #908dff;
+    --accent-hover: #a5a3ff;
+    --accent-text: #0e0d1c;
+    --accent-soft: #24234a;
+    --accent-soft-text: #c8c6ff;
+    --highlight: #f5cd3c;
     --highlight-text: #1c1b33;
     --ok: #69db7c;
-    --warn: #ffd43b;
+    --warn: #f5cd3c;
+    --warn-soft: #2e2817;
+    --warn-text: #f5dd8a;
     --danger: #ff8787;
+    --shadow: 0 0 0 1px var(--border);
+    --shadow-lift: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 16px 32px -16px rgba(0, 0, 0, 0.6);
   }
 }

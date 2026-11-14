@@ -4,6 +4,7 @@ import { ApiError, api, post } from '../api/client'
 import type { CatalogItem, Trail, TrailPart } from '../api/types'
 import { AssistantPanel } from '../assistant/AssistantPanel'
 import { loadTimer } from '../timer/timerState'
+import { useWide } from '../ui/useWide'
 
 const STEPS = ['dividindo o tema', 'buscando aulas', 'criando exercícios']
 const STEP_LABEL = ['Dividindo o tema em partes', 'Buscando aulas no YouTube', 'Criando exercícios']
@@ -83,7 +84,7 @@ export function TrailPage() {
 function Generating({ trail }: { trail: Trail }) {
   const current = Math.max(0, STEPS.indexOf(trail.step))
   return (
-    <main className="shell">
+    <main className="shell narrow">
       <div className="stack">
         <h1>{trail.title}</h1>
         <p className="muted">Montando sua trilha. Costuma levar menos de um minuto.</p>
@@ -122,7 +123,7 @@ function Failed({ trail, timedOut, onRetry }: { trail: Trail; timedOut: boolean;
         : 'A IA não conseguiu montar essa trilha agora.'
 
   return (
-    <main className="shell">
+    <main className="shell narrow">
       <div className="stack">
         <h1>{trail.title}</h1>
         <div className="notice warn stack">
@@ -172,44 +173,103 @@ function Failed({ trail, timedOut, onRetry }: { trail: Trail; timedOut: boolean;
 }
 
 function Ready({ trail, onChange }: { trail: Trail; onChange: (t: Trail) => void }) {
+  const wide = useWide()
   const done = trail.parts.filter((p) => p.done).length
   const firstOpen = trail.parts.find((p) => !p.done)?.id ?? trail.parts[0]?.id
   const [open, setOpen] = useState<number | undefined>(firstOpen)
+  const markDone = (id: number) =>
+    onChange({ ...trail, parts: trail.parts.map((p) => (p.id === id ? { ...p, done: true } : p)) })
+
+  const header = (
+    <div className="page-head">
+      <span className="muted small" style={{ fontWeight: 700, letterSpacing: '0.06em' }}>TRILHA</span>
+      <h1>{trail.title}</h1>
+      <div className="row" style={{ marginTop: 'var(--space-2)' }}>
+        <div className="bar grow" aria-hidden>
+          <span style={{ width: `${trail.parts.length ? (done / trail.parts.length) * 100 : 0}%` }} />
+        </div>
+        <span className="muted small">{done} de {trail.parts.length} partes</span>
+      </div>
+    </div>
+  )
+
+  if (wide) {
+    const selected = trail.parts.find((p) => p.id === open) ?? trail.parts[0]
+    return (
+      <main className="shell">
+        {header}
+        <div className="trail-layout">
+          <nav className="trail-parts" aria-label="Partes da trilha">
+            {trail.parts.map((part) => (
+              <PartHead
+                key={part.id}
+                part={part}
+                open={selected?.id === part.id}
+                onClick={() => setOpen(part.id)}
+              />
+            ))}
+          </nav>
+          <div className="trail-detail">
+            {selected && (
+              <section className="card part-card" key={selected.id}>
+                <div className="part-body">
+                  <div className="stack" style={{ gap: 'var(--space-1)' }}>
+                    <span className="muted small">Parte {selected.order}</span>
+                    <h2>{selected.title}</h2>
+                  </div>
+                  <PartBody trail={trail} part={selected} onDone={() => markDone(selected.id)} />
+                </div>
+              </section>
+            )}
+            <AssistantPanel topic={trail.title} />
+          </div>
+        </div>
+      </main>
+    )
+  }
 
   return (
     <main className="shell">
-      <div className="stack">
-        <h1>{trail.title}</h1>
-        <div className="row">
-          <div className="bar grow" aria-hidden>
-            <span style={{ width: `${trail.parts.length ? (done / trail.parts.length) * 100 : 0}%` }} />
-          </div>
-          <span className="muted small">{done} de {trail.parts.length} partes</span>
-        </div>
+      {header}
+      <div className="trail-layout">
+        {trail.parts.map((part) => (
+          <section className="card part-card" key={part.id}>
+            <PartHead part={part} open={open === part.id} onClick={() => setOpen(open === part.id ? undefined : part.id)} />
+            {open === part.id && (
+              <div className="part-body">
+                <PartBody trail={trail} part={part} onDone={() => markDone(part.id)} />
+              </div>
+            )}
+          </section>
+        ))}
       </div>
-      {trail.parts.map((part) => (
-        <PartCard
-          key={part.id}
-          trail={trail}
-          part={part}
-          open={open === part.id}
-          onToggle={() => setOpen(open === part.id ? undefined : part.id)}
-          onDone={() =>
-            onChange({
-              ...trail,
-              parts: trail.parts.map((p) => (p.id === part.id ? { ...p, done: true } : p)),
-            })
-          }
-        />
-      ))}
       <AssistantPanel topic={trail.title} />
     </main>
   )
 }
 
-type PartProps = { trail: Trail; part: TrailPart; open: boolean; onToggle: () => void; onDone: () => void }
+function PartHead({ part, open, onClick }: { part: TrailPart; open: boolean; onClick: () => void }) {
+  return (
+    <button
+      className={`part-head${open ? ' open' : ''}${part.done ? ' done' : ''}`}
+      onClick={onClick}
+      aria-expanded={open}
+    >
+      <span className="step-mark" aria-hidden="true">{part.done ? '✓' : part.order}</span>
+      <span className="stack grow" style={{ gap: 0 }}>
+        <span className="muted small">Parte {part.order}{part.done ? ' · concluída' : ''}</span>
+        <strong style={{ fontWeight: 650 }}>{part.title}</strong>
+      </span>
+      <svg className="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+        <path d="m6 9 6 6 6-6" />
+      </svg>
+    </button>
+  )
+}
 
-function PartCard({ trail, part, open, onToggle, onDone }: PartProps) {
+type BodyProps = { trail: Trail; part: TrailPart; onDone: () => void }
+
+function PartBody({ trail, part, onDone }: BodyProps) {
   const [playing, setPlaying] = useState<string | null>(null)
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
@@ -217,6 +277,7 @@ function PartCard({ trail, part, open, onToggle, onDone }: PartProps) {
 
   const timer = loadTimer()
   const studyingThis = timer?.partId === part.id
+  const otherTimer = timer && !studyingThis
   const studyUrl = `/estudar?topic=${encodeURIComponent(trail.title)}&part=${part.id}&trail=${trail.id}`
 
   async function markDone() {
@@ -233,85 +294,66 @@ function PartCard({ trail, part, open, onToggle, onDone }: PartProps) {
   }
 
   return (
-    <section className="card stack">
-      <button
-        className="row spread"
-        onClick={onToggle}
-        aria-expanded={open}
-        style={{ all: 'unset', display: 'flex', justifyContent: 'space-between', gap: 12, cursor: 'pointer', width: '100%' }}
-      >
-        <span className="stack" style={{ gap: 2 }}>
-          <span className="muted small">Parte {part.order}</span>
-          <strong>{part.title}</strong>
-        </span>
-        {part.done && <span className="pill">Concluída</span>}
-      </button>
-
-      {open && (
-        <>
-          {part.videos.length === 0 && (
-            <p className="muted">Nenhuma aula encontrada para esta parte. Você pode estudar com seu próprio material.</p>
-          )}
-          {playing && (
-            <div ref={playerRef} className="player">
-              <iframe
-                src={`https://www.youtube-nocookie.com/embed/${playing}?autoplay=1`}
-                title="Aula"
-                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-                allowFullScreen
-              />
-            </div>
-          )}
-          <ul className="list">
-            {part.videos.map((v) => (
-              <li key={v.youtube_id}>
-                <button
-                  className="video-row"
-                  onClick={() => {
-                    setPlaying(v.youtube_id)
-                    requestAnimationFrame(() => playerRef.current?.scrollIntoView({ block: 'nearest' }))
-                  }}
-                  aria-pressed={playing === v.youtube_id}
-                >
-                  <img
-                    src={`https://i.ytimg.com/vi/${v.youtube_id}/mqdefault.jpg`}
-                    alt=""
-                    loading="lazy"
-                    width={120}
-                    height={68}
-                  />
-                  <span className="stack grow" style={{ gap: 2 }}>
-                    <span className="video-title">{v.title}</span>
-                    <span className="muted small">
-                      {v.channel}{v.duration_s ? ` · ${duration(v.duration_s)}` : ''}
-                    </span>
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-
-          <div className="stack">
-            {studyingThis ? (
-              <Link className="btn primary block" to="/estudar">Ver cronômetro desta parte</Link>
-            ) : (
-              <Link className="btn primary block" to={studyUrl}>
-                {part.done ? 'Estudar de novo' : 'Estudar esta parte'}
-              </Link>
-            )}
-            {part.done ? (
-              <Link className="btn block" to={`/trilha/${trail.id}/parte/${part.id}/exercicios`}>
-                Fazer exercícios
-              </Link>
-            ) : (
-              <button className="btn block" onClick={markDone} disabled={busy}>
-                {busy ? 'Salvando…' : 'Concluí esta parte'}
-              </button>
-            )}
-            {message && <p className="notice warn" role="alert">{message}</p>}
-          </div>
-        </>
+    <>
+      {part.videos.length === 0 && (
+        <p className="muted">Nenhuma aula encontrada para esta parte. Você pode estudar com seu próprio material.</p>
       )}
-    </section>
+      {playing && (
+        <div ref={playerRef} className="player">
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${playing}?autoplay=1`}
+            title="Aula"
+            allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+            allowFullScreen
+          />
+        </div>
+      )}
+      {part.videos.length > 0 && (
+        <ul className="video-list">
+          {part.videos.map((v) => (
+            <li key={v.youtube_id}>
+              <button
+                className="video-row"
+                onClick={() => {
+                  setPlaying(v.youtube_id)
+                  requestAnimationFrame(() => playerRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }))
+                }}
+                aria-pressed={playing === v.youtube_id}
+              >
+                <img src={`https://i.ytimg.com/vi/${v.youtube_id}/mqdefault.jpg`} alt="" loading="lazy" width={128} height={72} />
+                <span className="stack grow" style={{ gap: 2 }}>
+                  <span className="video-title">{v.title}</span>
+                  <span className="muted small">
+                    {v.channel}{v.duration_s ? ` · ${duration(v.duration_s)}` : ''}
+                  </span>
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="action-list">
+        {studyingThis ? (
+          <Link className="btn primary block" to="/estudar">Ver cronômetro desta parte</Link>
+        ) : otherTimer ? (
+          <Link className="btn primary block" to="/estudar">Termine a sessão em andamento antes</Link>
+        ) : (
+          <Link className="btn primary block" to={studyUrl}>
+            {part.done ? 'Estudar de novo' : 'Estudar esta parte'}
+          </Link>
+        )}
+        {part.done ? (
+          <Link className="btn soft block" to={`/trilha/${trail.id}/parte/${part.id}/exercicios`}>
+            Fazer exercícios
+          </Link>
+        ) : (
+          <button className="btn soft block" onClick={markDone} disabled={busy}>
+            {busy ? 'Salvando…' : 'Concluí esta parte'}
+          </button>
+        )}
+        {message && <p className="notice warn" role="alert">{message}</p>}
+      </div>
+    </>
   )
 }

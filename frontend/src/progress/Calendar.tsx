@@ -1,14 +1,16 @@
+import { useWide } from '../ui/useWide'
 import { buildCalendar, todayBelem } from './calendarGrid'
 
 const LABEL = { studied: 'estudou', saved: 'salvo pela proteção', empty: 'sem estudo', future: '' }
 
 type Props = { studied: string[]; saved: string[]; weeks?: number }
 
-export function Calendar({ studied, saved, weeks = 20 }: Props) {
-  const grid = buildCalendar(todayBelem(), weeks, studied, saved)
+export function Calendar({ studied, saved, weeks }: Props) {
+  const wide = useWide()
+  const grid = buildCalendar(todayBelem(), weeks ?? (wide ? 36 : 18), studied, saved)
   return (
     <div className="stack">
-      <div className="calendar" role="img" aria-label={`${studied.length} dias estudados no último ano`}>
+      <div className="calendar" role="img" aria-label={`${studied.length} dias estudados`}>
         {grid.map((week) => (
           <div className="calendar-week" key={week[0].date}>
             {week.map((cell) => (

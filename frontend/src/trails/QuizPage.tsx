@@ -22,7 +22,7 @@ export function QuizPage() {
 
   if (error) {
     return (
-      <main className="shell">
+      <main className="shell narrow">
         <h1>Exercícios</h1>
         <div className="notice warn stack">
           <p>{error}</p>
@@ -32,11 +32,11 @@ export function QuizPage() {
       </main>
     )
   }
-  if (!questions) return <main className="shell"><h1>Exercícios</h1><p className="muted">Carregando…</p></main>
+  if (!questions) return <main className="shell narrow"><h1>Exercícios</h1><p className="muted">Carregando…</p></main>
 
   if (questions.length === 0) {
     return (
-      <main className="shell">
+      <main className="shell narrow">
         <h1>Exercícios</h1>
         <p className="muted">Ainda não há exercícios para esta parte.</p>
         <Link className="btn block" to={back}>Voltar à trilha</Link>
@@ -46,7 +46,7 @@ export function QuizPage() {
 
   if (index >= questions.length) {
     return (
-      <main className="shell center" style={{ justifyContent: 'center' }}>
+      <main className="shell narrow center" style={{ justifyContent: 'center' }}>
         <div className="stack center pop">
           <p className="muted">Fixação concluída</p>
           <div className="big-number">{hits}<span className="muted"> / {questions.length}</span></div>
@@ -84,7 +84,7 @@ export function QuizPage() {
   }
 
   return (
-    <main className="shell">
+    <main className="shell narrow">
       <div className="row spread">
         <h1>Exercícios</h1>
         <span className="muted">{index + 1} de {questions.length}</span>

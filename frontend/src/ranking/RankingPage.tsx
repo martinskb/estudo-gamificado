@@ -27,7 +27,7 @@ export function RankingPage() {
   }
 
   return (
-    <main className="shell">
+    <main className="shell narrow">
       <div className="stack">
         <h1>Ranking da semana</h1>
         <p className="muted">
