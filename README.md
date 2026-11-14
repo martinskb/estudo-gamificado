@@ -115,5 +115,6 @@ cd frontend && npx vitest run       # ~45 testes
 
 - **Contas:** senha de verdade (no lugar do PIN) e **Conectar com Google** opcional, que libera ranking e foto de perfil. Detalhes no design.
 - **Piloto:** modo semana de base, códigos de participante e exportação CSV dos indicadores.
+- **Servidor sempre acordado (antes do piloto):** cadastrar `https://estudo-api-1k65.onrender.com/health` num monitor gratuito (ex.: UptimeRobot) com checagem a cada 5 min. O Render grátis dorme após 15 min sem acesso; as 750 h/mês do plano cobrem o mês inteiro ligado. Bônus: avisa por e-mail se o servidor cair. Mais robusto, se precisar: Google Cloud Run (mesmo código, acorda em segundos).
 - **Exercícios** a partir de PDF/slides do aluno.
 - **Play Store (quando decidirem publicar):** gerar o APK/AAB como TWA com o [Bubblewrap](https://github.com/GoogleChromeLabs/bubblewrap) a partir do site, publicar `/.well-known/assetlinks.json` na Vercel (para abrir sem barra de endereço) e criar a conta de desenvolvedor (US$ 25, uma vez). Até lá, no Android o botão "Instalar" do app já gera um app de verdade (WebAPK); no iPhone, o convite ensina a adicionar à Tela de Início.
