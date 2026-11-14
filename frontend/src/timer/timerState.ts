@@ -5,6 +5,7 @@ export type TimerState = {
   clientId: string
   topic: string
   partId: number | null
+  topicId?: number | null
   goalMinutes: number
   startedAt: number
   pausedAt: number | null
@@ -18,11 +19,13 @@ export function startTimer(
   goalMinutes: number,
   partId: number | null,
   now: number,
+  topicId: number | null = null,
 ): TimerState {
   return {
     clientId: crypto.randomUUID(),
     topic,
     partId,
+    topicId,
     goalMinutes,
     startedAt: now,
     pausedAt: null,

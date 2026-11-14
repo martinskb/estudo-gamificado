@@ -62,3 +62,11 @@ describe('timerState', () => {
     expect(loadTimer(storage)).toBeNull()
   })
 })
+
+describe('timer linked to a topic', () => {
+  it('keeps the topic id so the session lands in the right playlist', () => {
+    const s = startTimer('Inglês', 25, null, T0, 7)
+    expect(s.topicId).toBe(7)
+    expect(startTimer('Livre', 25, null, T0).topicId).toBeNull()
+  })
+})

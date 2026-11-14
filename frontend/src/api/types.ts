@@ -71,3 +71,24 @@ export type Ranking = {
   top: { nickname: string; week_points: number; streak: number }[]
   me: { position: number; week_points: number } | null
 }
+
+export type TopicLevel = { name: string; next_name: string | null; progress: number; seconds_to_next: number }
+
+export type Topic = {
+  id: number
+  title: string
+  palette: 'indigo' | 'noite' | 'lilas' | 'coral' | 'verde' | 'sol'
+  cover: string | null
+  done: boolean
+  trail_id: number | null
+  total_seconds: number
+  sessions: number
+  last_day: string | null
+  level: TopicLevel
+}
+
+export type TopicDetail = Topic & {
+  streak: number
+  tracks: { id: number; day: string; active_seconds: number; goal_minutes: number; goal_met: boolean; points: number; note: string | null }[]
+  trail: { id: number; parts_done: number; parts_total: number; next_part: number | null } | null
+}

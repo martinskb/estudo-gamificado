@@ -8,6 +8,8 @@ import { RankingPage } from './ranking/RankingPage'
 import { ThemeToggle } from './theme/ThemeToggle'
 import { MiniTimer } from './timer/MiniTimer'
 import { TimerPage } from './timer/TimerPage'
+import { DuotoneFilters } from './topics/DuotoneFilters'
+import { TopicPage } from './topics/TopicPage'
 import { NewTrailPage } from './trails/NewTrailPage'
 import { QuizPage } from './trails/QuizPage'
 import { TrailPage } from './trails/TrailPage'
@@ -55,6 +57,7 @@ function Private() {
         <Page />
       </div>
       <MiniTimer />
+      <DuotoneFilters />
     </>
   )
 }
@@ -70,6 +73,7 @@ export default function App() {
         <Route path="/estudar" element={<TimerPage />} />
         <Route path="/progresso" element={<ProgressPage />} />
         <Route path="/ranking" element={<RankingPage />} />
+        <Route path="/tema/:id" element={<TopicPage />} />
         <Route path="/aprender" element={<NewTrailPage />} />
         <Route path="/trilha/:id" element={<TrailPage />} />
         <Route path="/trilha/:id/parte/:partId/exercicios" element={<QuizPage />} />

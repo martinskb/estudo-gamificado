@@ -1,5 +1,5 @@
 import { type FormEvent, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api, post } from '../api/client'
 import type { CatalogItem } from '../api/types'
 
@@ -11,7 +11,8 @@ const LEVELS = [
 
 export function NewTrailPage() {
   const navigate = useNavigate()
-  const [topic, setTopic] = useState('')
+  const [params] = useSearchParams()
+  const [topic, setTopic] = useState(params.get('tema') ?? '')
   const [level, setLevel] = useState('livre')
   const [suggestions, setSuggestions] = useState<CatalogItem[]>([])
   const [busy, setBusy] = useState(false)

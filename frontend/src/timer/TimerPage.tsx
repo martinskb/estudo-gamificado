@@ -35,6 +35,7 @@ export function TimerPage() {
 
   const partParam = Number(params.get('part')) || null
   const trailParam = params.get('trail')
+  const topicParam = Number(params.get('topic_id')) || null
 
   function setTimer(next: TimerState | null) {
     saveTimer(next)
@@ -58,7 +59,7 @@ export function TimerPage() {
         result={done.result}
         minutes={done.minutes}
         backTo={done.back}
-        backLabel={done.back === '/' ? 'Voltar ao início' : 'Voltar à trilha'}
+        backLabel={done.back === '/' ? 'Voltar ao início' : done.back.startsWith('/tema/') ? 'Voltar ao tema' : 'Voltar à trilha'}
       />
     )
   }
@@ -67,8 +68,9 @@ export function TimerPage() {
     const start = (e: FormEvent) => {
       e.preventDefault()
       if (goal === null) return
-      const t = startTimer(topic.trim(), goal, partParam, Date.now())
+      const t = startTimer(topic.trim(), goal, partParam, Date.now(), topicParam)
       if (trailParam) sessionStorage.setItem('timer:back', `/trilha/${trailParam}`)
+      else if (topicParam) sessionStorage.setItem('timer:back', `/tema/${topicParam}`)
       else sessionStorage.removeItem('timer:back')
       setNow(Date.now())
       setTimer(t)
@@ -152,6 +154,7 @@ export function TimerPage() {
         client_id: frozen.clientId,
         topic: frozen.topic,
         part_id: frozen.partId,
+        topic_id: frozen.topicId ?? null,
         goal_minutes: frozen.goalMinutes,
         started_at: new Date(frozen.startedAt).toISOString(),
         ended_at: new Date(frozen.pausedAt!).toISOString(),

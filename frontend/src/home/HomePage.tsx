@@ -1,23 +1,57 @@
+import { type FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import type { Progress, Trail } from '../api/types'
+import { post } from '../api/client'
+import type { Progress, Topic } from '../api/types'
 import { useApi } from '../api/useApi'
 import { clearLogin, getNickname } from '../auth/auth'
 import { Logo } from '../brand/Logo'
-import { ThemeToggle } from '../theme/ThemeToggle'
 import { todayBelem } from '../progress/calendarGrid'
-import { TrailList } from '../trails/TrailList'
-import { stepsAround, weekStrip } from './homeModel'
+import { ThemeToggle } from '../theme/ThemeToggle'
+import { Cover } from '../topics/Cover'
+import { formatHours } from '../topics/cover'
+import { weekStrip } from './homeModel'
+
+const SORTS = [
+  { value: 'recent', label: 'Recentes' },
+  { value: 'time', label: 'Mais tempo' },
+  { value: 'done', label: 'Concluídos' },
+] as const
+
+const lastLabel = (iso: string | null) => {
+  if (!iso) return 'ainda sem sessões'
+  const days = Math.round((Date.parse(`${todayBelem()}T00:00:00Z`) - Date.parse(`${iso}T00:00:00Z`)) / 86_400_000)
+  return days <= 0 ? 'hoje' : days === 1 ? 'ontem' : `há ${days} dias`
+}
 
 export function HomePage() {
   const navigate = useNavigate()
   const { data: p, error, reload } = useApi<Progress>('/progress')
-  const current = p?.trails[0]
-  const { data: trail } = useApi<Trail>(current ? `/trails/${current.trail_id}` : null)
+  const [sort, setSort] = useState<(typeof SORTS)[number]['value']>('recent')
+  const { data: topics } = useApi<Topic[]>(`/topics?sort=${sort}`)
+  const [adding, setAdding] = useState(false)
+  const [title, setTitle] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [addError, setAddError] = useState('')
 
   function leave() {
     clearLogin()
     navigate('/entrar', { replace: true })
   }
+
+  async function addTopic(e: FormEvent) {
+    e.preventDefault()
+    setBusy(true)
+    setAddError('')
+    try {
+      const t = await post<Topic>('/topics', { title: title.trim() })
+      navigate(`/tema/${t.id}`)
+    } catch (err) {
+      setAddError(err instanceof Error ? err.message : 'Não deu para criar o tema.')
+      setBusy(false)
+    }
+  }
+
+  const empty = topics !== null && topics.length === 0 && sort === 'recent'
 
   return (
     <main className="shell">
@@ -33,13 +67,9 @@ export function HomePage() {
         <h1>Olá, {getNickname()}</h1>
         {p && (
           <div className="row wrap" style={{ gap: 'var(--space-2)' }}>
-            <span className="pill highlight">
-              {p.streak} {p.streak === 1 ? 'dia seguido' : 'dias seguidos'}
-            </span>
+            <span className="pill highlight">{p.streak} {p.streak === 1 ? 'dia seguido' : 'dias seguidos'}</span>
             {p.freezes > 0 && (
-              <span className="pill soft" title="Usada sozinha se você perder um dia">
-                Proteção ×{p.freezes}
-              </span>
+              <span className="pill soft" title="Usada sozinha se você perder um dia">Proteção ×{p.freezes}</span>
             )}
           </div>
         )}
@@ -51,30 +81,87 @@ export function HomePage() {
           <button className="btn small" onClick={reload}>Tentar de novo</button>
         </div>
       )}
-      {!p && !error && <p className="muted">Carregando…</p>}
 
       {p && !p.studied_today && p.streak > 0 && (
         <p className="notice warn" role="status">
-          Você ainda não estudou hoje: sua ofensiva de {p.streak} {p.streak === 1 ? 'dia' : 'dias'} está em risco.
+          Você ainda não focou hoje: sua ofensiva de {p.streak} {p.streak === 1 ? 'dia' : 'dias'} está em risco.
         </p>
       )}
 
-      {p && (
-        <div className="columns">
-          <div>
-            {current && trail?.status === 'ready' ? (
-              <ContinueCard trail={trail} />
-            ) : (
-              !current && (
-                <section className="continue-card" aria-label="Comece uma trilha">
-                  <span className="eyebrow">COMECE POR AQUI</span>
-                  <h2>O que você quer aprender?</h2>
-                  <p>Qualquer tema: matéria da faculdade, um idioma, política, a história de uma série. O Lume divide em degraus e acha os melhores vídeos gratuitos.</p>
-                  <Link className="btn highlight block" to="/aprender">Começar minha primeira trilha</Link>
-                </section>
-              )
+      <div className="columns home-columns">
+        <section className="stack" style={{ gap: 'var(--space-4)' }} aria-label="Aprendendo">
+          <div className="section-title">
+            <h2 style={{ fontSize: '1.25rem' }}>Aprendendo</h2>
+            {!empty && (
+              <button className="btn soft small" onClick={() => setAdding((a) => !a)} aria-expanded={adding}>
+                + Novo tema
+              </button>
             )}
+          </div>
 
+          {(adding || empty) && (
+            <form className="card stack" style={{ gap: 'var(--space-3)' }} onSubmit={addTopic}>
+              <label>
+                {empty ? 'O que você quer aprender? Comece pelo primeiro tema.' : 'Quero aprender…'}
+                <input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  maxLength={80}
+                  placeholder="ex.: Inglês, Cálculo I, Cronologia da Marvel"
+                  autoFocus={adding}
+                />
+              </label>
+              {addError && <p className="error" role="alert">{addError}</p>}
+              <button className="btn primary block" disabled={!title.trim() || busy}>
+                {busy ? 'Criando…' : 'Criar tema'}
+              </button>
+            </form>
+          )}
+
+          {!empty && (
+            <div className="chips" role="tablist" aria-label="Ordenar">
+              {SORTS.map((s) => (
+                <button
+                  key={s.value}
+                  role="tab"
+                  aria-selected={sort === s.value}
+                  className={`chip${sort === s.value ? ' selected' : ''}`}
+                  style={{ minHeight: 38 }}
+                  onClick={() => setSort(s.value)}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {topics === null && <p className="muted">Carregando…</p>}
+          {topics && topics.length === 0 && sort === 'done' && (
+            <p className="muted">Quando você marcar um tema como concluído, ele aparece aqui.</p>
+          )}
+          {topics && topics.length > 0 && (
+            <div className="gallery">
+              {topics.map((t) => (
+                <Link key={t.id} className="gallery-item" to={`/tema/${t.id}`}>
+                  <Cover topic={t} />
+                  <span className="gallery-meta">
+                    <strong>{t.title}</strong>
+                    <span>{formatHours(t.total_seconds)} · {lastLabel(t.last_day)}</span>
+                  </span>
+                </Link>
+              ))}
+              {sort !== 'done' && (
+                <button className="gallery-add" onClick={() => setAdding(true)} aria-label="Novo tema">
+                  <b aria-hidden="true">+</b>
+                  Novo tema
+                </button>
+              )}
+            </div>
+          )}
+        </section>
+
+        {p && (
+          <div>
             <section className="card stack" style={{ gap: 'var(--space-4)' }} aria-label="Esta semana">
               <div className="section-title">
                 <h2>Esta semana</h2>
@@ -89,11 +176,7 @@ export function HomePage() {
                 ))}
               </div>
             </section>
-          </div>
-
-          <div>
-            <section className="card stack desktop-only" style={{ gap: 'var(--space-4)' }} aria-label="Seus números">
-              <h2>Seus números</h2>
+            <section className="card stack" style={{ gap: 'var(--space-4)' }} aria-label="Seus números">
               <div className="mini-stats">
                 <div><span className="stat" style={{ color: 'var(--accent)' }}>{p.streak}</span><span className="muted small">dias seguidos</span></div>
                 <div><span className="stat">{p.week_points}</span><span className="muted small">pontos na semana</span></div>
@@ -101,45 +184,10 @@ export function HomePage() {
               </div>
               <Link className="btn ghost small" style={{ alignSelf: 'flex-start', paddingLeft: 0 }} to="/progresso">Ver progresso completo →</Link>
             </section>
-
-            <div className="action-list">
-              {current && <Link className="btn soft block" to="/aprender">Quero aprender algo novo</Link>}
-              <Link className="btn ghost block" to="/estudar">Cronômetro livre, sem trilha</Link>
-            </div>
-
-            {p.trails.length > 1 && (
-              <section className="stack" aria-label="Outras trilhas">
-                <h2>Outras trilhas</h2>
-                <TrailList trails={p.trails.slice(1)} />
-              </section>
-            )}
+            <Link className="btn ghost block" to="/estudar">Cronômetro livre</Link>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </main>
-  )
-}
-
-function ContinueCard({ trail }: { trail: Trail }) {
-  const { next, steps } = stepsAround(trail.parts)
-  return (
-    <section className="continue-card" aria-label="Continue de onde parou">
-      <span className="eyebrow">{next ? 'CONTINUE DE ONDE PAROU' : 'TRILHA CONCLUÍDA'}</span>
-      <h2>{trail.title}</h2>
-      <ol className="steps">
-        {steps.map((s) => (
-          <li key={s.id} className={s.state}>
-            <span className="step-mark" aria-hidden="true">{s.state === 'done' ? '✓' : s.order}</span>
-            <span className="truncate">{s.title}</span>
-            <span className="sr-only">
-              {s.state === 'done' ? '(concluída)' : s.state === 'current' ? '(próxima)' : ''}
-            </span>
-          </li>
-        ))}
-      </ol>
-      <Link className="btn highlight block" to={`/trilha/${trail.id}`}>
-        {next ? `Estudar parte ${next.order}` : 'Rever a trilha'}
-      </Link>
-    </section>
   )
 }
