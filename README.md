@@ -79,6 +79,7 @@ cd frontend && npm install && npm run dev                    # app em :5173
 | `GEMINI_MODEL` | lista em ordem de preferência, separada por vírgula |
 | `YOUTUBE_API_KEY` | YouTube Data API v3 |
 | `CORS_ORIGINS` | endereços do site, separados por vírgula |
+| `NEW_TRAILS_PER_DAY` | trilhas novas por pessoa por dia (padrão 3). A cota do YouTube é do app inteiro: cada trilha gasta ~400–600 de 10.000/dia |
 | `VITE_API_URL` (frontend) | endereço da API |
 
 ## Testes

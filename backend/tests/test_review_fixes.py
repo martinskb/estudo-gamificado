@@ -61,10 +61,11 @@ def new_trail(client, h, topic):
     return client.post("/trails", json={"topic": topic, "level": "livre"}, headers=h)
 
 
-def test_new_trails_capped_at_2_per_user_per_day(client, auth_headers):
+def test_new_trails_capped_at_3_per_user_per_day(client, auth_headers):
     ana, bia = auth_headers("ana"), auth_headers("bia")
     assert new_trail(client, ana, "Tema um").status_code == 200
     assert new_trail(client, ana, "Tema dois").status_code == 200
+    assert new_trail(client, ana, "Tema quatro").status_code == 200
     blocked = new_trail(client, ana, "Tema três")
     assert blocked.status_code == 429
     assert "trilhas novas hoje" in blocked.json()["detail"]
@@ -105,3 +106,13 @@ def test_cors_origins_tolerate_spaces_and_trailing_slash():
         "https://meu-app.vercel.app",
         "http://localhost:5173",
     ]
+
+
+def test_daily_trail_limit_comes_from_settings(client, auth_headers, monkeypatch):
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "new_trails_per_day", 1)
+    h = auth_headers()
+    assert new_trail(client, h, "Tema um").status_code == 200
+    blocked = new_trail(client, h, "Tema dois")
+    assert blocked.status_code == 429 and "1 trilha nova hoje" in blocked.json()["detail"]

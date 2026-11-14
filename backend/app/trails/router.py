@@ -11,6 +11,7 @@ from app.ai.client import AIClient
 from app.ai.deps import get_ai, get_videos
 from app.ai.youtube import VideoSearch
 from app.auth import current_user
+from app.config import settings
 from app.db import get_db, get_session_factory, utcnow
 from app.models import Part, PartDone, StudySession, Trail, User, UserTrail, Video
 from app.study.rules import BELEM, today_belem
@@ -20,8 +21,8 @@ from app.trails.generate import STALE_AFTER, analyze_videos, generate_trail
 
 router = APIRouter()
 
-# Cada trilha nova gasta ~5% da cota diária grátis do YouTube: limite por pessoa.
-NEW_TRAILS_PER_DAY = 2
+# Cada trilha nova gasta ~5% da cota diária grátis do YouTube: limite por pessoa,
+# ajustável no painel da hospedagem (NEW_TRAILS_PER_DAY) sem mexer no código.
 
 
 class TrailIn(BaseModel):
@@ -118,10 +119,11 @@ def create_trail(
     by_norm = select(Trail).where(Trail.topic_norm == norm)
     trail = db.scalar(by_norm)
     if trail is None:
-        if new_trails_today(db, user.id) >= NEW_TRAILS_PER_DAY:
+        limit = settings.new_trails_per_day
+        if new_trails_today(db, user.id) >= limit:
             raise HTTPException(
                 429,
-                f"Você já criou {NEW_TRAILS_PER_DAY} trilhas novas hoje. "
+                f"Você já criou {limit} {'trilha nova' if limit == 1 else 'trilhas novas'} hoje. "
                 "Escolha uma trilha pronta ou volte amanhã.",
             )
         trail = Trail(title=body.topic, topic_norm=norm, level=body.level, created_by=user.id)
