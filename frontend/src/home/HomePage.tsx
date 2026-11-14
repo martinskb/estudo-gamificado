@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { post } from '../api/client'
 import type { Progress, Topic } from '../api/types'
 import { useApi } from '../api/useApi'
-import { getNickname } from '../auth/auth'
 import { Logo } from '../brand/Logo'
 import { todayBelem } from '../progress/calendarGrid'
 import { Cover } from '../topics/Cover'
@@ -52,18 +51,13 @@ export function HomePage() {
     <main className="shell">
       <div className="home-head">
         <span className="home-logo"><Logo size={30} /></span>
-
-      </div>
-
-      <div className="greeting">
-        <h1>Olá, {getNickname()}</h1>
         {p && (
-          <div className="row wrap" style={{ gap: 'var(--space-2)' }}>
-            <span className="pill highlight">{p.streak} {p.streak === 1 ? 'dia seguido' : 'dias seguidos'}</span>
+          <span className="row" style={{ gap: 'var(--space-2)' }}>
             {p.freezes > 0 && (
               <span className="pill soft" title="Usada sozinha se você perder um dia">Proteção ×{p.freezes}</span>
             )}
-          </div>
+            <span className="pill highlight" title="Dias seguidos">{p.streak} {p.streak === 1 ? 'dia' : 'dias'}</span>
+          </span>
         )}
       </div>
 
