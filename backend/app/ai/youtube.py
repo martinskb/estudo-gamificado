@@ -41,7 +41,10 @@ class YouTubeSearch:
         self._http = client or httpx.Client(timeout=15)
 
     def _get(self, path: str, params: dict) -> dict:
-        response = self._http.get(f"{API}/{path}", params={**params, "key": self._key})
+        # A chave vai no cabeçalho: assim ela nunca aparece em URLs de mensagens de erro.
+        response = self._http.get(
+            f"{API}/{path}", params=params, headers={"X-Goog-Api-Key": self._key}
+        )
         if response.status_code == 403:
             try:
                 reasons = {e.get("reason") for e in response.json()["error"]["errors"]}

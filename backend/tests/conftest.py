@@ -10,6 +10,13 @@ from app.main import create_app
 from tests.fakes import FakeAI, FakeVideos
 
 
+@pytest.fixture(autouse=True)
+def no_retry_wait(monkeypatch):
+    from app.trails import generate
+
+    monkeypatch.setattr(generate, "RETRY_WAIT_S", 0, raising=False)
+
+
 @pytest.fixture
 def session_factory():
     engine = create_engine(

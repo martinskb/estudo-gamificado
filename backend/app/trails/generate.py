@@ -15,6 +15,7 @@ from app.models import Exercise, Part, Trail, Video
 VIDEOS_PER_PART = 3
 QUESTIONS_PER_PART = 4
 STALE_AFTER = timedelta(minutes=10)
+RETRY_WAIT_S = 4  # o plano grátis do Gemini limita chamadas por minuto: espera antes de repetir
 
 STEP_SPLIT = "dividindo o tema"
 STEP_VIDEOS = "buscando aulas"
@@ -25,6 +26,7 @@ def _retry_once[T](call: Callable[[], T]) -> T:
     try:
         return call()
     except AIError:
+        time.sleep(RETRY_WAIT_S)
         return call()
 
 
@@ -128,7 +130,7 @@ def generate_trail(
             db.execute(
                 update(Trail).where(Trail.id == trail_id).values(status="failed", step="", error=error)
             )
-            log_event(db, "trail_failed", ok=False, trail_id=trail_id, error=error, detail=str(exc)[:200])
+            log_event(db, "trail_failed", ok=False, trail_id=trail_id, error=error, detail=type(exc).__name__)
             db.commit()
 
 
@@ -139,8 +141,10 @@ def analyze_videos(
 
     O plano grátis do Gemini aceita 8 h de vídeo por dia, então não analisamos todos.
     Se a análise falhar, os exercícios pelo assunto continuam valendo.
+    A chamada à IA leva até 90 s: nenhuma sessão do banco fica aberta enquanto ela roda.
     """
     with session_factory() as db:
+        pending: list[tuple[int, int, str, str]] = []
         parts = db.scalars(select(Part).where(Part.trail_id == trail_id).order_by(Part.order)).all()
         for part in parts:
             videos = db.scalars(
@@ -149,34 +153,42 @@ def analyze_videos(
                 .order_by(Video.position, Video.id)
                 .limit(per_part)
             ).all()
-            for video in videos:
-                if video.analysis != "pending":
-                    continue
-                url = f"https://www.youtube.com/watch?v={video.youtube_id}"
-                start = time.monotonic()
-                try:
-                    items = ai.video_quiz(url, part.title, QUESTIONS_PER_PART)
-                    _add_exercises(db, part.id, items, video_id=video.id)
-                    video.analysis = "done"
-                except Exception:
-                    video.analysis = "failed"
-                log_event(
-                    db,
-                    "video_analysis",
-                    ok=video.analysis == "done",
-                    latency_ms=int((time.monotonic() - start) * 1000),
-                    trail_id=trail_id,
-                    video_id=video.id,
-                )
-                db.commit()
+            pending += [
+                (v.id, part.id, part.title, v.youtube_id) for v in videos if v.analysis == "pending"
+            ]
+
+    for video_id, part_id, part_title, youtube_id in pending:
+        start = time.monotonic()
+        try:
+            items = ai.video_quiz(
+                f"https://www.youtube.com/watch?v={youtube_id}", part_title, QUESTIONS_PER_PART
+            )
+        except Exception:
+            items = None
+        latency_ms = int((time.monotonic() - start) * 1000)
+        with session_factory() as db:
+            video = db.get(Video, video_id)
+            if video is None:  # a trilha foi refeita enquanto a IA respondia
+                continue
+            if items:
+                _add_exercises(db, part_id, items, video_id=video_id)
+            video.analysis = "done" if items else "failed"
+            log_event(
+                db,
+                "video_analysis",
+                ok=bool(items),
+                latency_ms=latency_ms,
+                trail_id=trail_id,
+                video_id=video_id,
+            )
+            db.commit()
 
 
-def fail_stale_generating(db: Session) -> int:
-    """Trilhas presas em 'generating' (o servidor reiniciou no meio) viram 'failed'."""
+def fail_orphaned_generating(db: Session) -> int:
+    """Na subida do servidor, toda trilha em 'generating' ficou órfã (o processo que a
+    gerava morreu): vira 'failed' para o aluno poder tentar de novo na hora."""
     result = db.execute(
-        update(Trail)
-        .where(Trail.status == "generating", Trail.started_at < utcnow() - STALE_AFTER)
-        .values(status="failed", step="", error="erro")
+        update(Trail).where(Trail.status == "generating").values(status="failed", step="", error="erro")
     )
     db.commit()
     return result.rowcount

@@ -59,15 +59,17 @@ def ask(
     if used >= DAILY_LIMIT:
         raise HTTPException(429, f"Você já fez {DAILY_LIMIT} perguntas hoje. Amanhã tem mais.")
 
+    user_id = user.id
+    db.commit()  # encerra a transação: a IA leva até 60 s e não deve segurar conexão do banco
     start = time.monotonic()
     try:
         answer = ai.answer(body.question, body.topic)
     except Exception:
-        log_event(db, "assistant", user_id=user.id, ok=False, latency_ms=_ms(start))
+        log_event(db, "assistant", user_id=user_id, ok=False, latency_ms=_ms(start))
         db.commit()
         raise HTTPException(503, "Assistente indisponível, tente de novo") from None
     # Guardamos só que houve uso e quanto demorou, nunca o texto da pergunta.
-    log_event(db, "assistant", user_id=user.id, ok=True, latency_ms=_ms(start))
+    log_event(db, "assistant", user_id=user_id, ok=True, latency_ms=_ms(start))
     db.commit()
     return {"answer": answer, "remaining": DAILY_LIMIT - used - 1}
 

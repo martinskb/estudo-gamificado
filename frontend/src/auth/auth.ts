@@ -25,6 +25,8 @@ export function clearLogin(): void {
   try {
     localStorage.removeItem(TOKEN)
     localStorage.removeItem(NICK)
+    // O cronômetro em andamento é de quem estava logado: não pode passar para a próxima pessoa.
+    localStorage.removeItem('timer:v1')
   } catch {
     // nada a limpar
   }

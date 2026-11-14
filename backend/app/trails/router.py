@@ -1,3 +1,4 @@
+from datetime import UTC, datetime, time
 from typing import Literal
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
@@ -12,10 +13,14 @@ from app.ai.youtube import VideoSearch
 from app.auth import current_user
 from app.db import get_db, get_session_factory, utcnow
 from app.models import Part, PartDone, StudySession, Trail, User, UserTrail, Video
+from app.study.rules import BELEM, today_belem
 from app.trails.catalog import match, normalize
 from app.trails.generate import STALE_AFTER, analyze_videos, generate_trail
 
 router = APIRouter()
+
+# Cada trilha nova gasta ~5% da cota diária grátis do YouTube: limite por pessoa.
+NEW_TRAILS_PER_DAY = 2
 
 
 class TrailIn(BaseModel):
@@ -60,6 +65,19 @@ def user_trails(db: Session, user_id: int) -> list[dict]:
     ]
 
 
+def new_trails_today(db: Session, user_id: int) -> int:
+    day_start = datetime.combine(today_belem(), time.min, tzinfo=BELEM)
+    return db.scalar(
+        select(func.count())
+        .select_from(Trail)
+        .where(
+            Trail.created_by == user_id,
+            Trail.status != "failed",
+            Trail.created_at >= day_start.astimezone(UTC).replace(tzinfo=None),
+        )
+    )
+
+
 def run_generation(trail_id: int, ai: AIClient, yt: VideoSearch, factory: sessionmaker) -> None:
     generate_trail(trail_id, ai, yt, factory)
     with factory() as db:
@@ -92,7 +110,13 @@ def create_trail(
     by_norm = select(Trail).where(Trail.topic_norm == norm)
     trail = db.scalar(by_norm)
     if trail is None:
-        trail = Trail(title=body.topic, topic_norm=norm, level=body.level)
+        if new_trails_today(db, user.id) >= NEW_TRAILS_PER_DAY:
+            raise HTTPException(
+                429,
+                f"Você já criou {NEW_TRAILS_PER_DAY} trilhas novas hoje. "
+                "Escolha uma trilha pronta ou volte amanhã.",
+            )
+        trail = Trail(title=body.topic, topic_norm=norm, level=body.level, created_by=user.id)
         db.add(trail)
         try:
             db.commit()

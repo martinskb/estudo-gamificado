@@ -113,16 +113,65 @@ def test_video_analysis_failure_keeps_topic_exercises(session_factory, trail_id,
     assert len(exercises) == 16 and all(e.source == "topic" for e in exercises)
 
 
-def test_stale_generating_trails_are_failed_on_startup(session_factory):
+def test_all_generating_trails_are_failed_on_startup(session_factory):
+    # com um único processo, toda trilha "generating" na subida do servidor ficou órfã
     from datetime import timedelta
 
     from app.db import utcnow
-    from app.trails.generate import fail_stale_generating
+    from app.trails.generate import fail_orphaned_generating
 
     with session_factory() as db:
         db.add(Trail(title="Velha", topic_norm="velha", started_at=utcnow() - timedelta(minutes=11)))
         db.add(Trail(title="Nova", topic_norm="nova", started_at=utcnow() - timedelta(minutes=2)))
+        db.add(Trail(title="Pronta", topic_norm="pronta", status="ready"))
         db.commit()
-        assert fail_stale_generating(db) == 1
+        assert fail_orphaned_generating(db) == 2
         status = dict(db.execute(select(Trail.title, Trail.status)).all())
-    assert status == {"Velha": "failed", "Nova": "generating"}
+    assert status == {"Velha": "failed", "Nova": "failed", "Pronta": "ready"}
+
+
+def test_retry_waits_before_second_attempt(session_factory, trail_id, ai, yt, monkeypatch):
+    from app.trails import generate
+
+    waits = []
+    monkeypatch.setattr(generate, "RETRY_WAIT_S", 3)
+    monkeypatch.setattr(generate.time, "sleep", waits.append)
+    ai.split_failures = 1
+    generate_trail(trail_id, ai, yt, session_factory)
+    assert waits == [3]
+    assert load(session_factory, trail_id)[0].status == "ready"
+
+
+def test_failure_event_does_not_leak_error_text(session_factory, trail_id, ai, yt):
+    yt.error = RuntimeError("500 for url https://x/videos?key=SEGREDO")
+    generate_trail(trail_id, ai, yt, session_factory)
+    with session_factory() as db:
+        event = db.scalar(select(Event).where(Event.kind == "trail_failed"))
+    assert "SEGREDO" not in str(event.data)
+    assert event.data["detail"] == "RuntimeError"
+
+
+def test_video_analysis_holds_no_db_session_during_ai_call(session_factory, trail_id, ai, yt):
+    from contextlib import contextmanager
+
+    generate_trail(trail_id, ai, yt, session_factory)
+
+    class CountingFactory:
+        open = 0
+
+        @contextmanager
+        def __call__(self):
+            self.open += 1
+            try:
+                with session_factory() as db:
+                    yield db
+            finally:
+                self.open -= 1
+
+    factory = CountingFactory()
+    seen = []
+    original = ai.video_quiz
+    ai.video_quiz = lambda *args: (seen.append(factory.open), original(*args))[1]
+    analyze_videos(trail_id, ai, factory)
+    assert seen == [0, 0, 0, 0]  # a chamada lenta à IA não segura conexão do banco
+    assert sum(v.analysis == "done" for v in load(session_factory, trail_id)[2]) == 4

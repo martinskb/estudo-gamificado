@@ -16,7 +16,6 @@ from app.study.rules import goal_met, points_for_session, study_day, today_belem
 router = APIRouter()
 
 CLOCK_SLACK_SECONDS = 5
-MAX_SESSION_HOURS = 16
 
 
 class SessionIn(BaseModel):
@@ -63,12 +62,15 @@ def conclude_session(
 
     started, ended = to_naive_utc(body.started_at), to_naive_utc(body.ended_at)
     wall = (ended - started).total_seconds()
-    if wall < 0 or wall > MAX_SESSION_HOURS * 3600:
+    if wall < 0:
         raise HTTPException(422, "Horários da sessão inválidos")
     if body.active_seconds > wall + CLOCK_SLACK_SECONDS:
         raise HTTPException(422, "Tempo estudado maior que a duração da sessão")
-    if ended > utcnow() + timedelta(minutes=5):
-        raise HTTPException(422, "A sessão termina no futuro")
+    # Relógio do aparelho adiantado: traz a sessão para agora em vez de recusar
+    # (recusar deixaria o aluno sem conseguir salvar o que estudou).
+    ahead = ended - utcnow()
+    if ahead > timedelta(minutes=5):
+        started, ended = started - ahead, ended - ahead
 
     day = study_day(ended)
     scored_today = db.scalar(

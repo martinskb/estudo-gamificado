@@ -15,12 +15,15 @@ def _normalize_url(url: str) -> str:
     return url
 
 
+def engine_options(url: str) -> dict:
+    if url.startswith("sqlite"):
+        return {"connect_args": {"check_same_thread": False}}
+    # Sem prepared statements: poolers em modo transação (Supabase, porta 6543) quebram com eles.
+    return {"connect_args": {"prepare_threshold": None}, "pool_pre_ping": True}
+
+
 _url = _normalize_url(settings.database_url)
-engine = create_engine(
-    _url,
-    pool_pre_ping=True,
-    connect_args={"check_same_thread": False} if _url.startswith("sqlite") else {},
-)
+engine = create_engine(_url, **engine_options(_url))
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
 

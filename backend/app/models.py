@@ -72,6 +72,7 @@ class Trail(Base):
     step: Mapped[str] = mapped_column(String(40), default="")
     error: Mapped[str | None] = mapped_column(String(20), default=None)
     is_catalog: Mapped[bool] = mapped_column(default=False)
+    created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"), default=None, index=True)
     started_at: Mapped[datetime] = mapped_column(default=utcnow)
     created_at: Mapped[datetime] = mapped_column(default=utcnow)
 

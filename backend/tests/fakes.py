@@ -18,6 +18,7 @@ class FakeAI:
     def __init__(self):
         self.split_failures = 0  # quantas vezes split_topic falha antes de funcionar
         self.video_quiz_fails = False
+        self.topic_quiz_fails = False
         self.answer_fails = False
         self.parts = ["Parte A", "Parte B", "Parte C", "Parte D"]
         self.calls: list[tuple] = []
@@ -31,6 +32,8 @@ class FakeAI:
 
     def topic_quiz(self, topic: str, part: str, n: int) -> list[QuizItem]:
         self.calls.append(("topic_quiz", topic, part, n))
+        if self.topic_quiz_fails:
+            raise AIError("limite por minuto")
         return quiz(n, f"assunto {part}")
 
     def video_quiz(self, youtube_url: str, part: str, n: int) -> list[QuizItem]:
@@ -50,12 +53,15 @@ class FakeVideos:
     def __init__(self):
         self.empty_for: set[str] = set()  # consultas que não acham nada
         self.quota = False
+        self.error: Exception | None = None
         self.queries: list[str] = []
 
     def search(self, query: str, max_results: int = 3) -> list[VideoHit]:
         self.queries.append(query)
         if self.quota:
             raise QuotaExceeded()
+        if self.error:
+            raise self.error
         if any(marker in query for marker in self.empty_for):
             return []
         slug = str(len(self.queries))

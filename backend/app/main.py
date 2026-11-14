@@ -12,14 +12,14 @@ from app.progress import router as progress_router
 from app.ranking import router as ranking_router
 from app.study import router as study_router
 from app.trails import router as trails_router
-from app.trails.generate import fail_stale_generating
+from app.trails.generate import fail_orphaned_generating
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(engine)
     with SessionLocal() as db:
-        fail_stale_generating(db)
+        fail_orphaned_generating(db)
     yield
 
 

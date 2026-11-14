@@ -19,6 +19,8 @@ def test_search_returns_embeddable_videos_with_duration():
     seen = {}
 
     def handler(request: httpx.Request) -> httpx.Response:
+        assert "key" not in request.url.params  # a chave vai no cabeçalho, nunca na URL
+        assert request.headers["x-goog-api-key"] == "KEY"
         if request.url.path.endswith("/search"):
             seen.update(dict(request.url.params))
             return httpx.Response(200, json={"items": [

@@ -4,10 +4,13 @@ from pydantic import BaseModel, Field
 from sqlalchemy import case, select
 from sqlalchemy.orm import Session
 
+from app.ai.client import AIClient, AIError
+from app.ai.deps import get_ai
 from app.auth import current_user
 from app.db import get_db
 from app.events import log_event
-from app.models import Attempt, Exercise, Part, User
+from app.models import Attempt, Exercise, Part, Trail, User
+from app.trails.generate import QUESTIONS_PER_PART, _add_exercises
 
 router = APIRouter()
 
@@ -22,9 +25,23 @@ def quiz(
     n: int = Query(default=4, ge=1, le=10),
     user: User = Depends(current_user),
     db: Session = Depends(get_db),
+    ai: AIClient = Depends(get_ai),
 ):
-    if db.get(Part, part_id) is None:
+    part = db.get(Part, part_id)
+    if part is None:
         raise HTTPException(404, "Parte não encontrada")
+    has_any = db.scalar(select(Exercise.id).where(Exercise.part_id == part_id).limit(1))
+    if has_any is None:
+        # A geração da trilha pode ter pulado esta parte (limite por minuto da IA).
+        # Como a trilha é compartilhada, completa agora e guarda para todo mundo.
+        topic, title = db.get(Trail, part.trail_id).title, part.title
+        db.commit()  # não segura conexão do banco durante a chamada à IA
+        try:
+            items = ai.topic_quiz(topic, title, QUESTIONS_PER_PART)
+        except AIError:
+            return []
+        _add_exercises(db, part_id, items)
+        db.commit()
     # As questões feitas a partir do vídeo vêm primeiro; as do assunto completam.
     video_first = case((Exercise.source == "video", 0), else_=1)
     rows = db.scalars(
