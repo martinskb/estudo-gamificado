@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./dev.db"
     cors_origins: str = "http://localhost:5173"
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-flash-latest"
+    gemini_model: str = "gemini-3.5-flash"
     youtube_api_key: str = ""
 
 
