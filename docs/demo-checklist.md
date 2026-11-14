@@ -13,9 +13,9 @@
 1. **Problema:** manter constância para aprender, sem dinheiro para cursinho; o conteúdo bom já existe de graça, falta organização e motivação.
    - **Evolução desde o pré-projeto:** o Lume serve para aprender *qualquer* tema (faculdade, ENEM, idiomas, atualidades, cultura pop). O problema e a medida continuam os mesmos: constância.
 2. **Entrar** com a conta da demo (apelido + PIN, sem e-mail nem dados pessoais — LGPD). Mostrar o aviso "sua ofensiva de 13 dias está em risco".
-3. **Galeria "Aprendendo":** cada tema é uma playlist com capa, nível de luz (Faísca → Farol) e tempo focado. Mostrar os filtros (Recentes, Mais tempo).
+3. **Estante:** cada tema é um álbum com o disco aparecendo; o acabamento do disco mostra o nível (Vinil → Diamante). Prateleiras Aprendendo e Concluídos.
 4. **Abrir "Leis de Newton":** capa grande, sessões como faixas, nível Chama e a barra até Lanterna.
-5. **Play "Focar 25 min"** → cronômetro (faixa embaixo acompanha o tempo) → **Concluir** → comemoração **13 → 14** → "Voltar ao tema": a sessão nova aparece na lista.
+5. **Play "Tocar 25 min"** → o disco vai para o toca-discos e gira (faixa "Tocando agora" acompanha em outras telas) → **Concluir** → comemoração **13 → 14** → "Voltar ao tema": a sessão nova aparece na lista.
 6. **Editar capa:** escolher uma foto do celular e mostrar que ela vira as cores da marca (duotone); trocar a paleta.
 7. **"Trilha com vídeos · continuar parte 3":** partes com vídeos reais do YouTube, exercícios gerados a partir do vídeo, "Tirar dúvida com a IA" (rótulo "Gerado por IA").
 8. **Ao vivo:** "+ Novo tema" (instantâneo, sem IA) → "Montar trilha com vídeos" com um tema de cultura pop. Plano B: abrir um tema do catálogo (abre na hora).

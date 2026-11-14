@@ -8,7 +8,7 @@ import { type TimerState, activeSeconds, backOf, pause, resume } from './timerSt
 
 export function GoalChips({ value, onChange }: { value: number; onChange: (m: number) => void }) {
   return (
-    <div className="chips" role="radiogroup" aria-label="Meta em minutos">
+    <div className="chips goal-chips" role="radiogroup" aria-label="Meta em minutos">
       {GOAL_PRESETS.map((m) => (
         <button
           type="button"

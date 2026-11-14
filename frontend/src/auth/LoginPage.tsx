@@ -2,6 +2,7 @@ import { type FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ApiError, post } from '../api/client'
 import type { EnterResponse } from '../api/types'
+import { Vinyl } from '../vinyl/Vinyl'
 import { Logo } from '../brand/Logo'
 import { saveLogin } from './auth'
 
@@ -38,13 +39,10 @@ export function LoginPage() {
       <section className="login-hero" aria-hidden="true">
         <Logo size={40} />
         <div className="stack" style={{ gap: 'var(--space-4)' }}>
-          <h2>Aprenda qualquer coisa, um degrau por dia.</h2>
+          <h2>Aprenda qualquer coisa, um disco de cada vez.</h2>
           <p>Da matéria da faculdade à cronologia da Marvel: diga o que quer aprender e o Lume monta o caminho com os melhores vídeos gratuitos, acompanha seu tempo e mantém sua ofensiva acesa.</p>
         </div>
-        <svg className="hero-steps" viewBox="0 0 64 64">
-          <path d="M13 48 H25 M23 38 H37 M33 28 H47" stroke="currentColor" strokeWidth="5" strokeLinecap="round" fill="none" />
-          <circle cx="49" cy="16" r="5.5" fill="currentColor" />
-        </svg>
+        <Vinyl palette="noite" level="Ouro" spinning className="hero-disc" />
       </section>
       <div className="login-form">
         <div className="stack" style={{ gap: 'var(--space-4)' }}>
