@@ -27,6 +27,10 @@ Contexto acadêmico: disciplina Tópicos Integradores (ADS/UNAMA). **Demonstraç
 - Por que depois da demo: exigir Google no ranking antes de 16/11 tiraria a conta da demo e os usuários de exemplo do ranking.
 - Já feito antes da demo: tela **Perfil** (avatar com inicial na cor da paleta, trocar apelido, números gerais, sons de conquista liga/desliga, cartão "Conectar com Google — em breve"). No ranking, cada pessoa aparece com o avatar de inicial (sem foto, sem moderação).
 
+### Decisão 15/11 — app nas lojas (depois)
+- Android: por enquanto o botão "Instalar" (WebAPK do Chrome) — 1 toque, sem aviso de "fontes desconhecidas". APK/AAB via Bubblewrap (TWA) só quando for publicar na Play Store.
+- iPhone: convite com o passo a passo "Compartilhar → Adicionar à Tela de Início" (a Apple não permite botão de instalar).
+
 ## 2. Objetivos, não-objetivos, anti-objetivos
 
 **Objetivos**
