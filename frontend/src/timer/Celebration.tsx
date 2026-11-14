@@ -1,20 +1,30 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { playSound } from '../ui/sound'
-import { TopicLightCard } from './TopicLightCard'
 import type { Conclusion } from '../api/types'
+import { Cover } from '../topics/Cover'
+import type { PaletteName } from '../topics/cover'
+import { playSound } from '../ui/sound'
+import { Vinyl } from '../vinyl/Vinyl'
+import { TopicDiscCard } from './TopicDiscCard'
 
-type Props = { result: Conclusion; minutes: number; backTo: string; backLabel: string }
+type Props = {
+  result: Conclusion
+  minutes: number
+  backTo: string
+  backLabel: string
+  /** Disco da sessão (cores da capa e título), para ele voltar à capa. */
+  disc: { title: string; palette: PaletteName; level?: string }
+}
 
 /** Conta de `from` até `to` em ~0,9 s (salta direto se a pessoa prefere menos movimento). */
 function useCountUp(from: number, to: number): number {
   const [value, setValue] = useState(from)
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || from === to) {
-      setValue(to)
-      return
-    }
     let frame = 0
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || from === to) {
+      frame = requestAnimationFrame(() => setValue(to))
+      return () => cancelAnimationFrame(frame)
+    }
     const start = performance.now() + 350
     const tick = (now: number) => {
       const t = Math.min(1, Math.max(0, (now - start) / 900))
@@ -28,45 +38,54 @@ function useCountUp(from: number, to: number): number {
   return value
 }
 
-export function Celebration({ result, minutes, backTo, backLabel }: Props) {
+export function Celebration({ result, minutes, backTo, backLabel, disc }: Props) {
   const grew = result.streak_after > result.streak_before
   const shown = useCountUp(result.streak_before, result.streak_after)
   useEffect(() => {
     const id = setTimeout(() => playSound(grew ? 'streak' : 'complete'), 300)
     return () => clearTimeout(id)
   }, [grew])
+  const level = result.topic?.after.level ?? disc.level
+  const coverTopic = {
+    title: disc.title,
+    palette: disc.palette,
+    cover: null,
+    level: { name: level ?? 'Vinil', next_name: null, progress: 0, seconds_to_next: 0 },
+  }
+
   return (
-    <main className="shell narrow center" style={{ justifyContent: 'center' }}>
-      <div className="stack center pop">
-        <p className="muted">{grew ? 'Ofensiva estendida!' : 'Sessão concluída'}</p>
-        <div className="row" style={{ justifyContent: 'center' }}>
-          {grew && <span className="big-number muted">{result.streak_before}</span>}
-          {grew && <span className="big-number muted" aria-hidden>→</span>}
-          <span className="big-number" style={{ color: 'var(--accent-ink)' }}>
-            {shown}
-          </span>
-        </div>
-        <p>{result.streak_after === 1 ? 'dia seguido' : 'dias seguidos'}</p>
+    <main className="shell narrow celebration">
+      <div className="celebration-glow" aria-hidden="true" />
+      <div className="tuck" aria-hidden="true">
+        <Vinyl palette={disc.palette} level={level} className="tuck-disc" />
+        <Cover topic={coverTopic} />
       </div>
-      {result.topic && <TopicLightCard light={result.topic} />}
-      <div className="card stack" style={{ width: '100%' }}>
-        <div className="row spread"><span>Tempo estudado</span><strong>{minutes} min</strong></div>
-        <div className="row spread">
-          <span>Pontos</span>
-          <strong>{result.points > 0 ? `+${result.points}` : '0'}</strong>
+
+      <div className="stack center pop" style={{ gap: 'var(--space-1)' }}>
+        <span className="celebration-eyebrow">{grew ? 'Ofensiva estendida' : 'Sessão concluída'}</span>
+        <div className="row" style={{ justifyContent: 'center', alignItems: 'baseline', gap: 'var(--space-3)' }}>
+          {grew && <span className="big-number muted" style={{ fontSize: '2.6rem' }}>{result.streak_before}</span>}
+          {grew && <span className="muted" aria-hidden>→</span>}
+          <span className="big-number">{shown}</span>
         </div>
-        {result.points === 0 && (
-          <p className="muted small">
-            Sessões de 20 min ou mais valem pontos. Esta ficou registrada do mesmo
-            jeito.
-          </p>
-        )}
-        <div className="row spread">
-          <span>Meta da sessão</span>
-          <strong>{result.goal_met ? 'Cumprida!' : 'Não foi dessa vez'}</strong>
-        </div>
+        <span className="muted">{result.streak_after === 1 ? 'dia seguido' : 'dias seguidos'}</span>
       </div>
-      <Link className="btn primary block" to={backTo}>{backLabel}</Link>
+
+      <div className="celebration-stats">
+        <div><span className="muted small">Tempo</span><strong>{minutes} min</strong></div>
+        <div><span className="muted small">Pontos</span><strong>{result.points > 0 ? `+${result.points}` : '0'}</strong></div>
+        <div><span className="muted small">Meta</span><strong>{result.goal_met ? 'Cumprida' : 'Não foi'}</strong></div>
+      </div>
+      {result.points === 0 && (
+        <p className="muted small" style={{ textAlign: 'center' }}>Sessões de 20 min ou mais valem pontos. Esta ficou registrada do mesmo jeito.</p>
+      )}
+
+      {result.topic && <TopicDiscCard light={result.topic} palette={disc.palette} />}
+
+      <div className="stack" style={{ gap: 'var(--space-2)', marginTop: 'auto' }}>
+        <Link className="btn primary block" to={backTo}>{backLabel}</Link>
+        {backTo !== '/' && <Link className="btn ghost block" to="/">Ir para a estante</Link>}
+      </div>
     </main>
   )
 }

@@ -3,12 +3,15 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { post } from '../api/client'
 import type { Conclusion } from '../api/types'
 import { ConfirmButton } from '../ui/ConfirmButton'
+import type { PaletteName } from '../topics/cover'
 import { Celebration } from './Celebration'
 import { clock } from './useSession'
 import { type TimerState, activeSeconds, backOf, loadTimer, pause, resume, saveTimer } from './timerState'
 
+type Disc = { title: string; palette: PaletteName; level?: string }
+
 const backLabel = (back: string) =>
-  back.startsWith('/tema/') ? 'Voltar ao tema' : back.startsWith('/trilha/') ? 'Voltar à trilha' : 'Voltar ao início'
+  back.startsWith('/tema/') ? 'Voltar ao tema' : back.startsWith('/trilha/') ? 'Voltar à trilha' : 'Voltar à estante'
 
 /** Resumo da sessão: anotação opcional, salvar e comemorar. */
 export function FinishPage() {
@@ -22,10 +25,10 @@ export function FinishPage() {
   const [note, setNote] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [done, setDone] = useState<{ result: Conclusion; minutes: number; back: string } | null>(null)
+  const [done, setDone] = useState<{ result: Conclusion; minutes: number; back: string; disc: Disc } | null>(null)
 
   if (done) {
-    return <Celebration result={done.result} minutes={done.minutes} backTo={done.back} backLabel={backLabel(done.back)} />
+    return <Celebration result={done.result} minutes={done.minutes} backTo={done.back} backLabel={backLabel(done.back)} disc={done.disc} />
   }
   if (!timer) return <Navigate to="/" replace />
 
@@ -53,7 +56,7 @@ export function FinishPage() {
         note: note.trim() || null,
       })
       saveTimer(null)
-      setDone({ result, minutes: Math.floor(seconds / 60), back: home })
+      setDone({ result, minutes: Math.floor(seconds / 60), back: home, disc: { title: frozen.topic, palette: frozen.palette ?? 'noite', level: frozen.level } })
     } catch (err) {
       // O cronômetro continua salvo e pausado: dá para tentar de novo sem perder nada.
       setError(err instanceof Error ? err.message : 'Não deu para salvar a sessão.')
