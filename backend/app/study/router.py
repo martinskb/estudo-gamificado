@@ -10,6 +10,7 @@ from app.auth import current_user
 from app.db import get_db, to_naive_utc, utcnow
 from app.events import log_event
 from app.models import StudySession, Topic, User
+from app.topics.levels import level_for
 from app.topics.service import get_or_create_topic
 from app.progress.streak import compute_streak
 from app.study.rules import goal_met, points_for_session, study_day, today_belem
@@ -36,13 +37,34 @@ class SettingsIn(BaseModel):
     in_ranking: bool | None = None
 
 
-def _conclusion(s: StudySession) -> dict:
+def _topic_light(db: Session, s: StudySession) -> dict | None:
+    """Luz do tema antes e depois desta sessão (estável: reenviar a mesma sessão dá o mesmo)."""
+    if s.topic_id is None:
+        return None
+    after_seconds = db.scalar(
+        select(func.coalesce(func.sum(StudySession.active_seconds), 0)).where(
+            StudySession.topic_id == s.topic_id, StudySession.id <= s.id
+        )
+    )
+    before, after = level_for(after_seconds - s.active_seconds), level_for(after_seconds)
+    return {
+        "id": s.topic_id,
+        "title": s.topic,
+        "before": {"level": before.name, "progress": before.progress},
+        "after": {"level": after.name, "progress": after.progress},
+        "level_up": before.name != after.name,
+        "max_level": before.next_name is not None and after.next_name is None,
+    }
+
+
+def _conclusion(db: Session, s: StudySession) -> dict:
     return {
         "id": s.id,
         "points": s.points,
         "goal_met": s.goal_met,
         "streak_before": s.streak_before,
         "streak_after": s.streak_after,
+        "topic": _topic_light(db, s),
     }
 
 
@@ -60,7 +82,7 @@ def conclude_session(
 ):
     # Reenvio (toque duplo, rede ruim): devolve a mesma sessão, sem pontuar de novo.
     if (dup := _existing(db, user.id, body.client_id)) is not None:
-        return _conclusion(dup)
+        return _conclusion(db, dup)
 
     started, ended = to_naive_utc(body.started_at), to_naive_utc(body.ended_at)
     wall = (ended - started).total_seconds()
@@ -125,8 +147,8 @@ def conclude_session(
         db.commit()
     except IntegrityError:  # duas requisições iguais ao mesmo tempo
         db.rollback()
-        return _conclusion(_existing(db, user.id, body.client_id))
-    return _conclusion(session)
+        return _conclusion(db, _existing(db, user.id, body.client_id))
+    return _conclusion(db, session)
 
 
 @router.get("/sessions")

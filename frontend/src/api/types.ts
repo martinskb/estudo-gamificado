@@ -8,6 +8,16 @@ export type Conclusion = {
   goal_met: boolean
   streak_before: number
   streak_after: number
+  topic: TopicLight | null
+}
+
+export type TopicLight = {
+  id: number
+  title: string
+  before: { level: string; progress: number }
+  after: { level: string; progress: number }
+  level_up: boolean
+  max_level: boolean
 }
 
 export type SessionRow = {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { playSound } from '../ui/sound'
+import { TopicLightCard } from './TopicLightCard'
 import type { Conclusion } from '../api/types'
 
 type Props = { result: Conclusion; minutes: number; backTo: string; backLabel: string }
@@ -47,6 +48,7 @@ export function Celebration({ result, minutes, backTo, backLabel }: Props) {
         </div>
         <p>{result.streak_after === 1 ? 'dia seguido' : 'dias seguidos'}</p>
       </div>
+      {result.topic && <TopicLightCard light={result.topic} />}
       <div className="card stack" style={{ width: '100%' }}>
         <div className="row spread"><span>Tempo estudado</span><strong>{minutes} min</strong></div>
         <div className="row spread">
