@@ -103,6 +103,7 @@ cd frontend && npx vitest run       # ~60 testes
 - **CORS:** `CORS_ORIGINS` no Render precisa listar cada domínio do site, sem barra no fim.
 - **Trocar de domínio apaga, para quem usa, o login, as fotos das capas e as músicas** (o navegador guarda isso por domínio). Evitar depois que o piloto começar.
 - Cada `git push` na `main` publica os dois.
+- **Servidor acordado:** o Render grátis dorme após 15 min sem acesso e a primeira requisição depois disso leva ~30–60 s. O workflow [`keep-awake.yml`](.github/workflows/keep-awake.yml) acessa `/health` a cada 5 min (as 750 h/mês do plano cobrem o mês inteiro ligado). Agendamentos do GitHub podem atrasar e são pausados após 60 dias sem commits; o monitor do UptimeRobot, quando criado, vira o principal.
 
 ## Privacidade e segurança
 
@@ -121,6 +122,6 @@ cd frontend && npx vitest run       # ~60 testes
 
 - **Contas:** senha de verdade (no lugar do PIN) e **Conectar com Google** opcional, que libera ranking e foto de perfil. Detalhes no design.
 - **Piloto:** modo semana de base, códigos de participante e exportação CSV dos indicadores.
-- **Servidor sempre acordado (antes do piloto):** cadastrar `https://estudo-api-1k65.onrender.com/health` num monitor gratuito (ex.: UptimeRobot) com checagem a cada 5 min. O Render grátis dorme após 15 min sem acesso; as 750 h/mês do plano cobrem o mês inteiro ligado. Bônus: avisa por e-mail se o servidor cair. Mais robusto, se precisar: Google Cloud Run (mesmo código, acorda em segundos).
+- **Monitor do UptimeRobot:** falta só autorizar o login com GitHub no UptimeRobot e criar o monitor HTTP de `https://estudo-api-1k65.onrender.com/health` a cada 5 min (ele também avisa por e-mail se o servidor cair). Até lá, o agendamento do GitHub segura o servidor acordado (veja Publicação).
 - **Exercícios** a partir de PDF/slides do aluno.
 - **Play Store (quando decidirem publicar):** gerar o APK/AAB como TWA com o [Bubblewrap](https://github.com/GoogleChromeLabs/bubblewrap) a partir do site, publicar `/.well-known/assetlinks.json` na Vercel (para abrir sem barra de endereço) e criar a conta de desenvolvedor (US$ 25, uma vez). Até lá, no Android o botão "Instalar" do app já gera um app de verdade (WebAPK); no iPhone, o convite ensina a adicionar à Tela de Início.
