@@ -1,5 +1,5 @@
-import { type CSSProperties, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from 'react'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { api, post } from '../api/client'
 import type { Topic, TopicDetail } from '../api/types'
 import { useApi } from '../api/useApi'
@@ -37,6 +37,16 @@ export function TopicPage() {
   const photoRef = useRef<HTMLInputElement>(null)
   const devicePhoto = useDeviceCover(Number(id))
   useAdoptServerCovers(useMemo(() => (topic ? [topic] : null), [topic]))
+
+  // "Tocar 25 min" do menu do álbum na estante: abre o tema já tocando.
+  const [params, setParams] = useSearchParams()
+  const autoplay = params.get('tocar') === '1'
+  const { start, mine, other } = session
+  useEffect(() => {
+    if (!autoplay || !topic) return
+    if (!mine && !other) start(25)
+    setParams({}, { replace: true })
+  }, [autoplay, topic, mine, other, start, setParams])
 
   if (error) {
     return (

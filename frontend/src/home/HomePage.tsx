@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useState } from 'react'
+import { type FormEvent, type ReactNode, useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { post } from '../api/client'
 import type { Progress, Topic } from '../api/types'
@@ -12,7 +12,9 @@ import { Sleeve } from '../topics/Cover'
 import { formatHours } from '../topics/cover'
 import { ShelfSkeleton } from '../ui/Skeleton'
 import { Turntable } from '../vinyl/Vinyl'
+import { useLongPress } from '../ui/useLongPress'
 import { weekStrip } from './homeModel'
+import { TopicActions } from './TopicActions'
 
 const lastLabel = (iso: string | null) => {
   if (!iso) return 'ainda sem sessões'
@@ -24,7 +26,8 @@ export function HomePage() {
   const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
   const { data: p, error, reload } = useApi<Progress>('/progress')
-  const { data: topics } = useApi<Topic[]>('/topics?sort=recent')
+  const { data: topics, reload: reloadTopics } = useApi<Topic[]>('/topics?sort=recent')
+  const [menu, setMenu] = useState<Topic | null>(null)
   useAdoptServerCovers(topics)
   const learning = topics && topics.filter((t) => !t.done)
   const done = topics && topics.filter((t) => t.done)
@@ -129,13 +132,12 @@ export function HomePage() {
               <div className="shelf-row">
                 <div className="shelf-items">
                   {learning.map((t) => (
-                    <Link key={t.id} className="shelf-item" to={`/tema/${t.id}`}>
-                      <Sleeve topic={t} />
+                    <ShelfItem key={t.id} topic={t} onMenu={setMenu}>
                       <span className="shelf-meta">
                         <strong>{t.title}</strong>
                         <span>{formatHours(t.total_seconds)} · {lastLabel(t.last_day)}</span>
                       </span>
-                    </Link>
+                    </ShelfItem>
                   ))}
                 </div>
                 <i className="shelf-plank" aria-hidden="true" />
@@ -149,9 +151,7 @@ export function HomePage() {
               <div className="shelf-row">
                 <div className="shelf-items">
                   {done.map((t) => (
-                    <Link key={t.id} className="shelf-item" to={`/tema/${t.id}`} aria-label={`${t.title}, disco ${t.level.name.toLowerCase()}`}>
-                      <Sleeve topic={t} />
-                    </Link>
+                    <ShelfItem key={t.id} topic={t} onMenu={setMenu} label={`${t.title}, disco ${t.level.name.toLowerCase()}`} />
                   ))}
                 </div>
                 <i className="shelf-plank" aria-hidden="true" />
@@ -180,7 +180,19 @@ export function HomePage() {
           )}
         </div>
       </div>
+      {menu && <TopicActions topic={menu} onClose={() => setMenu(null)} onChanged={reloadTopics} />}
     </main>
+  )
+}
+
+/** Capa na prateleira: toque abre o tema; segurar (ou botão direito) abre o menu do álbum. */
+function ShelfItem({ topic, onMenu, label, children }: { topic: Topic; onMenu: (t: Topic) => void; label?: string; children?: ReactNode }) {
+  const press = useLongPress(() => onMenu(topic))
+  return (
+    <Link className="shelf-item" to={`/tema/${topic.id}`} aria-label={label} draggable={false} {...press}>
+      <Sleeve topic={topic} />
+      {children}
+    </Link>
   )
 }
 

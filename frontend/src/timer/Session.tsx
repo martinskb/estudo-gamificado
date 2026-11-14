@@ -1,11 +1,23 @@
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ConfirmButton } from '../ui/ConfirmButton'
 import { Turntable } from '../vinyl/Vinyl'
-import { GOAL_PRESETS } from './goal'
+import { GOAL_PRESETS, parseGoal } from './goal'
 import { type useSession, clock } from './useSession'
 import { type TimerState, activeSeconds, backOf, pause, resume } from './timerState'
 
+/** Metas numa linha só: 15 · 25 · 45 · 60 e o lápis para digitar outro valor (1 a 600 min). */
 export function GoalChips({ value, onChange }: { value: number; onChange: (m: number) => void }) {
+  const custom = !GOAL_PRESETS.includes(value)
+  const [typing, setTyping] = useState(false)
+  const [text, setText] = useState('')
+
+  function commit() {
+    const m = parseGoal(text)
+    if (m !== null) onChange(m)
+    setTyping(false)
+  }
+
   return (
     <div className="chips goal-chips" role="radiogroup" aria-label="Meta em minutos">
       {GOAL_PRESETS.map((m) => (
@@ -14,12 +26,50 @@ export function GoalChips({ value, onChange }: { value: number; onChange: (m: nu
           key={m}
           role="radio"
           aria-checked={value === m}
+          aria-label={`${m} minutos`}
           className={`chip${value === m ? ' selected' : ''}`}
-          onClick={() => onChange(m)}
+          onClick={() => {
+            setTyping(false)
+            onChange(m)
+          }}
         >
-          {m} min
+          {m}
         </button>
       ))}
+      {typing ? (
+        <input
+          className="chip chip-type"
+          inputMode="numeric"
+          autoFocus
+          value={text}
+          placeholder="min"
+          aria-label="Outra meta, em minutos (1 a 600)"
+          onChange={(e) => setText(e.target.value.replace(/\D/g, '').slice(0, 3))}
+          onBlur={commit}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') commit()
+            if (e.key === 'Escape') setTyping(false)
+          }}
+        />
+      ) : (
+        <button
+          type="button"
+          role="radio"
+          aria-checked={custom}
+          aria-label={custom ? `Meta de ${value} minutos; trocar` : 'Escolher outra meta'}
+          className={`chip chip-edit${custom ? ' selected' : ''}`}
+          onClick={() => {
+            setText(custom ? String(value) : '')
+            setTyping(true)
+          }}
+        >
+          {custom ? value : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 20h4L19 9l-4-4L4 16z" /><path d="m13.5 6.5 4 4" />
+            </svg>
+          )}
+        </button>
+      )}
     </div>
   )
 }

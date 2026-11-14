@@ -814,8 +814,9 @@ textarea { min-height: 96px; resize: vertical; }
 .level-disc { width: 22px; flex: none; }
 .level-row .bar { height: 6px; }
 .goal-chips { flex-wrap: nowrap; gap: 6px; }
-.goal-chips .chip { min-height: 40px; padding: 0 11px; font-size: 0.84rem; white-space: nowrap; }
-@media (max-width: 400px) { .goal-chips { flex-wrap: wrap; } .play-row .play { width: 64px; height: 64px; } }
+.goal-chips .chip { min-height: 42px; min-width: 42px; padding: 0 10px; font-size: 0.9rem; white-space: nowrap; justify-content: center; font-variant-numeric: tabular-nums; }
+.goal-chips .chip-type { width: 64px; min-width: 0; padding: 0 8px; text-align: center; border: 2px solid var(--accent); background: var(--surface); color: var(--text); font: inherit; font-weight: 600; outline: none; }
+@media (max-width: 400px) { .play-row .play { width: 60px; height: 60px; } .play-row { gap: var(--space-3); } }
 .focus-page { gap: var(--space-5); }
 .tracks .n { font-family: var(--font-display); }
 @media (min-width: 960px) {
@@ -940,3 +941,31 @@ textarea { min-height: 96px; resize: vertical; }
   width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
 }
 .icon-btn:hover { background: var(--surface-2); color: var(--text); }
+
+/* ---------- Menu do álbum (segurar na estante) ---------- */
+.shelf-item { -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+.shelf-item img { pointer-events: none; }
+.sheet-layer {
+  position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; justify-content: center;
+  background: rgba(8, 6, 4, 0.5); animation: fade 0.2s var(--ease) both;
+}
+.sheet {
+  width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: var(--space-4);
+  background: var(--surface); color: var(--text); border-radius: 22px 22px 0 0;
+  padding: var(--space-5) var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom));
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.4); animation: rise 0.3s var(--ease) both;
+}
+.sheet-head { display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
+.sheet-sleeve { width: 64px !important; flex: none; }
+.sheet-list { display: flex; flex-direction: column; }
+.sheet-item {
+  appearance: none; border: 0; background: transparent; color: var(--text); cursor: pointer; font: inherit; font-weight: 600;
+  display: flex; flex-direction: row; align-items: center; gap: var(--space-4); min-height: 52px; padding: 0 var(--space-2); border-radius: 12px; text-align: left; font-size: 1rem;
+}
+.sheet-item svg { color: var(--muted); flex: none; }
+.sheet-item:hover, .sheet-item:focus-visible { background: var(--surface-2); }
+.sheet-item.danger, .sheet-item.danger svg { color: var(--danger); }
+@media (min-width: 960px) {
+  .sheet-layer { align-items: center; }
+  .sheet { border-radius: 22px; max-width: 380px; box-shadow: var(--shadow-lift), 0 24px 60px rgba(0, 0, 0, 0.45); }
+}
