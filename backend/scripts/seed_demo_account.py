@@ -39,9 +39,14 @@ def seed_demo_account(
             t.id: db.scalars(select(Part).where(Part.trail_id == t.id).order_by(Part.order)).all()
             for t in trails
         }
-        for t in trails:
-            if db.get(UserTrail, (user.id, t.id)) is None:
-                db.add(UserTrail(user_id=user.id, trail_id=t.id))
+        # O Início continua a trilha mais recente: a primeira da lista fica por último no tempo.
+        now = datetime.now(UTC).replace(tzinfo=None)
+        for position, t in enumerate(trails):
+            enrolled = db.get(UserTrail, (user.id, t.id))
+            if enrolled is None:
+                enrolled = UserTrail(user_id=user.id, trail_id=t.id)
+                db.add(enrolled)
+            enrolled.created_at = now - timedelta(seconds=position)
 
         main = trails[0] if trails else None
         main_parts = parts_by_trail.get(main.id, [])[:PARTS_DONE] if main else []

@@ -40,6 +40,20 @@ def test_history_puts_progress_on_the_trails_and_is_idempotent(client, auth_head
         enrolled = db.scalars(select(UserTrail.trail_id).where(UserTrail.user_id == user.id)).all()
         seeded = db.scalars(select(StudySession).where(StudySession.user_id == user.id)).all()
     assert enrolled == [trail["id"]]
+
+
+def test_main_trail_is_the_one_the_home_continues(client, auth_headers, session_factory):
+    from app.trails.router import user_trails
+
+    h = auth_headers("Beater", "2022")
+    newton = make_trail(client, h, "Leis de Newton")["id"]
+    other = make_trail(client, h, "Funções do 1º grau")["id"]
+    mine = make_trail(client, h, "Tema próprio da conta")["id"]  # criado antes, pela própria pessoa
+    seed_demo_account("beater", DEMO, [newton, other], session_factory)
+    with session_factory() as db:
+        user = db.scalar(select(User).where(User.nickname_lower == "beater"))
+        order = [t["trail_id"] for t in user_trails(db, user.id)]
+    assert order[0] == newton and set(order) == {newton, other, mine}
     assert len(done) == 2  # parte 3 fica como "continue de onde parou"
     first_part = trail["parts"][0]["id"]
     assert any(s.part_id == first_part for s in seeded)
