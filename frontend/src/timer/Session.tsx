@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { AssistantPanel } from '../assistant/AssistantPanel'
 import { ConfirmButton } from '../ui/ConfirmButton'
+import { Turntable } from '../vinyl/Vinyl'
 import { GOAL_PRESETS } from './goal'
 import { type useSession, clock } from './useSession'
 import { type TimerState, activeSeconds, backOf, pause, resume } from './timerState'
@@ -24,25 +25,41 @@ export function GoalChips({ value, onChange }: { value: number; onChange: (m: nu
   )
 }
 
-/** Cronômetro em andamento, dentro da própria tela. Concluir leva ao resumo; o resto não sai daqui. */
-export function RunningSession({ session, assistant = true }: { session: ReturnType<typeof useSession>; assistant?: boolean }) {
+type RunningProps = {
+  session: ReturnType<typeof useSession>
+  /** Linha acima do relógio (ex.: "Faixa 02 · Verbo to be"). */
+  caption?: string
+  assistant?: boolean
+  compact?: boolean
+}
+
+/** Sessão tocando: toca-discos, relógio e controles, dentro da própria tela. Concluir leva ao resumo. */
+export function RunningSession({ session, caption, assistant = true, compact = false }: RunningProps) {
   const navigate = useNavigate()
   const { timer, now, set } = session
   if (!timer) return null
   const seconds = activeSeconds(timer, now)
   const goalSeconds = timer.goalMinutes * 60
   const paused = timer.pausedAt !== null
+  const left = Math.max(0, Math.ceil((goalSeconds - seconds) / 60))
+  const status = paused ? 'Pausado' : seconds >= goalSeconds ? 'Meta cumprida!' : `Meta ${timer.goalMinutes} min · faltam ${left} min`
 
   return (
-    <div className="session stack">
-      <div className="row spread">
-        <span className="muted small">
-          {paused ? 'Pausado' : seconds >= goalSeconds ? 'Meta cumprida!' : `Meta: ${timer.goalMinutes} min`}
-        </span>
+    <div className={`session${compact ? ' compact' : ''}`}>
+      <Turntable
+        key={timer.clientId}
+        palette={timer.palette ?? 'noite'}
+        level={timer.level}
+        playing={!paused}
+        progress={seconds / goalSeconds}
+        className="session-deck"
+      />
+      <div className="session-readout">
+        {caption && <span className="muted small">{caption}</span>}
         <strong className="session-clock" role="timer" aria-live="off">{clock(seconds)}</strong>
+        <span className={`small session-status${paused || seconds >= goalSeconds ? ' lit' : ''}`}>{status}</span>
       </div>
-      <div className="bar" aria-hidden><span style={{ width: `${Math.min(100, (seconds / goalSeconds) * 100)}%` }} /></div>
-      <div className="row" style={{ gap: 'var(--space-2)' }}>
+      <div className="session-actions">
         <button className="btn soft grow" onClick={() => set(paused ? resume(timer, Date.now()) : pause(timer, Date.now()))}>
           {paused ? 'Retomar' : 'Pausar'}
         </button>

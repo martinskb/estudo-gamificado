@@ -4,10 +4,11 @@ import { api, post } from '../api/client'
 import type { Topic, TopicDetail } from '../api/types'
 import { useApi } from '../api/useApi'
 import { GoalChips, OtherSession, RunningSession } from '../timer/Session'
+import { Vinyl } from '../vinyl/Vinyl'
 import { useSession } from '../timer/useSession'
 import { ConfirmButton } from '../ui/ConfirmButton'
 import { PageSkeleton } from '../ui/Skeleton'
-import { Cover } from './Cover'
+import { Sleeve } from './Cover'
 import { PALETTES, type PaletteName, formatHours, photoToCover } from './cover'
 
 const dayLabel = (iso: string) => {
@@ -24,8 +25,13 @@ export function TopicPage() {
   const [makingTrail, setMakingTrail] = useState(false)
   const [photoError, setPhotoError] = useState('')
   const [goal, setGoal] = useState(25)
-  const [choosingGoal, setChoosingGoal] = useState(false)
-  const session = useSession({ topic: topic?.title ?? '', back: `/tema/${id}`, topicId: Number(id) })
+  const session = useSession({
+    topic: topic?.title ?? '',
+    back: `/tema/${id}`,
+    topicId: Number(id),
+    palette: topic?.palette,
+    level: topic?.level.name,
+  })
   const photoRef = useRef<HTMLInputElement>(null)
 
   if (error) {
@@ -33,7 +39,7 @@ export function TopicPage() {
       <main className="shell narrow">
         <p className="error" role="alert">{error}</p>
         {session.mine && <Link className="btn primary block" to="/concluir">Ver sessão em andamento</Link>}
-        <Link className="btn block" to="/">Voltar ao início</Link>
+        <Link className="btn block" to="/">Voltar à estante</Link>
       </main>
     )
   }
@@ -58,58 +64,67 @@ export function TopicPage() {
   const lv = topic.level
   const trail = topic.trail
 
+  // Tocando: a página do tema vira o modo foco (toca-discos, relógio e controles).
+  if (session.mine) {
+    return (
+      <main className="shell narrow focus-page">
+        <Link className="muted small back-link" to="/">‹ Estante</Link>
+        <RunningSession session={session} caption={topic.title} />
+      </main>
+    )
+  }
+
   return (
     <main className="shell">
-      <Link className="muted small" to="/" style={{ textDecoration: 'none', fontWeight: 600 }}>‹ Aprendendo</Link>
+      <Link className="muted small back-link" to="/">‹ Estante</Link>
 
       <section className="topic-hero">
         <div className="cover-wrap">
-          <Cover topic={topic} size="hero" showTitle={false} />
+          <Sleeve topic={topic} size="hero" showTitle={false} />
           <button
             className={`cover-photo-btn${topic.cover ? '' : ' empty'}`}
             onClick={() => photoRef.current?.click()}
             disabled={uploading}
+            aria-label={topic.cover ? 'Trocar foto da capa' : 'Adicionar foto à capa'}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
               <circle cx="12" cy="13" r="3.5" />
             </svg>
-            {uploading ? 'Enviando…' : topic.cover ? 'Trocar foto' : 'Adicionar foto'}
+            {uploading ? 'Enviando…' : null}
           </button>
           <input ref={photoRef} type="file" accept="image/*" hidden onChange={(e) => choosePhoto(e.target.files?.[0])} />
         </div>
         <div className="stack" style={{ gap: 'var(--space-4)' }}>
           <div className="stack" style={{ gap: 'var(--space-2)' }}>
             <h1>{topic.title}</h1>
-            <p className="muted">
+            <p className="muted small">
               {formatHours(topic.total_seconds)} focadas · {topic.sessions} {topic.sessions === 1 ? 'sessão' : 'sessões'}
-              {topic.streak > 0 && ` · ${topic.streak} ${topic.streak === 1 ? 'dia seguido' : 'dias seguidos'} neste tema`}
+              {topic.streak > 0 && ` · ${topic.streak} ${topic.streak === 1 ? 'dia seguido' : 'dias seguidos'}`}
             </p>
+            <div className="level-row" aria-label={`Disco ${lv.name}`}>
+              <Vinyl palette={topic.palette} level={lv.name} className="level-disc" />
+              <div className="bar grow" aria-hidden><span style={{ width: `${Math.round(lv.progress * 100)}%` }} /></div>
+              <span className="muted small">{lv.next_name ? `${lv.next_name} em ${formatHours(lv.seconds_to_next)}` : 'Diamante!'}</span>
+            </div>
           </div>
-          {session.mine ? (
-            <RunningSession session={session} />
-          ) : session.other ? (
+          {session.other ? (
             <OtherSession timer={session.other} />
           ) : (
-            <div className="stack" style={{ gap: 'var(--space-3)' }}>
-              <div className="play-row">
-                <button className="play" onClick={() => session.start(goal)} aria-label={`Focar ${goal} minutos em ${topic.title}`}>
-                  <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5 19.5 12 7 19.5Z" fill="currentColor" /></svg>
-                </button>
-                <div className="stack" style={{ gap: 2 }}>
-                  <strong>Focar {goal} min</strong>
-                  <button className="link-btn muted small" onClick={() => setChoosingGoal((c) => !c)} aria-expanded={choosingGoal}>
-                    Escolher outra meta
-                  </button>
-                </div>
+            <div className="play-row">
+              <button className="play" onClick={() => session.start(goal)} aria-label={`Tocar ${goal} minutos de ${topic.title}`}>
+                <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5 19.5 12 7 19.5Z" fill="currentColor" /></svg>
+              </button>
+              <div className="stack" style={{ gap: 'var(--space-2)', minWidth: 0 }}>
+                <strong>Tocar {goal} min</strong>
+                <GoalChips value={goal} onChange={setGoal} />
               </div>
-              {choosingGoal && <GoalChips value={goal} onChange={(m) => { setGoal(m); setChoosingGoal(false) }} />}
             </div>
           )}
           <div className="row wrap" style={{ gap: 'var(--space-2)' }}>
             {trail ? (
               <Link className="btn soft small" to={`/trilha/${trail.id}`}>
-                {trail.next_part ? `Trilha com vídeos · continuar parte ${trail.next_part}` : 'Trilha com vídeos · concluída'}
+                {trail.next_part ? `Lado A · continuar faixa ${String(trail.next_part).padStart(2, '0')}` : 'Lado A · ouvido inteiro'}
               </Link>
             ) : (
               <button className="btn soft small" onClick={() => setMakingTrail((m) => !m)} aria-expanded={makingTrail}>
@@ -136,41 +151,27 @@ export function TopicPage() {
         />
       )}
 
-      <div className="columns">
-        <div>
-          <section className="card stack" style={{ gap: 'var(--space-4)' }} aria-label="Sessões">
-            <h2>Sessões</h2>
-            {topic.tracks.length === 0 ? (
-              <p className="muted">Nenhuma sessão ainda. Aperte o play para começar.</p>
-            ) : (
-              <ol className="tracks">
-                {topic.tracks.map((t, i) => (
-                  <li key={t.id}>
-                    <span className="n">{i + 1}</span>
-                    <span className="stack" style={{ gap: 0, minWidth: 0 }}>
-                      <span className="truncate" style={{ fontWeight: 600 }}>{t.note || dayLabel(t.day)}</span>
-                      <span className="muted small">
-                        {t.note ? `${dayLabel(t.day)} · ` : ''}{t.goal_met ? 'meta cumprida' : `meta de ${t.goal_minutes} min`}
-                      </span>
-                    </span>
-                    <strong className="small" style={{ fontVariantNumeric: 'tabular-nums' }}>{formatHours(t.active_seconds)}</strong>
-                  </li>
-                ))}
-              </ol>
-            )}
-          </section>
-        </div>
-        <div>
-          <section className="card level-card" aria-label="Nível do disco">
-            <span className="muted small" style={{ fontWeight: 700, letterSpacing: '0.06em' }}>NÍVEL DO DISCO</span>
-            <strong style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem' }}>{lv.name}</strong>
-            <div className="bar" aria-hidden><span style={{ width: `${Math.round(lv.progress * 100)}%` }} /></div>
-            <span className="muted small">
-              {lv.next_name ? `${lv.next_name} em ${formatHours(lv.seconds_to_next)}` : 'Nível máximo: disco de diamante!'}
-            </span>
-          </section>
-        </div>
-      </div>
+      <section className="card stack" style={{ gap: 'var(--space-4)' }} aria-label="Sessões">
+        <h2>Sessões</h2>
+        {topic.tracks.length === 0 ? (
+          <p className="muted">Nenhuma sessão ainda. Aperte o play para começar.</p>
+        ) : (
+          <ol className="tracks">
+            {topic.tracks.map((t, i) => (
+              <li key={t.id}>
+                <span className="n">{String(i + 1).padStart(2, '0')}</span>
+                <span className="stack" style={{ gap: 0, minWidth: 0 }}>
+                  <span className="truncate" style={{ fontWeight: 600 }}>{t.note || dayLabel(t.day)}</span>
+                  <span className="muted small">
+                    {t.note ? `${dayLabel(t.day)} · ` : ''}{t.goal_met ? 'meta cumprida' : `meta de ${t.goal_minutes} min`}
+                  </span>
+                </span>
+                <strong className="small" style={{ fontVariantNumeric: 'tabular-nums' }}>{formatHours(t.active_seconds)}</strong>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
     </main>
   )
 }

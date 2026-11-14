@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ApiError, api, post } from '../api/client'
-import type { CatalogItem, Trail, TrailPart } from '../api/types'
+import type { CatalogItem, Topic, Trail, TrailPart } from '../api/types'
+import { useApi } from '../api/useApi'
+import type { PaletteName } from '../topics/cover'
 import { AssistantPanel } from '../assistant/AssistantPanel'
 import { GoalChips, OtherSession, RunningSession } from '../timer/Session'
 import { useSession } from '../timer/useSession'
@@ -181,18 +183,22 @@ function Ready({ trail, onChange }: { trail: Trail; onChange: (t: Trail) => void
   const studying = loadTimer()?.partId
   const firstOpen = trail.parts.find((p) => p.id === studying)?.id ?? trail.parts.find((p) => !p.done)?.id ?? trail.parts[0]?.id
   const [open, setOpen] = useState<number | undefined>(firstOpen)
+  // O disco da trilha é o do tema dela (cores da capa e nível).
+  const { data: topics } = useApi<Topic[]>('/topics?sort=recent')
+  const owner = topics?.find((t) => t.trail_id === trail.id)
+  const disc = { palette: owner?.palette ?? ('noite' as const), level: owner?.level.name }
   const markDone = (id: number) =>
     onChange({ ...trail, parts: trail.parts.map((p) => (p.id === id ? { ...p, done: true } : p)) })
 
   const header = (
     <div className="page-head">
-      <span className="muted small" style={{ fontWeight: 700, letterSpacing: '0.06em' }}>TRILHA</span>
+      <span className="muted small" style={{ fontWeight: 700, letterSpacing: '0.06em' }}>LADO A · TRILHA</span>
       <h1>{trail.title}</h1>
       <div className="row" style={{ marginTop: 'var(--space-2)' }}>
         <div className="bar grow" aria-hidden>
           <span style={{ width: `${trail.parts.length ? (done / trail.parts.length) * 100 : 0}%` }} />
         </div>
-        <span className="muted small">{done} de {trail.parts.length} partes</span>
+        <span className="muted small">{done} de {trail.parts.length} faixas</span>
       </div>
     </div>
   )
@@ -218,10 +224,10 @@ function Ready({ trail, onChange }: { trail: Trail; onChange: (t: Trail) => void
               <section className="card part-card" key={selected.id}>
                 <div className="part-body">
                   <div className="stack" style={{ gap: 'var(--space-1)' }}>
-                    <span className="muted small">Parte {selected.order}</span>
+                    <span className="muted small">Faixa {String(selected.order).padStart(2, '0')}</span>
                     <h2>{selected.title}</h2>
                   </div>
-                  <PartBody trail={trail} part={selected} onDone={() => markDone(selected.id)} onOpenPart={setOpen} />
+                  <PartBody trail={trail} part={selected} disc={disc} onDone={() => markDone(selected.id)} onOpenPart={setOpen} />
                 </div>
               </section>
             )}
@@ -241,7 +247,7 @@ function Ready({ trail, onChange }: { trail: Trail; onChange: (t: Trail) => void
             <PartHead part={part} open={open === part.id} onClick={() => setOpen(open === part.id ? undefined : part.id)} />
             {open === part.id && (
               <div className="part-body">
-                <PartBody trail={trail} part={part} onDone={() => markDone(part.id)} onOpenPart={setOpen} />
+                <PartBody trail={trail} part={part} disc={disc} onDone={() => markDone(part.id)} onOpenPart={setOpen} />
               </div>
             )}
           </section>
@@ -261,7 +267,7 @@ function PartHead({ part, open, onClick }: { part: TrailPart; open: boolean; onC
     >
       <span className="step-mark" aria-hidden="true">{part.done ? '✓' : part.order}</span>
       <span className="stack grow" style={{ gap: 0 }}>
-        <span className="muted small">Parte {part.order}{part.done ? ' · concluída' : ''}</span>
+        <span className="muted small">Faixa {String(part.order).padStart(2, '0')}{part.done ? ' · ouvida' : ''}</span>
         <strong style={{ fontWeight: 650 }}>{part.title}</strong>
       </span>
       <svg className="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
@@ -271,16 +277,23 @@ function PartHead({ part, open, onClick }: { part: TrailPart; open: boolean; onC
   )
 }
 
-type BodyProps = { trail: Trail; part: TrailPart; onDone: () => void; onOpenPart: (id: number) => void }
+type Disc = { palette: PaletteName; level?: string }
+type BodyProps = { trail: Trail; part: TrailPart; disc: Disc; onDone: () => void; onOpenPart: (id: number) => void }
 
-function PartBody({ trail, part, onDone, onOpenPart }: BodyProps) {
+function PartBody({ trail, part, disc, onDone, onOpenPart }: BodyProps) {
   const [playing, setPlaying] = useState<string | null>(null)
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
   const playerRef = useRef<HTMLDivElement>(null)
 
   const [goal, setGoal] = useState(25)
-  const session = useSession({ topic: trail.title, back: `/trilha/${trail.id}`, partId: part.id })
+  const session = useSession({
+    topic: trail.title,
+    back: `/trilha/${trail.id}`,
+    partId: part.id,
+    palette: disc.palette,
+    level: disc.level,
+  })
 
   async function markDone() {
     setBusy(true)
@@ -298,7 +311,7 @@ function PartBody({ trail, part, onDone, onOpenPart }: BodyProps) {
   return (
     <>
       {part.videos.length === 0 && (
-        <p className="muted">Nenhuma aula encontrada para esta parte. Você pode estudar com seu próprio material.</p>
+        <p className="muted">Nenhuma aula encontrada para esta faixa. Você pode estudar com seu próprio material.</p>
       )}
       {playing && (
         <div ref={playerRef} className="player">
@@ -337,7 +350,7 @@ function PartBody({ trail, part, onDone, onOpenPart }: BodyProps) {
 
       <div className="action-list">
         {session.mine ? (
-          <RunningSession session={session} assistant={false} />
+          <RunningSession session={session} assistant={false} compact caption={`Faixa ${String(part.order).padStart(2, '0')} · ${part.title}`} />
         ) : session.other ? (
           <OtherSession
             timer={session.other}
@@ -347,7 +360,7 @@ function PartBody({ trail, part, onDone, onOpenPart }: BodyProps) {
           <>
             <GoalChips value={goal} onChange={setGoal} />
             <button className="btn primary block" onClick={() => session.start(goal)}>
-              {part.done ? 'Estudar de novo' : 'Estudar esta parte'}
+              {part.done ? 'Tocar de novo' : 'Tocar esta faixa'}
             </button>
           </>
         )}
@@ -357,7 +370,7 @@ function PartBody({ trail, part, onDone, onOpenPart }: BodyProps) {
           </Link>
         ) : (
           <button className="btn soft block" onClick={markDone} disabled={busy}>
-            {busy ? 'Salvando…' : 'Concluí esta parte'}
+            {busy ? 'Salvando…' : 'Concluí esta faixa'}
           </button>
         )}
         {message && <p className="notice warn" role="alert">{message}</p>}

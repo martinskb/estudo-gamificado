@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import { type CSSProperties, useEffect, useState } from 'react'
 import { PALETTES, type PaletteName } from '../topics/cover'
 import { ARM_REST, armAngle, finishOf } from './vinyl'
 
@@ -29,9 +29,15 @@ type TurntableProps = { palette: PaletteName; level?: string; playing: boolean; 
 
 /** Toca-discos: o disco gira enquanto o cronômetro roda; o braço avança pelos sulcos até a meta. */
 export function Turntable({ palette, level, playing, progress, className = '' }: TurntableProps) {
-  const angle = playing ? armAngle(progress, true) : ARM_REST
+  // Ao aparecer, o disco desce no prato e só então o braço vai até ele.
+  const [settled, setSettled] = useState(false)
+  useEffect(() => {
+    const id = setTimeout(() => setSettled(true), 700)
+    return () => clearTimeout(id)
+  }, [])
+  const angle = playing && settled ? armAngle(progress, true) : ARM_REST
   return (
-    <div className={`turntable ${className}`} aria-hidden="true">
+    <div className={`turntable${settled ? '' : ' arriving'} ${className}`} aria-hidden="true">
       <span className="tt-platter" />
       <Vinyl palette={palette} level={level} spinning={playing} className="tt-disc" />
       <span className="tt-pivot" />

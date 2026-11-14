@@ -4,6 +4,7 @@
   aspect-ratio: 1;
   border-radius: 50%;
   background: repeating-radial-gradient(circle at 50% 50%, #111 0 1.5px, #1d1d1d 1.5px 3px);
+  box-shadow: 0 0 0 1px rgba(255, 240, 220, 0.07), 0 10px 24px -8px rgba(0, 0, 0, 0.6);
 }
 /* reflexo fixo: não gira junto, como a luz da sala batendo no disco */
 .vinyl::after {
@@ -40,9 +41,9 @@
   transform: translateX(14%);
   transition: transform 0.5s var(--ease);
 }
-.sleeve-hero .sleeve-disc { transform: translateX(34%); }
+.sleeve-hero .sleeve-disc { transform: translateX(40%); }
 @media (hover: hover) and (pointer: fine) {
-  a:hover > .sleeve .sleeve-disc, .sleeve:hover .sleeve-disc { transform: translateX(30%); }
+  a:hover > .sleeve-grid .sleeve-disc { transform: translateX(30%); }
 }
 
 /* ---------- Toca-discos (proporções do design: 340 × 312) ---------- */
@@ -63,3 +64,12 @@
 .tt-led { position: absolute; right: 4.7%; bottom: 5.1%; width: 3%; aspect-ratio: 1; border-radius: 50%; background: var(--surface-3); transition: background-color 0.4s, box-shadow 0.4s; }
 .tt-led.on { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
 @media (prefers-reduced-motion: reduce) { .tt-arm, .sleeve-disc { transition: none; } }
+
+/* o disco chega no prato vindo de cima (saiu da capa) */
+.turntable.arriving .tt-disc { animation: disc-drop 0.7s var(--ease) both; }
+@keyframes disc-drop {
+  from { transform: translate(-18%, -26%) scale(0.86); opacity: 0; }
+  60% { opacity: 1; }
+  to { transform: none; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .turntable.arriving .tt-disc { animation: none; } }

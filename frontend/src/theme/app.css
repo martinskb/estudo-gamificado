@@ -756,9 +756,18 @@ textarea { min-height: 96px; resize: vertical; }
 
 .install-row { display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: var(--space-4); }
 
-/* ---------- Sessão dentro do tema/trilha ---------- */
-.session { gap: var(--space-3); background: var(--surface-2); border-radius: var(--radius-sm); padding: var(--space-4); width: 100%; animation: fade 0.2s var(--ease) both; }
-.session-clock { font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+/* ---------- Sessão tocando (dentro do tema/trilha) ---------- */
+.session { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; animation: fade 0.3s var(--ease) both; }
+.session-deck { max-width: 380px; align-self: center; }
+.session-readout { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+.session-clock { font-family: var(--font-display); font-size: clamp(3.5rem, 18vw, 4.75rem); font-weight: 600; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.session-status { color: var(--muted); font-weight: 600; }
+.session-status.lit { color: var(--accent-ink); }
+.session-actions { display: flex; gap: var(--space-2); }
+.session-actions .btn { min-height: 54px; border-radius: 16px; font-size: 1rem; }
+.session > .btn.ghost { align-self: center; }
+.session.compact .session-deck { max-width: 300px; }
+.session.compact .session-clock { font-size: 3.25rem; }
 .link-btn { appearance: none; border: 0; background: none; padding: 0; font: inherit; text-align: left; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 
 /* ---------- Estante (Início) ---------- */
@@ -825,4 +834,23 @@ textarea { min-height: 96px; resize: vertical; }
   }
   .shelf.small .shelf-item::before { top: calc(120px * 0.94); height: 12px; }
   .shelf-plank { display: none; }
+}
+
+/* ---------- Tema (álbum) ---------- */
+.back-link { text-decoration: none; font-weight: 600; align-self: flex-start; }
+.topic-hero .cover-wrap { width: 100%; max-width: 360px; align-self: flex-start; }
+.topic-hero .cover-wrap .sleeve { width: 72%; }
+.cover-photo-btn { left: 10px; top: 10px; right: auto; bottom: auto; width: 40px; height: 40px; min-height: 0; padding: 0; justify-content: center; }
+.cover-photo-btn.empty { left: 10px; top: 10px; right: auto; bottom: auto; transform: none; background: rgba(0, 0, 0, 0.4); color: #fff; min-height: 0; padding: 0; }
+.cover-photo-btn.empty:active { transform: scale(0.96); }
+.level-row { display: flex; align-items: center; gap: var(--space-3); margin-top: 2px; }
+.level-disc { width: 22px; flex: none; }
+.level-row .bar { height: 6px; }
+.play-row .chips .chip { min-height: 40px; padding: 0 12px; font-size: 0.85rem; }
+.focus-page { gap: var(--space-5); }
+.tracks .n { font-family: var(--font-display); }
+@media (min-width: 960px) {
+  .topic-hero { grid-template-columns: 380px minmax(0, 1fr); align-items: center; }
+  .topic-hero .cover-wrap { max-width: none; }
+  .focus-page .session { max-width: 520px; align-self: center; }
 }
