@@ -40,6 +40,14 @@ def test_history_puts_progress_on_the_trails_and_is_idempotent(client, auth_head
         enrolled = db.scalars(select(UserTrail.trail_id).where(UserTrail.user_id == user.id)).all()
         seeded = db.scalars(select(StudySession).where(StudySession.user_id == user.id)).all()
     assert enrolled == [trail["id"]]
+    assert len(done) == 2  # parte 3 fica como "continue de onde parou"
+    first_part = trail["parts"][0]["id"]
+    assert any(s.part_id == first_part for s in seeded)
+    assert len({s.client_id for s in seeded}) == len(seeded)
+    again = len(seeded)
+    seed_demo_account("beater", DEMO, [trail["id"]], session_factory)
+    with session_factory() as db:
+        assert len(db.scalars(select(StudySession).where(StudySession.user_id == user.id)).all()) == again
 
 
 def test_main_trail_is_the_one_the_home_continues(client, auth_headers, session_factory):
@@ -54,14 +62,6 @@ def test_main_trail_is_the_one_the_home_continues(client, auth_headers, session_
         user = db.scalar(select(User).where(User.nickname_lower == "beater"))
         order = [t["trail_id"] for t in user_trails(db, user.id)]
     assert order[0] == newton and set(order) == {newton, other, mine}
-    assert len(done) == 2  # parte 3 fica como "continue de onde parou"
-    first_part = trail["parts"][0]["id"]
-    assert any(s.part_id == first_part for s in seeded)
-    assert len({s.client_id for s in seeded}) == len(seeded)
-    again = len(seeded)
-    seed_demo_account("beater", DEMO, [trail["id"]], session_factory)
-    with session_factory() as db:
-        assert len(db.scalars(select(StudySession).where(StudySession.user_id == user.id)).all()) == again
 
 
 def test_missing_account_is_reported(session_factory):
