@@ -7,6 +7,7 @@ import { Logo } from '../brand/Logo'
 import { todayBelem } from '../progress/calendarGrid'
 import { Cover } from '../topics/Cover'
 import { formatHours } from '../topics/cover'
+import { InstallInvite } from '../ui/InstallInvite'
 import { GallerySkeleton } from '../ui/Skeleton'
 import { weekStrip } from './homeModel'
 
@@ -67,6 +68,8 @@ export function HomePage() {
           <button className="btn small" onClick={reload}>Tentar de novo</button>
         </div>
       )}
+
+      <InstallInvite once />
 
       {p && !p.studied_today && p.streak > 0 && (
         <p className="notice warn" role="status">

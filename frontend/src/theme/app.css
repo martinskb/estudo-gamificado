@@ -745,3 +745,6 @@ textarea { min-height: 96px; resize: vertical; }
 @media (min-width: 960px) { .segmented.compact { max-width: 380px; } }
 /* no computador a logo já está na barra do topo: a ofensiva fica sozinha à direita */
 @media (min-width: 960px) { .home-head { justify-content: flex-end; } .home-head .home-logo { display: none; } }
+
+.install-invite { flex-wrap: wrap; }
+.install-invite .btn.primary { color: var(--accent-text); }
