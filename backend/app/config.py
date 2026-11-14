@@ -2,7 +2,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    # str_strip_whitespace: valores colados no painel da hospedagem costumam vir com espaço ou
+    # quebra de linha no fim, o que invalida chaves de API.
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore", str_strip_whitespace=True)
 
     database_url: str = "sqlite:///./dev.db"
     cors_origins: str = "http://localhost:5173"
