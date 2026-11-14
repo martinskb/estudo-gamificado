@@ -38,7 +38,7 @@ class SettingsIn(BaseModel):
 
 
 def _topic_light(db: Session, s: StudySession) -> dict | None:
-    """Luz do tema antes e depois desta sessão (estável: reenviar a mesma sessão dá o mesmo)."""
+    """Nível do disco do tema antes e depois desta sessão (estável: reenviar a mesma sessão dá o mesmo)."""
     if s.topic_id is None:
         return None
     after_seconds = db.scalar(

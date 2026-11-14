@@ -39,13 +39,13 @@ export function TopicLightCard({ light, delay = 900 }: { light: TopicLight; dela
   const next = LEVEL_ORDER[index + 1]
   return (
     <>
-      <section className={`light-card${frame.burst ? ' burst' : ''}`} aria-label="Luz do tema" style={{ '--lvl': index } as CSSProperties}>
+      <section className={`light-card${frame.burst ? ' burst' : ''}`} aria-label="Disco do tema" style={{ '--lvl': index } as CSSProperties}>
         <div className="light-orb-wrap" aria-hidden="true">
           <span className="light-orb" key={frame.level} />
           {frame.burst && SPARKS.map((style, i) => <i key={i} className="spark" style={style} />)}
         </div>
         <div className="stack grow" style={{ gap: 'var(--space-2)' }}>
-          <span className="muted small truncate">Luz de {light.title}</span>
+          <span className="muted small truncate">Disco de {light.title}</span>
           <strong className="light-level" key={`n-${frame.level}`}>
             {light.level_up && frame.level === light.after.level ? `${frame.level}!` : frame.level}
           </strong>
@@ -60,7 +60,7 @@ export function TopicLightCard({ light, delay = 900 }: { light: TopicLight; dela
 
 function FarolMoment({ title, topicId, onClose }: { title: string; topicId: number; onClose: () => void }) {
   return (
-    <div className="farol" role="dialog" aria-modal="true" aria-label="Farol aceso">
+    <div className="farol" role="dialog" aria-modal="true" aria-label="Disco de diamante">
       <div className="farol-rays" aria-hidden="true" />
       <div className="farol-content">
         <span className="farol-orb" aria-hidden="true" />
@@ -68,8 +68,8 @@ function FarolMoment({ title, topicId, onClose }: { title: string; topicId: numb
           <i key={i} className="spark big" style={{ ...style, '--delay': `${200 + i * 35}ms` } as CSSProperties} aria-hidden="true" />
         ))}
         <p className="farol-eyebrow">NÍVEL MÁXIMO</p>
-        <h2>Farol aceso!</h2>
-        <p>40 horas de luz em <strong>{title}</strong>.</p>
+        <h2>Disco de diamante!</h2>
+        <p>40 horas focadas em <strong>{title}</strong>.</p>
         <div className="stack" style={{ width: '100%', gap: 'var(--space-2)' }}>
           <Link className="btn highlight block" to={`/tema/${topicId}`}>Ver meu tema</Link>
           <button className="btn ghost block farol-close" onClick={onClose} autoFocus>Continuar</button>

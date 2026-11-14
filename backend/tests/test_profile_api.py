@@ -31,7 +31,7 @@ def test_stats(client, auth_headers):
     assert s["sessions"] == 6
     assert s["topics"] == 2
     assert s["longest_streak"] == 3
-    assert s["best_level"] == {"name": "Faísca", "topic": "Inglês"}
+    assert s["best_level"] == {"name": "Prata", "topic": "Inglês"}
     assert s["member_since"]
 
 

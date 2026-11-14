@@ -18,7 +18,7 @@ def test_create_topic_is_instant_and_needs_no_ai(client, auth_headers, fake_ai):
     assert r.status_code == 201
     t = r.json()
     assert t["title"] == "Inglês" and t["total_seconds"] == 0 and t["sessions"] == 0
-    assert t["level"]["name"] == "Acendendo" and t["palette"] == "indigo" and t["cover"] is None
+    assert t["level"]["name"] == "Vinil" and t["palette"] == "indigo" and t["cover"] is None
     assert fake_ai.calls == []
 
 
@@ -43,7 +43,7 @@ def test_sessions_feed_topic_totals_level_and_streak(client, auth_headers):
     client.post("/sessions", json=session_body(active=1000, topic="Inglês") | {"topic_id": topic["id"]}, headers=h)
     detail = client.get(f"/topics/{topic['id']}", headers=h).json()
     assert detail["total_seconds"] == 4000 and detail["sessions"] == 2
-    assert detail["level"]["name"] == "Faísca"
+    assert detail["level"]["name"] == "Prata"
     assert [s["active_seconds"] for s in detail["tracks"]] == [1000, 3000] or len(detail["tracks"]) == 2
     assert detail["last_day"] == "2026-11-10"
 

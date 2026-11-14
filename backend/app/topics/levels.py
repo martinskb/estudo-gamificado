@@ -1,7 +1,7 @@
-"""Níveis de luz de um tema, pelas horas focadas nele."""
+"""Níveis do disco de um tema (vinil → diamante), pelas horas focadas nele."""
 from dataclasses import dataclass
 
-LEVELS = [("Acendendo", 0), ("Faísca", 1), ("Chama", 5), ("Lanterna", 15), ("Farol", 40)]
+LEVELS = [("Vinil", 0), ("Prata", 1), ("Ouro", 5), ("Platina", 15), ("Diamante", 40)]
 
 
 @dataclass

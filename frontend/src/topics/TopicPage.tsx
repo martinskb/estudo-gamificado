@@ -161,12 +161,12 @@ export function TopicPage() {
           </section>
         </div>
         <div>
-          <section className="card level-card" aria-label="Nível de luz">
-            <span className="muted small" style={{ fontWeight: 700, letterSpacing: '0.06em' }}>NÍVEL DE LUZ</span>
+          <section className="card level-card" aria-label="Nível do disco">
+            <span className="muted small" style={{ fontWeight: 700, letterSpacing: '0.06em' }}>NÍVEL DO DISCO</span>
             <strong style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem' }}>{lv.name}</strong>
             <div className="bar" aria-hidden><span style={{ width: `${Math.round(lv.progress * 100)}%` }} /></div>
             <span className="muted small">
-              {lv.next_name ? `${lv.next_name} em ${formatHours(lv.seconds_to_next)}` : 'Nível máximo. Você é um farol nesse tema!'}
+              {lv.next_name ? `${lv.next_name} em ${formatHours(lv.seconds_to_next)}` : 'Nível máximo: disco de diamante!'}
             </span>
           </section>
         </div>

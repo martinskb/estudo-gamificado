@@ -1,4 +1,4 @@
-"""Galeria de temas ("playlists"): criar na hora, sem IA; capas; níveis de luz."""
+"""Galeria de temas ("playlists"): criar na hora, sem IA; capas; níveis do disco."""
 import base64
 import binascii
 import re

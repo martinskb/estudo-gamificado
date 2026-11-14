@@ -54,7 +54,7 @@ const MELODIES: Record<SoundKind, [number, number, number][]> = {
   wrong: [[311.1, 0, 0.18], [233.1, 0.12, 0.26]],
   // subir de nível: arpejo subindo + um brilho agudo no fim
   levelup: [[523.3, 0, 0.2], [659.3, 0.08, 0.2], [784, 0.16, 0.2], [1046.5, 0.24, 0.3], [1318.5, 0.34, 0.5], [2093, 0.46, 0.6]],
-  // Farol: fanfarra curta, um acorde que abre e fica soando
+  // Diamante: fanfarra curta, um acorde que abre e fica soando
   max: [
     [392, 0, 0.25], [523.3, 0.12, 0.25], [659.3, 0.24, 0.25], [784, 0.36, 0.35],
     [523.3, 0.6, 1.4], [659.3, 0.6, 1.4], [784, 0.6, 1.4], [1046.5, 0.6, 1.6], [1568, 0.75, 1.3], [2093, 0.9, 1.2],
