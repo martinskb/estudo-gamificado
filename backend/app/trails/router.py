@@ -92,7 +92,11 @@ def catalog(q: str = "", user: User = Depends(current_user), db: Session = Depen
     if not q.strip():
         rows = db.execute(ready.where(Trail.is_catalog).order_by(Trail.title).limit(20)).all()
         return [{"trail_id": i, "title": t} for i, t in rows]
-    titles = dict(db.execute(ready).all())
+    # Sugestões: só o catálogo curado e as trilhas da própria pessoa. Um tema digitado por
+    # outro aluno não aparece para os demais (quem digitar o mesmo tema ainda o reaproveita).
+    mine = select(UserTrail.trail_id).where(UserTrail.user_id == user.id)
+    visible = ready.where(Trail.is_catalog | Trail.id.in_(mine))
+    titles = dict(db.execute(visible).all())
     return [{"trail_id": i, "title": titles[i]} for i in match(q, titles)]
 
 

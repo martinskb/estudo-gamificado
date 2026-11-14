@@ -8,7 +8,7 @@ from app.ai.client import AIError, GeminiClient
 
 warnings.filterwarnings("ignore", category=SyntaxWarning)
 
-PARTS = '{"parts": ["A", "B", "C", "D"]}'
+PARTS = '{"is_study_topic": true, "parts": ["A", "B", "C", "D"]}'
 
 
 class FakeModels:
@@ -43,7 +43,10 @@ def test_exhausted_model_is_skipped_on_following_calls():
     assert fake.calls == ["a", "b", "b"]
 
 
-@pytest.mark.parametrize("message", ["503 UNAVAILABLE. high demand", "404 NOT_FOUND. models/a is not found"])
+@pytest.mark.parametrize(
+    "message",
+    ["503 UNAVAILABLE. high demand", "404 NOT_FOUND. models/a is not found", "504 DEADLINE_EXCEEDED. Deadline expired"],
+)
 def test_unavailable_or_unknown_model_also_falls_back(message):
     ai, fake = make({"a": Exception(message), "b": PARTS}, "a,b")
     assert ai.split_topic("Tema", "livre") == ["A", "B", "C", "D"]

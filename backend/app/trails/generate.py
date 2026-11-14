@@ -6,7 +6,7 @@ from datetime import timedelta
 from sqlalchemy import delete, select, update
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.ai.client import AIClient, AIError, QuizItem
+from app.ai.client import AIClient, AIError, QuizItem, TopicRejected
 from app.ai.youtube import QuotaExceeded, VideoSearch
 from app.db import utcnow
 from app.events import log_event
@@ -25,6 +25,8 @@ STEP_QUIZ = "criando exercícios"
 def _retry_once[T](call: Callable[[], T]) -> T:
     try:
         return call()
+    except TopicRejected:
+        raise  # o tema não é de estudo: tentar de novo não muda a resposta
     except AIError:
         time.sleep(RETRY_WAIT_S)
         return call()
@@ -125,7 +127,12 @@ def generate_trail(
             db.commit()
         except Exception as exc:
             db.rollback()
-            error = "quota" if isinstance(exc, QuotaExceeded) else "ai" if isinstance(exc, AIError) else "erro"
+            if isinstance(exc, TopicRejected):
+                error = "tema"
+            elif isinstance(exc, QuotaExceeded):
+                error = "quota"
+            else:
+                error = "ai" if isinstance(exc, AIError) else "erro"
             _clear(db, trail_id)
             db.execute(
                 update(Trail).where(Trail.id == trail_id).values(status="failed", step="", error=error)

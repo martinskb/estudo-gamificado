@@ -117,7 +117,9 @@ function Failed({ trail, timedOut, onRetry }: { trail: Trail; timedOut: boolean;
     ? 'Está demorando mais que o normal.'
     : trail.error === 'quota'
       ? 'O limite diário de buscas no YouTube acabou. Amanhã volta ao normal.'
-      : 'A IA não conseguiu montar essa trilha agora.'
+      : trail.error === 'tema'
+        ? 'Isso não parece um assunto de estudo. Tente escrever o que você quer aprender, por exemplo "Funções do 1º grau" ou "Inglês básico".'
+        : 'A IA não conseguiu montar essa trilha agora.'
 
   return (
     <main className="shell">
@@ -128,7 +130,7 @@ function Failed({ trail, timedOut, onRetry }: { trail: Trail; timedOut: boolean;
           <span>{reason}</span>
         </div>
       </div>
-      {trail.error !== 'quota' && (
+      {trail.error !== 'quota' && trail.error !== 'tema' && (
         <button
           className="btn primary block"
           disabled={busy}

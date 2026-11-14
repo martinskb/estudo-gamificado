@@ -58,7 +58,7 @@ export type Trail = {
   title: string
   status: 'generating' | 'ready' | 'failed'
   step: string
-  error: 'quota' | 'ai' | 'erro' | null
+  error: 'quota' | 'ai' | 'tema' | 'erro' | null
   parts: TrailPart[]
 }
 

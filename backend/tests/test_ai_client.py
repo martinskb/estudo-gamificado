@@ -4,8 +4,8 @@ from app.ai.client import AIError, parse_parts, parse_quiz
 
 
 def test_parse_parts_accepts_4_to_6_and_trims():
-    assert parse_parts('{"parts": [" A ", "B", "C", "D"]}') == ["A", "B", "C", "D"]
-    assert len(parse_parts('{"parts": ["1","2","3","4","5","6","7"]}')) == 6
+    assert parse_parts('{"is_study_topic": true, "parts": [" A ", "B", "C", "D"]}') == ["A", "B", "C", "D"]
+    assert len(parse_parts('{"is_study_topic": true, "parts": ["1","2","3","4","5","6","7"]}')) == 6
 
 
 @pytest.mark.parametrize("text", ["não é json", '{"parts": ["A", "B"]}', '{"parts": "A"}', "{}", '{"parts": ["A","B","C",""]}'])

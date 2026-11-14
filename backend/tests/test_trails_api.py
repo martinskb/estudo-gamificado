@@ -63,7 +63,7 @@ def test_catalog_only_ready(client, auth_headers, session_factory):
         db.add(Trail(title="Cálculo III", topic_norm="calculo iii", level="livre", status="failed"))
         db.commit()
     found = client.get("/catalog", params={"q": "calculo"}, headers=h).json()
-    assert found == [{"trail_id": ready, "title": "Cálculo I"}]
+    assert found == [{"trail_id": ready, "title": "Cálculo I"}]  # ana criou: aparece para ela
 
 
 def test_catalog_without_query_lists_catalog_trails(client, auth_headers, session_factory):
@@ -81,3 +81,17 @@ def test_unknown_trail_404(client, auth_headers):
 
 def test_trails_require_login(client):
     assert client.post("/trails", json={"topic": "Cálculo I", "level": "livre"}).status_code == 401
+
+
+def test_catalog_search_hides_other_students_trails(client, auth_headers, session_factory):
+    ana, bia = auth_headers("ana"), auth_headers("bia")
+    mine = create(client, ana, "Cálculo I").json()["trail_id"]
+    with session_factory() as db:
+        db.add(Trail(title="Cálculo curado", topic_norm="calculo curado", status="ready", is_catalog=True))
+        db.commit()
+    ana_sees = {t["title"] for t in client.get("/catalog", params={"q": "calculo"}, headers=ana).json()}
+    bia_sees = {t["title"] for t in client.get("/catalog", params={"q": "calculo"}, headers=bia).json()}
+    assert ana_sees == {"Cálculo I", "Cálculo curado"}
+    assert bia_sees == {"Cálculo curado"}
+    # quem digitar exatamente o mesmo tema ainda reaproveita a trilha
+    assert create(client, bia, "calculo i").json()["trail_id"] == mine
