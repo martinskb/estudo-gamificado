@@ -6,7 +6,7 @@ O Lume é um app web (PWA) que ajuda a criar **constância** para aprender: da m
 
 Projeto da disciplina Tópicos Integradores — Análise e Desenvolvimento de Sistemas, UNAMA (Belém, PA). O pré-projeto original está em [`ideia/`](ideia/).
 
-- **App:** https://estudo-gamificado-two.vercel.app
+- **App:** https://lume-app.vercel.app
 - **API:** https://estudo-api-1k65.onrender.com (plano grátis: dorme após 15 min sem uso e leva ~1 min para acordar)
 
 ## O que ele faz

@@ -1,6 +1,6 @@
 # Checklist da demo — segunda 16/11, 8h
 
-**Site:** https://estudo-gamificado-two.vercel.app
+**Site:** https://lume-app.vercel.app
 **API:** https://estudo-api-1k65.onrender.com (plano grátis: dorme após 15 min sem uso)
 
 ## 10 minutos antes
