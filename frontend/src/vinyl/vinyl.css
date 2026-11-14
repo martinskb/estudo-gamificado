@@ -1,0 +1,65 @@
+/* ---------- Disco ---------- */
+.vinyl {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle at 50% 50%, #111 0 1.5px, #1d1d1d 1.5px 3px);
+}
+/* reflexo fixo: não gira junto, como a luz da sala batendo no disco */
+.vinyl::after {
+  content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(from 30deg, transparent 0 10%, rgba(255, 255, 255, 0.13) 14%, transparent 20% 55%, rgba(255, 255, 255, 0.09) 62%, transparent 68%);
+}
+.vinyl-prata { background: repeating-radial-gradient(circle, #8e949a 0 1.5px, #c4c9ce 1.5px 3px); }
+.vinyl-ouro { background: repeating-radial-gradient(circle, #b8892a 0 1.5px, #e8c25c 1.5px 3px); box-shadow: 0 0 28px rgba(232, 194, 92, 0.3); }
+.vinyl-platina { background: repeating-radial-gradient(circle, #c3cdd6 0 1.5px, #eef3f7 1.5px 3px); box-shadow: 0 0 28px rgba(220, 232, 245, 0.3); }
+.vinyl-diamante { background: repeating-radial-gradient(circle, #15161c 0 1.5px, #23252f 1.5px 3px); }
+.vinyl-diamante::before {
+  content: ''; position: absolute; inset: 0; border-radius: 50%; mix-blend-mode: screen;
+  background: conic-gradient(from 0deg, rgba(120, 200, 255, 0.35), rgba(200, 140, 255, 0.3), rgba(255, 180, 140, 0.3), rgba(140, 255, 210, 0.3), rgba(120, 200, 255, 0.35));
+}
+.vinyl-label {
+  position: absolute; inset: 33%; border-radius: 50%; z-index: 1;
+  background: radial-gradient(circle, #0b0a09 0 8%, var(--label) 9% 74%, var(--label-ring) 75% 86%, var(--label) 87%);
+}
+/* o rótulo é o que gira à vista (tem o anel e o furo fora do centro do reflexo) */
+.vinyl.turning .vinyl-label { animation: vinyl-spin 1.8s linear infinite; }
+.vinyl.turning .vinyl-label::after {
+  content: ''; position: absolute; left: 50%; top: 14%; width: 10%; height: 10%; margin-left: -5%;
+  border-radius: 50%; background: var(--label-ring); opacity: 0.85;
+}
+.vinyl.turning.stopped .vinyl-label { animation-play-state: paused; }
+@keyframes vinyl-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .vinyl.turning .vinyl-label { animation: none; } }
+
+/* ---------- Capa com o disco aparecendo ---------- */
+.sleeve { position: relative; width: 100%; }
+.sleeve .cover { width: 94%; }
+.sleeve-disc {
+  position: absolute; top: 3%; left: 2%; width: 89%;
+  transform: translateX(14%);
+  transition: transform 0.5s var(--ease);
+}
+.sleeve-hero .sleeve-disc { transform: translateX(34%); }
+@media (hover: hover) and (pointer: fine) {
+  a:hover > .sleeve .sleeve-disc, .sleeve:hover .sleeve-disc { transform: translateX(30%); }
+}
+
+/* ---------- Toca-discos (proporções do design: 340 × 312) ---------- */
+.turntable {
+  position: relative; width: 100%; aspect-ratio: 340 / 312;
+  border-radius: 7%/7.6%; background: var(--surface);
+  box-shadow: 0 20px 40px -16px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 0 1px var(--border);
+}
+.tt-platter { position: absolute; left: 5.9%; top: 9.6%; width: 77%; aspect-ratio: 1; border-radius: 50%; background: #0c0b0a; }
+.tt-disc { position: absolute; left: 7.6%; top: 11.5%; width: 73.5%; }
+.tt-pivot { position: absolute; left: 87%; top: 7.7%; width: 8.8%; aspect-ratio: 1; border-radius: 50%; background: var(--surface-3); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35); }
+.tt-arm {
+  position: absolute; left: 90.3%; top: 12.2%; width: 2.35%; height: 68.6%;
+  transform-origin: 50% 0; transition: transform 1.1s cubic-bezier(0.3, 0.7, 0.2, 1); z-index: 2;
+}
+.tt-rod { position: absolute; left: 12%; top: 0; width: 76%; height: 92%; border-radius: 99px; background: linear-gradient(90deg, #9a9288, #d9d2c7 50%, #8a8379); }
+.tt-head { position: absolute; left: -62%; bottom: 0; width: 225%; height: 12%; border-radius: 4px; background: #c9c1b5; }
+.tt-led { position: absolute; right: 4.7%; bottom: 5.1%; width: 3%; aspect-ratio: 1; border-radius: 50%; background: var(--surface-3); transition: background-color 0.4s, box-shadow 0.4s; }
+.tt-led.on { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+@media (prefers-reduced-motion: reduce) { .tt-arm, .sleeve-disc { transition: none; } }
